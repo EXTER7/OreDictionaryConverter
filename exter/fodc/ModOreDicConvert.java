@@ -48,7 +48,7 @@ public class ModOreDicConvert
   // Says where the client and server 'proxy' code is loaded.
   @SidedProxy(clientSide = "exter.fodc.ClientODCProxy", serverSide = "exter.fodc.CommonODCProxy")
   public static CommonODCProxy proxy;
-  public static BlockOreConvertionTable block_oreconvtable;
+  public static BlockOreConversionTable block_oreconvtable;
   public ArrayList<String> valid_ore_names;
   
   private static Logger log = Logger.getLogger("OreDicConvert");
@@ -89,7 +89,7 @@ public class ModOreDicConvert
     NetworkRegistry.instance().registerGuiHandler(this, proxy);
     proxy.registerRenderers();
 
-    block_oreconvtable = (BlockOreConvertionTable) (new BlockOreConvertionTable(oct_id)).setHardness(2.5F).setStepSound(Block.soundWoodFootstep).setBlockName("oreConvTable");
+    block_oreconvtable = (BlockOreConversionTable) (new BlockOreConversionTable(oct_id)).setHardness(2.5F).setStepSound(Block.soundWoodFootstep).setBlockName("oreConvTable");
     item_oreconverter = new ItemOreConverter(oc_id);
 
     ItemStack iron_stack = new ItemStack(Item.ingotIron);
@@ -97,7 +97,7 @@ public class ModOreDicConvert
     ItemStack wood_stack = new ItemStack(Block.planks,1,-1);
     
     LanguageRegistry.addName(item_oreconverter, "Ore Converter");
-    LanguageRegistry.addName(block_oreconvtable, "Ore Convertion Table");
+    LanguageRegistry.addName(block_oreconvtable, "Ore Conversion Table");
     GameRegistry.registerBlock(block_oreconvtable);
 
     GameRegistry.addRecipe(new ItemStack(item_oreconverter), "ICI", 'I', iron_stack, 'C', workbench_stack);
