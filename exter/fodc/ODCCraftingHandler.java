@@ -19,7 +19,6 @@ public class ODCCraftingHandler implements ICraftingHandler
       {
         if (is.getItem() != null && is.getItem() == ModOreDicConvert.item_oreconverter)
         {
-          //FMLLog.info("[ODC] crafting handled");
           craftMatrix.setInventorySlotContents(i, new ItemStack(ModOreDicConvert.item_oreconverter,2));
         }
       }
@@ -29,7 +28,7 @@ public class ODCCraftingHandler implements ICraftingHandler
   @Override
   public void onSmelting(EntityPlayer player, ItemStack item)
   {
-    // TODO Auto-generated method stub
+
   }
 
 }

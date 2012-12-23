@@ -13,7 +13,6 @@ public class CommonODCProxy implements IGuiHandler
   {
     // Nothing here as this is the server side proxy
   }
-//returns an instance of the Container you made earlier
 
   @Override
   public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
@@ -27,6 +26,7 @@ public class CommonODCProxy implements IGuiHandler
     }
     return null;
   }
+
   @Override
   public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
   {

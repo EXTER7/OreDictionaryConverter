@@ -10,11 +10,11 @@ import cpw.mods.fml.common.registry.GameRegistry;
 
 public class SlotOreConverter extends Slot
 {
-  /** The craft matrix inventory linked to this result slot. */
-  private final IInventory craft_matrix;
+  /** The ore matrix inventory linked to this result slot. */
+  private final IInventory ore_matrix;
 
   /** The player that is using the GUI where this slot resides. */
-  private EntityPlayer thePlayer;
+  private EntityPlayer player_obj;
 
   /**
    * The number of items that have been crafted so far. Gets passed to
@@ -22,11 +22,11 @@ public class SlotOreConverter extends Slot
    */
   private int amountCrafted;
 
-  public SlotOreConverter(EntityPlayer par1EntityPlayer, IInventory par2IInventory, IInventory par3IInventory, int par4, int par5, int par6)
+  public SlotOreConverter(EntityPlayer player, IInventory inv_matrix, IInventory inv, int par4, int par5, int par6)
   {
-    super(par3IInventory, par4, par5, par6);
-    thePlayer = par1EntityPlayer;
-    craft_matrix = par2IInventory;
+    super(inv, par4, par5, par6);
+    player_obj = player;
+    ore_matrix = inv_matrix;
   }
 
   /**
@@ -60,31 +60,30 @@ public class SlotOreConverter extends Slot
 
   protected void onCrafting(ItemStack par1ItemStack)
   {
-    par1ItemStack.onCrafting(thePlayer.worldObj, thePlayer, amountCrafted);
+    par1ItemStack.onCrafting(player_obj.worldObj, player_obj, amountCrafted);
     amountCrafted = 0;
   }
 
   public void onPickupFromSlot(EntityPlayer player, ItemStack stack)
   {
-    GameRegistry.onItemCrafted(player, stack, craft_matrix);
+    GameRegistry.onItemCrafted(player, stack, ore_matrix);
     onCrafting(stack);
 
     String res_name = ModOreDicConvert.instance.FindOreName(stack);
 
     //Use the first matching ore in the ore matrix
-    for (int i = 0; i < craft_matrix.getSizeInventory(); ++i)
+    for (int i = 0; i < ore_matrix.getSizeInventory(); ++i)
     {
-      ItemStack it = craft_matrix.getStackInSlot(i);
+      ItemStack it = ore_matrix.getStackInSlot(i);
 
       if (it != null)
       {
         String name = ModOreDicConvert.instance.FindOreName(it);
         if(res_name.equals(name))
         {
-          craft_matrix.decrStackSize(i, 1);
+          ore_matrix.decrStackSize(i, 1);
           break;
         }
-
       }
     }
   }

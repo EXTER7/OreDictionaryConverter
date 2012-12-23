@@ -80,7 +80,6 @@ public class ModOreDicConvert
     config.save();
     prefixes = classes.split(",");
     valid_ore_names = new ArrayList<String>();
-    // Stub Method
   }
 
   @Init
@@ -98,7 +97,7 @@ public class ModOreDicConvert
     
     LanguageRegistry.addName(item_oreconverter, "Ore Converter");
     LanguageRegistry.addName(block_oreconvtable, "Ore Conversion Table");
-    GameRegistry.registerBlock(block_oreconvtable);
+    GameRegistry.registerBlock(block_oreconvtable,"oreConvTable");
 
     GameRegistry.addRecipe(new ItemStack(item_oreconverter), "ICI", 'I', iron_stack, 'C', workbench_stack);
     GameRegistry.addRecipe(new ItemStack(block_oreconvtable), "ICI","WWW", 'I', iron_stack, 'C', workbench_stack, 'W', wood_stack);
@@ -106,10 +105,12 @@ public class ModOreDicConvert
     GameRegistry.registerCraftingHandler(new ODCCraftingHandler());
   }
 
+  //Add the conversion crafting recipes for a ore type
   private void AddConversionRecipes(String type, List<ItemStack> ores)
   {
     int i;
     ItemStack oc_stack = new ItemStack(item_oreconverter);
+
     for (i = 0; i < ores.size(); i++)
     {
       Object[] args;

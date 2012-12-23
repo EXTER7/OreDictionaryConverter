@@ -18,7 +18,7 @@ public class ContainerOreConverter extends Container
 {
   public InventoryCrafting ore_matrix = new InventoryCrafting(this, 3, 3);
   public IInventory[] results = new InventoryCraftResult[16];
-  protected World worldObj;
+  protected World world_obj;
   private int pos_x;
   private int pos_y;
   private int pos_z;
@@ -29,14 +29,14 @@ public class ContainerOreConverter extends Container
   private static final int SLOTS_INVENTORY = SLOTS_MATERIALS + 9;
   private static final int SLOTS_HOTBAR = SLOTS_INVENTORY + 3*9;
   
-  public ContainerOreConverter(InventoryPlayer par1InventoryPlayer, World par2World)
+  public ContainerOreConverter(InventoryPlayer inventory_player, World world)
   {
-    this(par1InventoryPlayer,par2World,0,9001,0);
+    this(inventory_player,world,0,9001,0);
   }
   
-  public ContainerOreConverter(InventoryPlayer par1InventoryPlayer, World par2World, int x, int y, int z)
+  public ContainerOreConverter(InventoryPlayer inventory_player, World world, int x, int y, int z)
   {
-    worldObj = par2World;
+    world_obj = world;
     pos_x = x;
     pos_y = y;
     pos_z = z;
@@ -47,7 +47,7 @@ public class ContainerOreConverter extends Container
     {
       results[i] = new InventoryCraftResult();
 
-      this.addSlotToContainer(new SlotOreConverter(par1InventoryPlayer.player, ore_matrix, results[i], i, 94 + (i % 4) * 18, 16 + (i / 4) * 18));
+      this.addSlotToContainer(new SlotOreConverter(inventory_player.player, ore_matrix, results[i], i, 94 + (i % 4) * 18, 16 + (i / 4) * 18));
     }
 
     //Ore matrix slots
@@ -65,14 +65,14 @@ public class ContainerOreConverter extends Container
     {
       for (j = 0; j < 9; ++j)
       {
-        this.addSlotToContainer(new Slot(par1InventoryPlayer, j + i * 9 + 9, 8 + j * 18, 98 + i * 18));
+        this.addSlotToContainer(new Slot(inventory_player, j + i * 9 + 9, 8 + j * 18, 98 + i * 18));
       }
     }
 
     //Player hotbar
     for (i = 0; i < 9; ++i)
     {
-      this.addSlotToContainer(new Slot(par1InventoryPlayer, i, 8 + i * 18, 156));
+      this.addSlotToContainer(new Slot(inventory_player, i, 8 + i * 18, 156));
     }
 
     this.onCraftMatrixChanged(ore_matrix);
@@ -125,11 +125,11 @@ public class ContainerOreConverter extends Container
   /**
    * Callback for when the crafting gui is closed.
    */
-  public void onCraftGuiClosed(EntityPlayer par1EntityPlayer)
+  public void onCraftGuiClosed(EntityPlayer player)
   {
-    super.onCraftGuiClosed(par1EntityPlayer);
+    super.onCraftGuiClosed(player);
 
-    if (!worldObj.isRemote)
+    if (!world_obj.isRemote)
     {
       for(int i = 0; i < 9; ++i)
       {
@@ -137,7 +137,7 @@ public class ContainerOreConverter extends Container
 
         if (stack != null)
         {
-          par1EntityPlayer.dropPlayerItem(stack);
+          player.dropPlayerItem(stack);
         }
       }
     }
@@ -147,68 +147,68 @@ public class ContainerOreConverter extends Container
    * Called when a player shift-clicks on a slot. You must override this or you
    * will crash when someone does that.
    */
-  public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int par2)
+  public ItemStack transferStackInSlot(EntityPlayer player, int slot_index)
   {
-    ItemStack var3 = null;
-    Slot var4 = (Slot) this.inventorySlots.get(par2);
+    ItemStack slot_stack = null;
+    Slot slot = (Slot) inventorySlots.get(slot_index);
 
-    if (var4 != null && var4.getHasStack())
+    if (slot != null && slot.getHasStack())
     {
-      ItemStack var5 = var4.getStack();
-      var3 = var5.copy();
+      ItemStack stack = slot.getStack();
+      slot_stack = stack.copy();
 
-      if (par2 < SLOTS_MATERIALS)
+      if (slot_index < SLOTS_MATERIALS)
       {
-        if (!this.mergeItemStack(var5, SLOTS_INVENTORY, SLOTS_HOTBAR + 9, true))
+        if (!this.mergeItemStack(stack, SLOTS_INVENTORY, SLOTS_HOTBAR + 9, true))
         {
           return null;
         }
 
-        var4.onSlotChange(var5, var3);
-      } else if (par2 >= SLOTS_INVENTORY && par2 < SLOTS_HOTBAR)
+        slot.onSlotChange(stack, slot_stack);
+      } else if (slot_index >= SLOTS_INVENTORY && slot_index < SLOTS_HOTBAR)
       {
-        if (!mergeItemStack(var5, SLOTS_MATERIALS, SLOTS_MATERIALS + 9, false))
+        if (!mergeItemStack(stack, SLOTS_MATERIALS, SLOTS_MATERIALS + 9, false))
         {
           return null;
         }
-      } else if (par2 >= SLOTS_HOTBAR && par2 < SLOTS_HOTBAR + 9)
+      } else if (slot_index >= SLOTS_HOTBAR && slot_index < SLOTS_HOTBAR + 9)
       {
-        if (!mergeItemStack(var5, SLOTS_INVENTORY, SLOTS_INVENTORY + 3*9, false))
+        if (!mergeItemStack(stack, SLOTS_INVENTORY, SLOTS_INVENTORY + 3*9, false))
         {
           return null;
         }
-      } else if (!mergeItemStack(var5, SLOTS_INVENTORY, SLOTS_HOTBAR + 9, false))
+      } else if (!mergeItemStack(stack, SLOTS_INVENTORY, SLOTS_HOTBAR + 9, false))
       {
         return null;
       }
 
-      if (var5.stackSize == 0)
+      if (stack.stackSize == 0)
       {
-        var4.putStack((ItemStack) null);
+        slot.putStack((ItemStack) null);
       } else
       {
-        var4.onSlotChanged();
+        slot.onSlotChanged();
       }
 
-      if (var5.stackSize == var3.stackSize)
+      if (stack.stackSize == slot_stack.stackSize)
       {
         return null;
       }
 
-      var4.onPickupFromSlot(par1EntityPlayer, var5);
+      slot.onPickupFromSlot(player, stack);
     }
 
-    return var3;
+    return slot_stack;
   }
 
   @Override
-  public boolean canInteractWith(EntityPlayer var1)
+  public boolean canInteractWith(EntityPlayer playet)
   {
     if(pos_y <= 9000)
     {
-      return this.worldObj.getBlockId(pos_x, pos_y, pos_z) != ModOreDicConvert.block_oreconvtable.blockID ? false : var1.getDistanceSq((double) pos_x + 0.5D, (double) pos_y + 0.5D, (double) pos_z + 0.5D) <= 64.0D;
+      return this.world_obj.getBlockId(pos_x, pos_y, pos_z) != ModOreDicConvert.block_oreconvtable.blockID ? false : playet.getDistanceSq((double) pos_x + 0.5D, (double) pos_y + 0.5D, (double) pos_z + 0.5D) <= 64.0D;
     }
-    return var1.inventory.hasItemStack(new ItemStack(ModOreDicConvert.item_oreconverter,1));// true;// this.worldObj.getBlockId(this.posX, this.posY, this.posZ) !=
+    return playet.inventory.hasItemStack(new ItemStack(ModOreDicConvert.item_oreconverter,1));
   }
 
 }

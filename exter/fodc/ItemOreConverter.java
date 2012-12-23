@@ -25,10 +25,10 @@ public class ItemOreConverter extends Item
   }
   
   @Override
-  public ItemStack onItemRightClick(ItemStack par1ItemStack, World world, EntityPlayer player)
+  public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
   {
     player.openGui(ModOreDicConvert.instance, 0, world, 0, 0, 0);
-    return par1ItemStack;
+    return stack;
   }
 
 }
