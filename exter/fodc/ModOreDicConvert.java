@@ -29,7 +29,7 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
-@Mod(modid = "fodc", name = "OreDicConvert", version = "1.2.0")
+@Mod(modid = "fodc", name = "OreDicConvert", version = "1.2.1")
 @NetworkMod(clientSideRequired = true, serverSideRequired = false)
 public class ModOreDicConvert
 {
