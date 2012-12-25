@@ -6,6 +6,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
+import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 public class SlotOreConverter extends Slot
@@ -36,6 +37,11 @@ public class SlotOreConverter extends Slot
   public boolean isItemValid(ItemStack stack)
   {
     return false;
+  }
+
+  public boolean canTakeStack(EntityPlayer par1EntityPlayer)
+  {
+    return true;
   }
 
   /**
@@ -71,7 +77,7 @@ public class SlotOreConverter extends Slot
 
     String res_name = ModOreDicConvert.instance.FindOreName(stack);
 
-    //Use the first matching ore in the ore matrix
+    // Use the first matching ore in the ore matrix
     for (int i = 0; i < ore_matrix.getSizeInventory(); ++i)
     {
       ItemStack it = ore_matrix.getStackInSlot(i);
@@ -79,7 +85,7 @@ public class SlotOreConverter extends Slot
       if (it != null)
       {
         String name = ModOreDicConvert.instance.FindOreName(it);
-        if(res_name.equals(name))
+        if (res_name.equals(name))
         {
           ore_matrix.decrStackSize(i, 1);
           break;
