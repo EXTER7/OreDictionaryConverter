@@ -6,7 +6,6 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
-import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 public class SlotOreConverter extends Slot
@@ -50,9 +49,9 @@ public class SlotOreConverter extends Slot
    */
   public ItemStack decrStackSize(int amount)
   {
-    if (this.getHasStack())
+    if (getHasStack())
     {
-      amountCrafted += Math.min(amount, this.getStack().stackSize);
+      amountCrafted += Math.min(amount, getStack().stackSize);
     }
 
     return super.decrStackSize(amount);

@@ -3,7 +3,6 @@ package exter.fodc;
 import java.util.ArrayList;
 import java.util.List;
 
-import cpw.mods.fml.common.FMLLog;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -84,24 +83,19 @@ public class ContainerOreConverter extends Container
   @Override
   public ItemStack slotClick(int par1, int par2, int par3, EntityPlayer player)
   {
-    ItemStack var5 = null;
-    InventoryPlayer inv_player = player.inventory;
-    Slot slot;
-    ItemStack var8;
-    int var10;
-    ItemStack var11;
-
+    ItemStack res_stack = null;
     if (par3 == 1 && (par2 == 0 || par2 == 1) && par1 != -999)
     {
-      slot = (Slot) inventorySlots.get(par1);
+      InventoryPlayer inv_player = player.inventory;
+      Slot slot = (Slot) inventorySlots.get(par1);
       if (slot != null && slot.canTakeStack(player))
       {
-        var8 = transferStackInSlot(player, par1);
-        if (var8 != null)
+        ItemStack stack = transferStackInSlot(player, par1);
+        if (stack != null)
         {
-          int id = var8.itemID;
-          int dv = var8.getItemDamage();
-          var5 = var8.copy();
+          int id = stack.itemID;
+          int dv = stack.getItemDamage();
+          res_stack = stack.copy();
 
           ItemStack is = slot.getStack();
           if (slot != null && is != null && is.itemID == id && (!is.getHasSubtypes() || is.getItemDamage() == dv))
@@ -112,9 +106,9 @@ public class ContainerOreConverter extends Container
       }
     } else
     {
-      var5 = super.slotClick(par1, par2, par3, player);
+      res_stack = super.slotClick(par1, par2, par3, player);
     }
-    return var5;
+    return res_stack;
   }
 
   /**
@@ -197,8 +191,6 @@ public class ContainerOreConverter extends Container
 
       if (slot_index < SLOTS_MATERIALS)
       {
-        FMLLog.info("[ODC] onPickupFromSlot " + slot_index + ", " + slot_stack.stackSize + ", " + stack.stackSize);
-
         if (!mergeItemStack(stack, SLOTS_INVENTORY, SLOTS_HOTBAR + 9, true))
         {
           return null;
