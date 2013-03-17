@@ -154,6 +154,7 @@ public class GuiAutomaticOreConverter extends GuiContainer
     int window_x = (this.width - this.xSize) / 2;
     int window_y = (this.height - this.ySize) / 2;
     fontRenderer.drawString(StatCollector.translateToLocal(te_autoconverter.getInvName()), 8, 6, 4210752);
+    fontRenderer.drawString(StatCollector.translateToLocal("Targets"), 8, 65, 4210752);
     fontRenderer.drawString(StatCollector.translateToLocal(player_inventory.getInvName()), 8, this.ySize - 96 + 2, 4210752);
   }
 
