@@ -20,7 +20,15 @@ public class BlockOreConversionTable extends Block
    */
   public int getBlockTextureFromSide(int side)
   {
-    return side == 1 ? 0 : (side == 0 ? Block.planks.getBlockTextureFromSide(0) : 1);
+    switch(side)
+    {
+      case 0:
+        return 2;
+      case 1:
+        return 0;
+      default:
+        return 1;
+    }
   }
 
   /**

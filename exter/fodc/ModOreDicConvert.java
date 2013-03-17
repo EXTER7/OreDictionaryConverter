@@ -29,14 +29,15 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 
-@Mod(modid = "fodc", name = "OreDicConvert", version = "1.2.1")
-@NetworkMod(clientSideRequired = true, serverSideRequired = false)
+@Mod(modid = "fodc", name = "OreDicConvert", version = "1.3.0")
+@NetworkMod(channels = { "FODC" },clientSideRequired = true, serverSideRequired = false,packetHandler = ODCPacketHandler.class)
 public class ModOreDicConvert
 {
   
   //Block/Item IDs
   private int oc_id;
   private int oct_id;
+  private int aoc_id;
   
   //List of string that the ore name must begin with
   private String[] prefixes;
@@ -49,14 +50,15 @@ public class ModOreDicConvert
   @SidedProxy(clientSide = "exter.fodc.ClientODCProxy", serverSide = "exter.fodc.CommonODCProxy")
   public static CommonODCProxy proxy;
   public static BlockOreConversionTable block_oreconvtable;
+  public static BlockAutomaticOreConverter block_oreautoconv;
   public ArrayList<String> valid_ore_names;
   
-  private static Logger log = Logger.getLogger("OreDicConvert");
+  public static Logger log = Logger.getLogger("OreDicConvert");
 
   // Find the ore name of a item stack in the dictionary.
   public String FindOreName(ItemStack it)
   {
-    for (String name : ModOreDicConvert.instance.valid_ore_names)
+    for (String name : valid_ore_names)
     {
       for (ItemStack ore : OreDictionary.getOres(name))
       {
@@ -74,9 +76,10 @@ public class ModOreDicConvert
   {
     Configuration config = new Configuration(event.getSuggestedConfigurationFile());
     config.load();
-    String classes = config.get(Configuration.CATEGORY_GENERAL, "classprefixes", "ore,ingot").value;
+    String classes = config.get(Configuration.CATEGORY_GENERAL, "classprefixes", "ore,ingot,dust,block").value;
     oc_id = config.get(Configuration.CATEGORY_ITEM, "oreconverter", 9001).getInt(9001);
-    oct_id = config.get(Configuration.CATEGORY_BLOCK, "oreconveriontable", 3826).getInt(3826);
+    oct_id = config.get(Configuration.CATEGORY_BLOCK, "oreconverisontable", 3826).getInt(3826);
+    aoc_id = config.get(Configuration.CATEGORY_BLOCK, "oreautoconverter", 3827).getInt(3827);
     config.save();
     prefixes = classes.split(",");
     valid_ore_names = new ArrayList<String>();
@@ -86,50 +89,30 @@ public class ModOreDicConvert
   public void load(FMLInitializationEvent event)
   {
     NetworkRegistry.instance().registerGuiHandler(this, proxy);
-    proxy.registerRenderers();
 
     block_oreconvtable = (BlockOreConversionTable) (new BlockOreConversionTable(oct_id)).setHardness(2.5F).setStepSound(Block.soundWoodFootstep).setBlockName("oreConvTable");
+    block_oreautoconv = (BlockAutomaticOreConverter) (new BlockAutomaticOreConverter(aoc_id)).setHardness(2.5F).setStepSound(Block.soundWoodFootstep).setBlockName("oreConvChest").setRequiresSelfNotify();
     item_oreconverter = new ItemOreConverter(oc_id);
 
     ItemStack iron_stack = new ItemStack(Item.ingotIron);
+    ItemStack redstone_stack = new ItemStack(Item.redstone);
     ItemStack workbench_stack = new ItemStack(Block.workbench);
     ItemStack wood_stack = new ItemStack(Block.planks,1,-1);
-    
+    ItemStack cobble_stack = new ItemStack(Block.cobblestone,1,-1);
+    ItemStack oreconverter_stack = new ItemStack(item_oreconverter);
     LanguageRegistry.addName(item_oreconverter, "Ore Converter");
     LanguageRegistry.addName(block_oreconvtable, "Ore Conversion Table");
+    LanguageRegistry.addName(block_oreautoconv, "Automatic Ore Converter");
     GameRegistry.registerBlock(block_oreconvtable,"oreConvTable");
-
-    GameRegistry.addRecipe(new ItemStack(item_oreconverter), "ICI", 'I', iron_stack, 'C', workbench_stack);
-    GameRegistry.addRecipe(new ItemStack(block_oreconvtable), "ICI","WWW", 'I', iron_stack, 'C', workbench_stack, 'W', wood_stack);
+    GameRegistry.registerBlock(block_oreautoconv,"oreConvChest");
+    GameRegistry.registerTileEntity(TileEntityAutomaticOreConverter.class, "AutoOreConverter");
+    proxy.Init();
     
-    GameRegistry.registerCraftingHandler(new ODCCraftingHandler());
+    GameRegistry.addRecipe(oreconverter_stack, "I","C","B", 'I', iron_stack, 'C', cobble_stack, 'B', workbench_stack);
+    GameRegistry.addRecipe(new ItemStack(block_oreconvtable), "O","W", 'O', oreconverter_stack, 'W', wood_stack);
+    GameRegistry.addRecipe(new ItemStack(block_oreautoconv), "IOI","CRC","ICI", 'I', iron_stack, 'O', oreconverter_stack, 'R', redstone_stack, 'C', cobble_stack);
   }
 
-  //Add the conversion crafting recipes for a ore type
-  private void AddConversionRecipes(String type, List<ItemStack> ores)
-  {
-    int i;
-    ItemStack oc_stack = new ItemStack(item_oreconverter);
-
-    for (i = 0; i < ores.size(); i++)
-    {
-      Object[] args;
-      GameRegistry.addShapelessRecipe(ores.get(0), oc_stack, ores.get(i));
-    }
-
-    for (i = 2; i < 9; i++)
-    {
-      int j;
-      Object[] args = new Object[i + 1];
-      args[0] = oc_stack;
-      for (j = 0; j < i; j++)
-      {
-        args[j + 1] = type;
-      }
-      ItemStack dest = ores.get(0);
-      CraftingManager.getInstance().getRecipeList().add(new ShapelessOreRecipe(new ItemStack(dest.getItem(), i, dest.getItemDamage()), args));
-    }
-  }
 
   @PostInit
   public void postInit(FMLPostInitializationEvent event)
@@ -148,20 +131,16 @@ public class ModOreDicConvert
           break;
         }
       }
-      if (!found)
+      if (found)
       {
-        
-        log.info("Ignored " + name);
-        continue;
+        List<ItemStack> ores = OreDictionary.getOres(name);
+        if (ores.size() > 1)
+        {
+          valid_ore_names.add(name);
+          log.info("registered ore name: " + name);
+        }
       }
-      valid_ore_names.add(name);
 
-      List<ItemStack> ores = OreDictionary.getOres(name);
-      if (ores.size() > 1)
-      {
-        AddConversionRecipes(name, ores);
-        log.info("Added recipes for " + name);
-      }
     }
   }
 
