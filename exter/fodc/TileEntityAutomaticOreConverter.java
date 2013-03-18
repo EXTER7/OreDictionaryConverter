@@ -3,7 +3,6 @@ package exter.fodc;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 import com.google.common.io.ByteArrayDataInput;
 
@@ -42,31 +41,28 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   {
     super.readFromNBT(par1NBTTagCompound);
     NBTTagList inv_tag = par1NBTTagCompound.getTagList("Items");
-    NBTTagList target_tag = par1NBTTagCompound.getTagList("Targets");
+    NBTTagList targets_tag = par1NBTTagCompound.getTagList("Targets");
     inventory = new ItemStack[SIZE_INVENTORY];
     targets = new ItemStack[SIZE_TARGETS];
     int i;
     for(i = 0; i < inv_tag.tagCount(); i++)
     {
-      NBTTagCompound var4 = (NBTTagCompound)inv_tag.tagAt(i);
-      int slot = var4.getByte("Slot") & 255;
+      NBTTagCompound tag = (NBTTagCompound)inv_tag.tagAt(i);
+      int slot = tag.getByte("Slot") & 255;
 
       if(slot >= 0 && slot < inventory.length)
       {
-        inventory[slot] = ItemStack.loadItemStackFromNBT(var4);
+        inventory[slot] = ItemStack.loadItemStackFromNBT(tag);
       }
     }
-    for(i = 0; i < target_tag.tagCount(); i++)
+    for(i = 0; i < targets_tag.tagCount(); i++)
     {
-      NBTTagCompound tag = (NBTTagCompound)target_tag.tagAt(i);
+      NBTTagCompound tag = (NBTTagCompound)targets_tag.tagAt(i);
       int slot = tag.getByte("Slot") & 255;
 
-      if(slot >= 0 && slot < targets.length)
-      {
-        ItemStack is = ItemStack.loadItemStackFromNBT(tag);
-        is.stackSize = 1;
-        SetTarget(slot,is);
-      }
+      ItemStack is = ItemStack.loadItemStackFromNBT(tag);
+      is.stackSize = 1;
+      SetTarget(slot,is);
     }
   }
 
@@ -75,16 +71,17 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   {
     super.writeToNBT(par1NBTTagCompound);
     NBTTagList inv_tag = new NBTTagList();
-    NBTTagList target_tag = new NBTTagList();
+    NBTTagList targets_tag = new NBTTagList();
 
     int i;
     for(i = 0; i < inventory.length; i++)
     {
-      if(inventory[i] != null)
+      ItemStack is = inventory[i];
+      if(is != null)
       {
         NBTTagCompound tag = new NBTTagCompound();
         tag.setByte("Slot", (byte)i);
-        inventory[i].writeToNBT(tag);
+        is.writeToNBT(tag);
         inv_tag.appendTag(tag);
       }
     }
@@ -97,29 +94,60 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
         NBTTagCompound tag = new NBTTagCompound();
         tag.setByte("Slot", (byte)i);
         t.writeToNBT(tag);
-        target_tag.appendTag(tag);
+        targets_tag.appendTag(tag);
       }
     }
 
     par1NBTTagCompound.setTag("Items", inv_tag);
-    par1NBTTagCompound.setTag("Targets", inv_tag);
+    par1NBTTagCompound.setTag("Targets", targets_tag);
   }
 
   public void ReceivePacketData(INetworkManager manager, Packet250CustomPayload packet, EntityPlayer entityPlayer, ByteArrayDataInput data)
   {
-    int slot = data.readByte() & 255;
-    int target_id = data.readInt();
-    int target_dmg = data.readInt();
-
-    ItemStack target = null;
-    if(target_id >= 0)
+    int type = data.readByte() & 255;
+    switch(type)
     {
-      target = new ItemStack(target_id, 1, target_dmg);     
-    }
+      case 0:
+      {
+        int slot = data.readByte() & 255;
+        int target_id = data.readInt();
+        int target_dmg = data.readInt();
 
-    if(!worldObj.isRemote)
-    {
-      SetTarget(slot,target);
+        ItemStack target = null;
+        if(target_id >= 0)
+        {
+          target = new ItemStack(target_id, 1, target_dmg);
+        }
+
+        if(!worldObj.isRemote)
+        {
+          SetTarget(slot, target);
+        }
+        break;
+      }
+      case 1:
+      {
+        int size = data.readByte() & 255;
+        int i;
+        for(i = 0; i < size; i++)
+        {
+          int slot = data.readByte() & 255;
+          int target_id = data.readInt();
+          int target_dmg = data.readInt();
+
+          ItemStack target = null;
+          if(target_id >= 0)
+          {
+            target = new ItemStack(target_id, 1, target_dmg);
+          }
+
+          if(worldObj.isRemote)
+          {
+            SetTarget(slot, target);
+          }
+        }
+        break;
+      }
     }
   }
 
@@ -237,17 +265,26 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     return worldObj.getBlockTileEntity(xCoord, yCoord, zCoord) != this ? false : par1EntityPlayer.getDistanceSq((double)xCoord + 0.5D, (double)yCoord + 0.5D, (double)zCoord + 0.5D) <= 64.0D;
   }
 
+
   @Override
   public void openChest()
   {
-
+    if(!worldObj.isRemote)
+    {
+      ODCPacketHandler.SendAllAutoOreConverterTargets(this);
+    }
   }
 
   @Override
   public void closeChest()
   {
-
+    if(!worldObj.isRemote)
+    {
+      ODCPacketHandler.SendAllAutoOreConverterTargets(this);
+    }
   }
+
+
   
   // Returns the version of the item to be converted,
   // or the item itself if its not registered in the ore dictionary.
