@@ -1,5 +1,6 @@
-package exter.fodc;
+package exter.fodc.container;
 
+import exter.fodc.slot.SlotAutomaticOreConverter;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
@@ -113,15 +114,10 @@ public class ContainerAutomaticOreConverter extends Container
     return slot_stack;
   }
 
-  public void onCraftGuiClosed(EntityPlayer par1EntityPlayer)
+  @Override
+  public void onContainerClosed(EntityPlayer par1EntityPlayer)
   {
-    super.onCraftGuiClosed(par1EntityPlayer);
+    super.onContainerClosed(par1EntityPlayer);
     this.inventory.closeChest();
   }
-
-  public IInventory getLowerChestInventory()
-  {
-    return this.inventory;
-  }
-
 }

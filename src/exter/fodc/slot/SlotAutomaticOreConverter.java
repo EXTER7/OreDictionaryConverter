@@ -1,4 +1,4 @@
-package exter.fodc;
+package exter.fodc.slot;
 
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;

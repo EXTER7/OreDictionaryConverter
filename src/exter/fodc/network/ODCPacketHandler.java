@@ -1,4 +1,4 @@
-package exter.fodc;
+package exter.fodc.network;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -22,6 +22,7 @@ import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
 import cpw.mods.fml.common.network.Player;
+import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 
 public class ODCPacketHandler implements IPacketHandler
 {

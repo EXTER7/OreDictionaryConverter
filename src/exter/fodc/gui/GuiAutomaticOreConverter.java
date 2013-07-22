@@ -1,4 +1,4 @@
-package exter.fodc;
+package exter.fodc.gui;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -16,7 +16,10 @@ import org.lwjgl.opengl.GL12;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-
+import exter.fodc.ModOreDicConvert;
+import exter.fodc.container.ContainerAutomaticOreConverter;
+import exter.fodc.network.ODCPacketHandler;
+import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiButtonMerchant;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -28,6 +31,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.packet.Packet250CustomPayload;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.village.MerchantRecipe;
 import net.minecraft.village.MerchantRecipeList;
@@ -36,6 +40,8 @@ import net.minecraftforge.oredict.OreDictionary;
 @SideOnly(Side.CLIENT)
 public class GuiAutomaticOreConverter extends GuiContainer
 {
+  private static final ResourceLocation GUI_TEXTURE = new ResourceLocation("fodc:textures/gui/aoc_gui.png");
+
   private TileEntityAutomaticOreConverter te_autoconverter;
   private IInventory player_inventory;
   private TargetSlot[] target_slots;
@@ -164,9 +170,10 @@ public class GuiAutomaticOreConverter extends GuiContainer
    */
   protected void drawGuiContainerBackgroundLayer(float par1, int par2, int par3)
   {
-    int texture = this.mc.renderEngine.getTexture("/exter/fodc/aoc_gui.png");
     GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-    mc.renderEngine.bindTexture(texture);
+    
+    //mc.renderEngine.bindTexture("aoc_gui");
+    mc.func_110434_K().func_110577_a(GUI_TEXTURE);
     int window_x = (this.width - this.xSize) / 2;
     int window_y = (this.height - this.ySize) / 2;
     

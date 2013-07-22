@@ -1,9 +1,10 @@
-package exter.fodc;
+package exter.fodc.container;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
+import exter.fodc.ModOreDicConvert;
+import exter.fodc.slot.SlotOreConverter;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
@@ -157,9 +158,10 @@ public class ContainerOreConverter extends Container
   /**
    * Callback for when the crafting gui is closed.
    */
-  public void onCraftGuiClosed(EntityPlayer player)
+  @Override
+  public void onContainerClosed(EntityPlayer player)
   {
-    super.onCraftGuiClosed(player);
+    super.onContainerClosed(player);
 
     if (!world_obj.isRemote)
     {

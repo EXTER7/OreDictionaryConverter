@@ -1,4 +1,4 @@
-package exter.fodc;
+package exter.fodc.slot;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerDestroyItemEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
+import exter.fodc.ModOreDicConvert;
 
 public class SlotOreConverter extends Slot
 {

@@ -1,4 +1,4 @@
-package exter.fodc;
+package exter.fodc.proxy;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
@@ -8,8 +8,6 @@ public class ClientODCProxy extends CommonODCProxy
 {
   public void Init()
   {
-    MinecraftForgeClient.preloadTexture(BLOCKS_PNG);
-    MinecraftForgeClient.preloadTexture(ITEMS_PNG);
     
   }
 

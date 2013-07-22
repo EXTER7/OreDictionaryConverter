@@ -1,37 +1,38 @@
-package exter.fodc;
+package exter.fodc.block;
 
 import java.util.Random;
 
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
+import exter.fodc.ModOreDicConvert;
+import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
+import net.minecraft.client.renderer.texture.IconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Icon;
 import net.minecraft.world.World;
 
 
 public class BlockAutomaticOreConverter extends BlockContainer
 {
   private Random rand = new Random();
+  
+  private Icon icon_top;
 
-  protected BlockAutomaticOreConverter(int id)
+  public BlockAutomaticOreConverter(int id)
   {
     super(id, Material.rock);
-    this.blockIndexInTexture = 0;
     setHardness(1.0F);
     setResistance(8.0F);
     setStepSound(Block.soundStoneFootstep);
-    setBlockName("autoOreConverter");
+    setUnlocalizedName("autoOreConverter");
     setCreativeTab(CreativeTabs.tabDecorations);
-  }
-
-  @Override
-  public String getTextureFile()
-  {
-    return CommonODCProxy.BLOCKS_PNG;
   }
 
   @Override
@@ -61,25 +62,31 @@ public class BlockAutomaticOreConverter extends BlockContainer
     super.breakBlock(world, x, y, z, par5, par6);
   }
 
-  /**
-   * Checks to see if its valid to put this block at the specified coordinates.
-   * Args: world, x, y, z
-   */
-  
-  public int getBlockTextureFromSide(int side)
+
+  @Override
+  @SideOnly(Side.CLIENT)
+  public void registerIcons(IconRegister register)
   {
-    switch(side)
-    {
-      case 1:
-        return 4;
-      default:
-        return 3;
-    }
+      blockIcon = register.registerIcon("fodc:auto_ore_converter_sides");
+      icon_top = register.registerIcon("fodc:auto_ore_converter_top");
+  }
+  
+  @Override 
+  public Icon getIcon(int side, int meta)
+  {
+     switch(side)
+	 {
+	   case 1:
+	     return blockIcon;
+	   default:
+	     return icon_top;
+	  }
   }
 
   /**
    * Called upon block activation (right click on the block.)
    */
+  @Override
   public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int par6, float par7, float par8, float par9)
   {
     if (world.isRemote)
@@ -96,6 +103,7 @@ public class BlockAutomaticOreConverter extends BlockContainer
    * Returns a new instance of a block's tile entity class. Called on placing
    * the block.
    */
+  @Override
   public TileEntity createNewTileEntity(World par1World)
   {
     return new TileEntityAutomaticOreConverter();

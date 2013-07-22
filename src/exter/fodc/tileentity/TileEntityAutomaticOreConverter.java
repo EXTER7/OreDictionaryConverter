@@ -1,4 +1,4 @@
-package exter.fodc;
+package exter.fodc.tileentity;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -7,8 +7,10 @@ import java.util.Map;
 import com.google.common.io.ByteArrayDataInput;
 
 import cpw.mods.fml.common.FMLLog;
-
+import exter.fodc.ModOreDicConvert;
+import exter.fodc.network.ODCPacketHandler;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -19,7 +21,6 @@ import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityChest;
 import net.minecraftforge.common.ForgeDirection;
-import net.minecraftforge.common.ISidedInventory;
 import net.minecraftforge.oredict.OreDictionary;
 
 public class TileEntityAutomaticOreConverter extends TileEntity implements ISidedInventory
@@ -174,7 +175,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
       {
         var3 = inventory[slot];
         inventory[slot] = null;
-        this.onInventoryChanged();
+        onInventoryChanged();
         return var3;
       }
       else
@@ -186,7 +187,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
           inventory[slot] = null;
         }
 
-        this.onInventoryChanged();
+        onInventoryChanged();
         return var3;
       }
     }
@@ -233,30 +234,6 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   public int getInventoryStackLimit()
   {
     return 64;
-  }
-
-  @Override
-  public int getStartInventorySide(ForgeDirection side)
-  {
-    if(side == ForgeDirection.UP || side == ForgeDirection.DOWN)
-    {
-      return 0;
-    } else
-    {
-      return 8;
-    }
-  }
-
-  @Override
-  public int getSizeInventorySide(ForgeDirection side)
-  {
-    if(side == ForgeDirection.UP || side == ForgeDirection.DOWN)
-    {
-      return 8;
-    } else
-    {
-      return 6;
-    }
   }
 
   @Override
@@ -372,5 +349,38 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
       return null;
     }
     return targets[slot];
+  }
+
+  @Override
+  public boolean isInvNameLocalized()
+  {
+    return false;
+  }
+
+  static private final int[] INSERT_SLOTS = { 0, 1, 2, 3, 4, 5 };
+  static private final int[] EXTRACT_SLOTS = { 6, 7, 8, 9, 10, 11, 12, 13 };
+
+  @Override
+  public boolean isItemValidForSlot(int i, ItemStack itemstack)
+  {
+    return i >= 0 && i < 6;
+  }
+
+  @Override
+  public int[] getAccessibleSlotsFromSide(int side)
+  {
+    return side == 0 ? INSERT_SLOTS : EXTRACT_SLOTS;
+  }
+
+  @Override
+  public boolean canInsertItem(int i, ItemStack itemstack, int j)
+  {
+    return i >= 0 && i < 6;
+  }
+
+  @Override
+  public boolean canExtractItem(int i, ItemStack itemstack, int j)
+  {
+    return i >= 6 && i < 14;
   }
 }
