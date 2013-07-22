@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockWorkbench;
 import net.minecraft.item.Item;
@@ -16,6 +15,7 @@ import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
+import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
 import cpw.mods.fml.common.Mod.PostInit;
@@ -28,9 +28,17 @@ import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
+import exter.fodc.block.BlockAutomaticOreConverter;
+import exter.fodc.block.BlockOreConversionTable;
+import exter.fodc.item.ItemOreConverter;
+import exter.fodc.network.ODCPacketHandler;
+import exter.fodc.proxy.CommonODCProxy;
+import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
+import exter.fodc.block.BlockOreConversionTable;
+import exter.fodc.block.BlockAutomaticOreConverter;
 
 @Mod(modid = "fodc", name = "OreDicConvert", version = "1.3.0")
-@NetworkMod(channels = { "FODC" },clientSideRequired = true, serverSideRequired = false,packetHandler = ODCPacketHandler.class)
+@NetworkMod(channels = { "FODC" },clientSideRequired = true, serverSideRequired = true,packetHandler = ODCPacketHandler.class)
 public class ModOreDicConvert
 {
   
@@ -47,7 +55,7 @@ public class ModOreDicConvert
   public static ModOreDicConvert instance;
 
   // Says where the client and server 'proxy' code is loaded.
-  @SidedProxy(clientSide = "exter.fodc.ClientODCProxy", serverSide = "exter.fodc.CommonODCProxy")
+  @SidedProxy(clientSide = "exter.fodc.proxy.ClientODCProxy", serverSide = "exter.fodc.proxy.CommonODCProxy")
   public static CommonODCProxy proxy;
   public static BlockOreConversionTable block_oreconvtable;
   public static BlockAutomaticOreConverter block_oreautoconv;
@@ -71,28 +79,29 @@ public class ModOreDicConvert
     return null;
   }
 
-  @PreInit
+  @EventHandler
   public void preInit(FMLPreInitializationEvent event)
   {
     Configuration config = new Configuration(event.getSuggestedConfigurationFile());
     config.load();
-    String classes = config.get(Configuration.CATEGORY_GENERAL, "classprefixes", "ore,ingot,dust,block").value;
+    String classes = config.get(Configuration.CATEGORY_GENERAL, "classprefixes", "ore,ingot,dust,block").getString();
     oc_id = config.get(Configuration.CATEGORY_ITEM, "oreconverter", 9001).getInt(9001);
     oct_id = config.get(Configuration.CATEGORY_BLOCK, "oreconverisontable", 3826).getInt(3826);
     aoc_id = config.get(Configuration.CATEGORY_BLOCK, "oreautoconverter", 3827).getInt(3827);
     config.save();
     prefixes = classes.split(",");
     valid_ore_names = new ArrayList<String>();
-  }
 
-  @Init
-  public void load(FMLInitializationEvent event)
-  {
     NetworkRegistry.instance().registerGuiHandler(this, proxy);
 
-    block_oreconvtable = (BlockOreConversionTable) (new BlockOreConversionTable(oct_id)).setHardness(2.5F).setStepSound(Block.soundWoodFootstep).setBlockName("oreConvTable");
-    block_oreautoconv = (BlockAutomaticOreConverter) (new BlockAutomaticOreConverter(aoc_id)).setHardness(2.5F).setStepSound(Block.soundWoodFootstep).setBlockName("oreConvChest").setRequiresSelfNotify();
+    block_oreconvtable = (BlockOreConversionTable) (new BlockOreConversionTable(oct_id)).setHardness(2.5F).setStepSound(Block.soundWoodFootstep).setUnlocalizedName("oreConvTable");
+    block_oreautoconv = (BlockAutomaticOreConverter) (new BlockAutomaticOreConverter(aoc_id)).setHardness(2.5F).setStepSound(Block.soundWoodFootstep).setUnlocalizedName("autoOreConverter");
     item_oreconverter = new ItemOreConverter(oc_id);
+  }
+
+  @EventHandler
+  public void load(FMLInitializationEvent event)
+  {
 
     ItemStack iron_stack = new ItemStack(Item.ingotIron);
     ItemStack redstone_stack = new ItemStack(Item.redstone);
@@ -114,7 +123,7 @@ public class ModOreDicConvert
   }
 
 
-  @PostInit
+  @EventHandler
   public void postInit(FMLPostInitializationEvent event)
   {
     log.setParent(FMLLog.getLogger());
@@ -140,7 +149,6 @@ public class ModOreDicConvert
           log.info("registered ore name: " + name);
         }
       }
-
     }
   }
 
