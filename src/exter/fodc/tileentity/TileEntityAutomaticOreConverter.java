@@ -369,13 +369,13 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   @Override
   public int[] getAccessibleSlotsFromSide(int side)
   {
-    return side == 0 ? INSERT_SLOTS : EXTRACT_SLOTS;
+    return side == 0 ? EXTRACT_SLOTS : INSERT_SLOTS;
   }
 
   @Override
   public boolean canInsertItem(int i, ItemStack itemstack, int j)
   {
-    return i >= 0 && i < 6;
+    return isItemValidForSlot(i, itemstack);
   }
 
   @Override
