@@ -1,10 +1,11 @@
-#!/bin/sh
+#!/bin/bash
 rm -rf packed/*
 if ./recompile.sh && ./reobfuscate.sh
 then
   mkdir -p "packed/exter"
-  cp -r "reobf/minecraft/exter/fodc" "packed/exter"
-  cp "src/minecraft/exter/fodc/"*.png "packed/exter/fodc"
+  mkdir -p "packed/assets/fodc/textures"
+  cp -r "reobf/minecraft/exter/fodc" "packed/exter/"
+  cp -r "src/minecraft/assets/fodc/textures/"* "packed/assets/fodc/textures/"
   cd packed
   zip -r fodc.zip *
   mv fodc.zip "../"
