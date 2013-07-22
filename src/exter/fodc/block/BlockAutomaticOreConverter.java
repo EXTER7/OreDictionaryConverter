@@ -77,9 +77,9 @@ public class BlockAutomaticOreConverter extends BlockContainer
      switch(side)
 	 {
 	   case 1:
-	     return blockIcon;
+       return icon_top;
 	   default:
-	     return icon_top;
+       return blockIcon;
 	  }
   }
 
