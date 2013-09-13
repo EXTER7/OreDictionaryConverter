@@ -172,8 +172,7 @@ public class GuiAutomaticOreConverter extends GuiContainer
   {
     GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
     
-    //mc.renderEngine.bindTexture("aoc_gui");
-    mc.func_110434_K().func_110577_a(GUI_TEXTURE);
+    mc.getTextureManager().bindTexture(GUI_TEXTURE);
     int window_x = (this.width - this.xSize) / 2;
     int window_y = (this.height - this.ySize) / 2;
     

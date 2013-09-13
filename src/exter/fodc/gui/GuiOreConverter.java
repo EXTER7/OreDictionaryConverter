@@ -51,8 +51,8 @@ public class GuiOreConverter extends GuiContainer
   protected void drawGuiContainerBackgroundLayer(float par1, int par2, int par3)
   {
       GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-      //mc.renderEngine.bindTexture("oc_gui");
-      mc.func_110434_K().func_110577_a(GUI_TEXTURE);
+
+      mc.getTextureManager().bindTexture(GUI_TEXTURE);
       int center_x = (width - xSize) / 2;
       int center_y = (height - ySize) / 2;
       drawTexturedModalRect(center_x, center_y, 0, 0, xSize, ySize);
