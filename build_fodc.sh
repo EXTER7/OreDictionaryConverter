@@ -1,16 +1,23 @@
 #!/bin/bash
+
+MODNAME=fodc
+
 rm -rf packed/*
-if ./recompile.sh && ./reobfuscate.sh
+if ./recompile.sh && ./reobfuscate_srg.sh
 then
   mkdir -p "packed/exter"
-  mkdir -p "packed/assets/fodc/textures"
-  cp -r "reobf/minecraft/exter/fodc" "packed/exter/"
-  cp -r "src/minecraft/assets/fodc/textures/"* "packed/assets/fodc/textures/"
+  mkdir -p "packed/assets/"$MODNAME
+
+  mkdir -p "packed/buildcraft"
+
+  cp -r "reobf/minecraft/exter/"$MODNAME "packed/exter/"
+  cp -r "src/minecraft/assets/"$MODNAME"/"* "packed/assets/$MODNAME/"
+
   cd packed
-  zip -r fodc.zip *
-  mv fodc.zip "../"
+  zip -r $MODNAME".zip" *
+  mv $MODNAME".zip" "../"
   cd .. 
-  echo "$0: Build complete, 'fodc.zip' generated."
+  echo "$0: Build complete, '"$MODNAME".zip' generated."
 else
   echo "$0: Compile failed, aborting build."
   exit 1
