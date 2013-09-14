@@ -1,6 +1,7 @@
 #!/bin/bash
 
 MODNAME=fodc
+MODVERSION=1.4.0
 
 rm -rf packed/*
 if ./recompile.sh && ./reobfuscate_srg.sh
@@ -15,10 +16,11 @@ then
   cp $MODNAME"_mcmod.info" "packed/mcmod.info"
 
   cd packed
-  zip -r $MODNAME".zip" *
-  mv $MODNAME".zip" "../"
+  ZIPFILE=$MODNAME"-"$MODVERSION".zip"
+  zip -r $ZIPFILE *
+  mv $ZIPFILE "../"
   cd .. 
-  echo "$0: Build complete, '"$MODNAME".zip' generated."
+  echo "$0: Build complete, '"$ZIPFILE"' generated."
 else
   echo "$0: Compile failed, aborting build."
   exit 1
