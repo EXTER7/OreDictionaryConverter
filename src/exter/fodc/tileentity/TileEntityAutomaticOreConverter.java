@@ -357,8 +357,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     return false;
   }
 
-  static private final int[] INSERT_SLOTS = { 0, 1, 2, 3, 4, 5 };
-  static private final int[] EXTRACT_SLOTS = { 6, 7, 8, 9, 10, 11, 12, 13 };
+  static private final int[] ALL_SLOTS = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
 
   @Override
   public boolean isItemValidForSlot(int i, ItemStack itemstack)
@@ -369,7 +368,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   @Override
   public int[] getAccessibleSlotsFromSide(int side)
   {
-    return side == 0 ? EXTRACT_SLOTS : INSERT_SLOTS;
+    return ALL_SLOTS;
   }
 
   @Override
