@@ -37,7 +37,7 @@ import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 import exter.fodc.block.BlockOreConversionTable;
 import exter.fodc.block.BlockAutomaticOreConverter;
 
-@Mod(modid = "fodc", name = "OreDicConvert", version = "1.3.0")
+@Mod(modid = "fodc", name = "OreDicConvert", version = "1.4.0", dependencies = "required-after:Forge@[9.10.0.842,)")
 @NetworkMod(channels = { "FODC" },clientSideRequired = true, serverSideRequired = true,packetHandler = ODCPacketHandler.class)
 public class ModOreDicConvert
 {

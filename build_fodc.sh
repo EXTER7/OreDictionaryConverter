@@ -12,6 +12,7 @@ then
 
   cp -r "reobf/minecraft/exter/"$MODNAME "packed/exter/"
   cp -r "src/minecraft/assets/"$MODNAME"/"* "packed/assets/$MODNAME/"
+  cp $MODNAME"_mcmod.info" "packed/mcmod.info"
 
   cd packed
   zip -r $MODNAME".zip" *
