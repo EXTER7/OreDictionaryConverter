@@ -37,7 +37,7 @@ import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 import exter.fodc.block.BlockOreConversionTable;
 import exter.fodc.block.BlockAutomaticOreConverter;
 
-@Mod(modid = "fodc", name = "OreDicConvert", version = "1.4.0", dependencies = "required-after:Forge@[9.10.0.842,)")
+@Mod(modid = "fodc", name = "OreDicConvert", version = "1.4.1", dependencies = "required-after:Forge@[9.10.0.842,)")
 @NetworkMod(channels = { "FODC" },clientSideRequired = true, serverSideRequired = true,packetHandler = ODCPacketHandler.class)
 public class ModOreDicConvert
 {
@@ -132,6 +132,7 @@ public class ModOreDicConvert
     {
       if(name == null)
       {
+        log.warning("null name in Ore Dictionary.");
         continue;
       }
       int i;
