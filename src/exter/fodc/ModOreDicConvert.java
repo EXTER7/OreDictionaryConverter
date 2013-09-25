@@ -130,11 +130,15 @@ public class ModOreDicConvert
     String[] ore_names = OreDictionary.getOreNames();
     for (String name : ore_names)
     {
+      if(name == null)
+      {
+        continue;
+      }
       int i;
       boolean found = false;
       for (String cl : prefixes)
       {
-        if (name.startsWith(cl))
+        if (cl != null && name.startsWith(cl))
         {
           found = true;
           break;
