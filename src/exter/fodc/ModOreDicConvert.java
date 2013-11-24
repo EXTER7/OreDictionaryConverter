@@ -1,7 +1,9 @@
 package exter.fodc;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import net.minecraft.block.Block;
@@ -11,6 +13,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.CraftingManager;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.oredict.OreDictionary;
 import net.minecraftforge.oredict.ShapelessOreRecipe;
 import cpw.mods.fml.common.FMLLog;
@@ -37,8 +40,18 @@ import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 import exter.fodc.block.BlockOreConversionTable;
 import exter.fodc.block.BlockAutomaticOreConverter;
 
-@Mod(modid = "fodc", name = "OreDicConvert", version = "1.4.1", dependencies = "required-after:Forge@[9.10.0.842,)")
-@NetworkMod(channels = { "FODC" },clientSideRequired = true, serverSideRequired = true,packetHandler = ODCPacketHandler.class)
+@Mod(
+    modid = "fodc",
+    name = "OreDicConvert",
+    version = "1.4.1",
+    dependencies = "required-after:Forge@[9.10.0.842,)"
+    )
+@NetworkMod(
+    channels = { "FODC" },
+    clientSideRequired = true,
+    serverSideRequired = true,
+    packetHandler = ODCPacketHandler.class
+    )
 public class ModOreDicConvert
 {
   
@@ -64,6 +77,7 @@ public class ModOreDicConvert
   public static Logger log = Logger.getLogger("OreDicConvert");
 
   // Find the ore name of a item stack in the dictionary.
+  /*
   public String FindOreName(ItemStack it)
   {
     for (String name : valid_ore_names)
@@ -77,6 +91,25 @@ public class ModOreDicConvert
       }
     }
     return null;
+  }*/
+
+  // Find all ore names of a item stack in the dictionary.
+  public Set<String> FindAllOreNames(ItemStack it)
+  {
+    Set<String> results = new HashSet<String>();
+    log.info("Ore names for " + it.itemID + ":" + it.getItemDamage());
+    for (String name : valid_ore_names)
+    {
+      for (ItemStack ore : OreDictionary.getOres(name))
+      {
+        if (it.isItemEqual(ore))
+        {
+          log.info("  " + name);
+          results.add(name);
+        }
+      }
+    }
+    return results;
   }
 
   @EventHandler
@@ -122,6 +155,29 @@ public class ModOreDicConvert
     GameRegistry.addRecipe(new ItemStack(block_oreautoconv), "IOI","CRC","ICI", 'I', iron_stack, 'O', oreconverter_stack, 'R', redstone_stack, 'C', cobble_stack);
   }
 
+  private void RegisterOreName(String name)
+  {
+    int i;
+    if(valid_ore_names.contains(name))
+    {
+      return;
+    }
+    boolean found = false;
+    for (String cl : prefixes)
+    {
+      if (cl != null && name.startsWith(cl))
+      {
+        found = true;
+        break;
+      }
+    }
+    if(found)
+    {
+      List<ItemStack> ores = OreDictionary.getOres(name);
+      valid_ore_names.add(name);
+      log.info("registered ore name: " + name);
+    }
+  }
 
   @EventHandler
   public void postInit(FMLPostInitializationEvent event)
@@ -135,26 +191,15 @@ public class ModOreDicConvert
         log.warning("null name in Ore Dictionary.");
         continue;
       }
-      int i;
-      boolean found = false;
-      for (String cl : prefixes)
-      {
-        if (cl != null && name.startsWith(cl))
-        {
-          found = true;
-          break;
-        }
-      }
-      if (found)
-      {
-        List<ItemStack> ores = OreDictionary.getOres(name);
-        if (ores.size() > 1)
-        {
-          valid_ore_names.add(name);
-          log.info("registered ore name: " + name);
-        }
-      }
+      RegisterOreName(name);
     }
+    MinecraftForge.EVENT_BUS.register(this);
   }
 
+  @ForgeSubscribe
+  public void OnOreDictionaryRegister(OreDictionary.OreRegisterEvent event)
+  {
+    log.info("Handling ore event: " + event.Name );
+    RegisterOreName(event.Name);
+  }
 }

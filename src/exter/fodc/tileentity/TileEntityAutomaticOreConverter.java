@@ -3,6 +3,7 @@ package exter.fodc.tileentity;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import com.google.common.io.ByteArrayDataInput;
 
@@ -267,8 +268,8 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   // or the item itself if its not registered in the ore dictionary.
   private ItemStack FindConversionTarget(ItemStack item)
   {
-    String name = ModOreDicConvert.instance.FindOreName(item);
-    if(name == null)
+    Set<String> names = ModOreDicConvert.instance.FindAllOreNames(item);
+    if(names.isEmpty())
     {
       return item;
     }
@@ -276,14 +277,25 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     {
       if(t != null)
       {
-        String target_name = ModOreDicConvert.instance.FindOreName(t);
-        if(target_name.equals(name))
+        Set<String> target_names = ModOreDicConvert.instance.FindAllOreNames(t);
+        if(names.containsAll(target_names))
         {
           return t;
         }
       }
     }
-    return OreDictionary.getOres(name).get(0);
+    for(String name: names)
+    {
+      for(ItemStack stack:OreDictionary.getOres(name))
+      {
+        Set<String> target_names = ModOreDicConvert.instance.FindAllOreNames(stack);
+        if(names.containsAll(target_names))
+        {
+          return stack;
+        }
+      }
+    }
+    return item;
   }
   
   
@@ -336,7 +348,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
 
   public void SetTarget(int slot,ItemStack target)
   {
-    if(slot >= 0 && slot < SIZE_TARGETS && (target == null || ModOreDicConvert.instance.FindOreName(target) != null))
+    if(slot >= 0 && slot < SIZE_TARGETS && (target == null || !ModOreDicConvert.instance.FindAllOreNames(target).isEmpty()))
     {
       targets[slot] = target;
     }

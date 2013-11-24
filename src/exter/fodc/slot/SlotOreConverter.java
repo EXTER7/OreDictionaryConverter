@@ -1,5 +1,7 @@
 package exter.fodc.slot;
 
+import java.util.Set;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
@@ -75,22 +77,35 @@ public class SlotOreConverter extends Slot
     GameRegistry.onItemCrafted(player, stack, ore_matrix);
     onCrafting(stack);
 
-    String res_name = ModOreDicConvert.instance.FindOreName(stack);
+    ModOreDicConvert.log.info("Output");
+    Set<String> res_names = ModOreDicConvert.instance.FindAllOreNames(stack);
 
-    // Use the first matching ore in the ore matrix
+    ModOreDicConvert.log.info("Input");
+    // Use the first matching ore in the ore matrix.
+    boolean consumed = false;
     for (int i = 0; i < ore_matrix.getSizeInventory(); ++i)
     {
       ItemStack it = ore_matrix.getStackInSlot(i);
 
       if (it != null)
       {
-        String name = ModOreDicConvert.instance.FindOreName(it);
-        if (res_name.equals(name))
+        if(ModOreDicConvert.instance.FindAllOreNames(it).containsAll(res_names))
         {
           ore_matrix.decrStackSize(i, 1);
+          consumed = true;
           break;
         }
       }
+    }
+    if(!consumed)
+    {
+      //Something went wrong.
+      String message = "Ore converter atempted to convert without consuming an input. Ore names:";
+      for(String n:res_names)
+      {
+        message += " " + n;
+      }
+      throw new RuntimeException(message);
     }
   }
 }

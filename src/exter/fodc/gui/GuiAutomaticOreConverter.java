@@ -64,7 +64,7 @@ public class GuiAutomaticOreConverter extends GuiContainer
       ItemStack player_stack = mc.thePlayer.inventory.getItemStack();
 
       ItemStack target_stack;
-      if(player_stack != null && ModOreDicConvert.instance.FindOreName(player_stack) != null)
+      if(player_stack != null && !ModOreDicConvert.instance.FindAllOreNames(player_stack).isEmpty())
       {
         target_stack = player_stack.copy();
         target_stack.stackSize = 1;

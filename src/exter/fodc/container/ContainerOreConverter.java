@@ -2,6 +2,7 @@ package exter.fodc.container;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import exter.fodc.ModOreDicConvert;
 import exter.fodc.slot.SlotOreConverter;
@@ -45,7 +46,7 @@ public class ContainerOreConverter extends Container
 
     // Result slots
     int i;
-    for (i = 0; i < 16; i++)
+    for(i = 0; i < 16; i++)
     {
       result_slots[i] = new InventoryCraftResult();
 
@@ -54,25 +55,25 @@ public class ContainerOreConverter extends Container
 
     // Ore matrix slots
     int j;
-    for (i = 0; i < 3; ++i)
+    for(i = 0; i < 3; ++i)
     {
-      for (j = 0; j < 3; ++j)
+      for(j = 0; j < 3; ++j)
       {
         addSlotToContainer(new Slot(ore_matrix, j + i * 3, 12 + j * 18, 25 + i * 18));
       }
     }
 
     // Player inventory
-    for (i = 0; i < 3; ++i)
+    for(i = 0; i < 3; ++i)
     {
-      for (j = 0; j < 9; ++j)
+      for(j = 0; j < 9; ++j)
       {
         addSlotToContainer(new Slot(inventory_player, j + i * 9 + 9, 8 + j * 18, 98 + i * 18));
       }
     }
 
     // Player hotbar
-    for (i = 0; i < 9; ++i)
+    for(i = 0; i < 9; ++i)
     {
       addSlotToContainer(new Slot(inventory_player, i, 8 + i * 18, 156));
     }
@@ -80,26 +81,26 @@ public class ContainerOreConverter extends Container
     onCraftMatrixChanged(ore_matrix);
   }
 
-  //Workaround for shift clicking converting more than one type of ore
+  // Workaround for shift clicking converting more than one type of ore
   @Override
   public ItemStack slotClick(int par1, int par2, int par3, EntityPlayer player)
   {
     ItemStack res_stack = null;
-    if (par3 == 1 && (par2 == 0 || par2 == 1) && par1 != -999)
+    if(par3 == 1 && (par2 == 0 || par2 == 1) && par1 != -999)
     {
       InventoryPlayer inv_player = player.inventory;
       Slot slot = (Slot) inventorySlots.get(par1);
-      if (slot != null && slot.canTakeStack(player))
+      if(slot != null && slot.canTakeStack(player))
       {
         ItemStack stack = transferStackInSlot(player, par1);
-        if (stack != null)
+        if(stack != null)
         {
           int id = stack.itemID;
           int dv = stack.getItemDamage();
           res_stack = stack.copy();
 
           ItemStack is = slot.getStack();
-          if (slot != null && is != null && is.itemID == id && (!is.getHasSubtypes() || is.getItemDamage() == dv))
+          if(slot != null && is != null && is.itemID == id && (!is.getHasSubtypes() || is.getItemDamage() == dv))
           {
             retrySlotClick(par1, par2, true, player);
           }
@@ -119,36 +120,47 @@ public class ContainerOreConverter extends Container
   {
     int i;
 
-    // Create a unique list of names of items in the ore matrix slots
-    ArrayList<String> ore_names = new ArrayList<String>();
-    for (i = 0; i < ore_matrix.getSizeInventory(); i++)
+    ArrayList<ItemStack> results = new ArrayList<ItemStack>();
+    for(i = 0; i < ore_matrix.getSizeInventory(); i++)
     {
       ItemStack in = ore_matrix.getStackInSlot(i);
-      if (in != null)
+      if(in != null)
       {
-        String n = ModOreDicConvert.instance.FindOreName(in);
-        if (n != null && !ore_names.contains(n))
+        Set<String> names = ModOreDicConvert.instance.FindAllOreNames(in);
+
+        for(String n : names)
         {
-          ore_names.add(n);
+          for(ItemStack stack : OreDictionary.getOres(n))
+          {
+            if(names.containsAll(ModOreDicConvert.instance.FindAllOreNames(stack)))
+            {
+              boolean found = false;
+              for(ItemStack r : results)
+              {
+                if(r.isItemEqual(stack))
+                {
+                  found = true;
+                  break;
+                }
+              }
+              if(!found)
+              {
+                results.add(stack);
+              }
+            }
+          }
         }
       }
     }
 
-    // Create a list of place all possible results
-    ArrayList<ItemStack> results = new ArrayList<ItemStack>();
-    for (String n : ore_names)
-    {
-      results.addAll(OreDictionary.getOres(n));
-    }
-
     // Place all possible resulting ores in the result slots
-    for (i = 0; i < 16; i++)
+    for(i = 0; i < 16; i++)
     {
       ItemStack it = null;
-      if (i < results.size())
+      if(i < results.size())
       {
-        ItemStack ore = results.get(i);
-        it = new ItemStack(ore.itemID, 1, ore.getItemDamage());
+        it = results.get(i).copy();
+        it.stackSize = 1;
       }
       result_slots[i].setInventorySlotContents(i, it);
     }
@@ -163,13 +175,13 @@ public class ContainerOreConverter extends Container
   {
     super.onContainerClosed(player);
 
-    if (!world_obj.isRemote)
+    if(!world_obj.isRemote)
     {
-      for (int i = 0; i < 9; ++i)
+      for(int i = 0; i < 9; ++i)
       {
         ItemStack stack = ore_matrix.getStackInSlotOnClosing(i);
 
-        if (stack != null)
+        if(stack != null)
         {
           player.dropPlayerItem(stack);
         }
@@ -186,37 +198,37 @@ public class ContainerOreConverter extends Container
     ItemStack slot_stack = null;
     Slot slot = (Slot) inventorySlots.get(slot_index);
 
-    if (slot != null && slot.getHasStack())
+    if(slot != null && slot.getHasStack())
     {
       ItemStack stack = slot.getStack();
       slot_stack = stack.copy();
 
-      if (slot_index < SLOTS_MATERIALS)
+      if(slot_index < SLOTS_MATERIALS)
       {
-        if (!mergeItemStack(stack, SLOTS_INVENTORY, SLOTS_HOTBAR + 9, true))
+        if(!mergeItemStack(stack, SLOTS_INVENTORY, SLOTS_HOTBAR + 9, true))
         {
           return null;
         }
 
         slot.onSlotChange(stack, slot_stack);
-      } else if (slot_index >= SLOTS_INVENTORY && slot_index < SLOTS_HOTBAR)
+      } else if(slot_index >= SLOTS_INVENTORY && slot_index < SLOTS_HOTBAR)
       {
-        if (!mergeItemStack(stack, SLOTS_MATERIALS, SLOTS_MATERIALS + 9, false))
+        if(!mergeItemStack(stack, SLOTS_MATERIALS, SLOTS_MATERIALS + 9, false))
         {
           return null;
         }
-      } else if (slot_index >= SLOTS_HOTBAR && slot_index < SLOTS_HOTBAR + 9)
+      } else if(slot_index >= SLOTS_HOTBAR && slot_index < SLOTS_HOTBAR + 9)
       {
-        if (!mergeItemStack(stack, SLOTS_INVENTORY, SLOTS_INVENTORY + 3 * 9, false))
+        if(!mergeItemStack(stack, SLOTS_INVENTORY, SLOTS_INVENTORY + 3 * 9, false))
         {
           return null;
         }
-      } else if (!mergeItemStack(stack, SLOTS_INVENTORY, SLOTS_HOTBAR + 9, false))
+      } else if(!mergeItemStack(stack, SLOTS_INVENTORY, SLOTS_HOTBAR + 9, false))
       {
         return null;
       }
 
-      if (stack.stackSize == 0)
+      if(stack.stackSize == 0)
       {
         slot.putStack((ItemStack) null);
       } else
@@ -224,7 +236,7 @@ public class ContainerOreConverter extends Container
         slot.onSlotChanged();
       }
 
-      if (stack.stackSize == slot_stack.stackSize)
+      if(stack.stackSize == slot_stack.stackSize)
       {
         return null;
       }
@@ -238,7 +250,7 @@ public class ContainerOreConverter extends Container
   @Override
   public boolean canInteractWith(EntityPlayer playet)
   {
-    if (pos_y <= 9000)
+    if(pos_y <= 9000)
     {
       return this.world_obj.getBlockId(pos_x, pos_y, pos_z) != ModOreDicConvert.block_oreconvtable.blockID ? false : playet.getDistanceSq((double) pos_x + 0.5D, (double) pos_y + 0.5D, (double) pos_z + 0.5D) <= 64.0D;
     }
