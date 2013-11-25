@@ -76,28 +76,10 @@ public class ModOreDicConvert
   
   public static Logger log = Logger.getLogger("OreDicConvert");
 
-  // Find the ore name of a item stack in the dictionary.
-  /*
-  public String FindOreName(ItemStack it)
-  {
-    for (String name : valid_ore_names)
-    {
-      for (ItemStack ore : OreDictionary.getOres(name))
-      {
-        if (it.isItemEqual(ore))
-        {
-          return name;
-        }
-      }
-    }
-    return null;
-  }*/
-
   // Find all ore names of a item stack in the dictionary.
   public Set<String> FindAllOreNames(ItemStack it)
   {
     Set<String> results = new HashSet<String>();
-    log.info("Ore names for " + it.itemID + ":" + it.getItemDamage());
     for (String name : valid_ore_names)
     {
       for (ItemStack ore : OreDictionary.getOres(name))

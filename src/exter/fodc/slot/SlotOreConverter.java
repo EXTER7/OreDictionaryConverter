@@ -19,17 +19,20 @@ public class SlotOreConverter extends Slot
   /** The player that is using the GUI where this slot resides. */
   private EntityPlayer player_obj;
 
+  private int input_slot;
+  
   /**
    * The number of items that have been crafted so far. Gets passed to
    * ItemStack.onCrafting before being reset.
    */
   private int amountCrafted;
 
-  public SlotOreConverter(EntityPlayer player, IInventory inv_matrix, IInventory inv, int par4, int par5, int par6)
+  public SlotOreConverter(EntityPlayer player, IInventory inv_matrix, IInventory inv, int slot, int par5, int par6)
   {
-    super(inv, par4, par5, par6);
+    super(inv, slot, par5, par6);
     player_obj = player;
     ore_matrix = inv_matrix;
+    input_slot = -1;
   }
 
   /**
@@ -43,7 +46,7 @@ public class SlotOreConverter extends Slot
 
   public boolean canTakeStack(EntityPlayer par1EntityPlayer)
   {
-    return true;
+    return input_slot >= 0;
   }
 
   /**
@@ -77,29 +80,11 @@ public class SlotOreConverter extends Slot
     GameRegistry.onItemCrafted(player, stack, ore_matrix);
     onCrafting(stack);
 
-    ModOreDicConvert.log.info("Output");
-    Set<String> res_names = ModOreDicConvert.instance.FindAllOreNames(stack);
 
-    ModOreDicConvert.log.info("Input");
-    // Use the first matching ore in the ore matrix.
-    boolean consumed = false;
-    for (int i = 0; i < ore_matrix.getSizeInventory(); ++i)
-    {
-      ItemStack it = ore_matrix.getStackInSlot(i);
-
-      if (it != null)
-      {
-        if(ModOreDicConvert.instance.FindAllOreNames(it).containsAll(res_names))
-        {
-          ore_matrix.decrStackSize(i, 1);
-          consumed = true;
-          break;
-        }
-      }
-    }
-    if(!consumed)
+    if(input_slot < 0)
     {
       //Something went wrong.
+      Set<String> res_names = ModOreDicConvert.instance.FindAllOreNames(stack);
       String message = "Ore converter atempted to convert without consuming an input. Ore names:";
       for(String n:res_names)
       {
@@ -107,5 +92,12 @@ public class SlotOreConverter extends Slot
       }
       throw new RuntimeException(message);
     }
+    
+    ore_matrix.decrStackSize(input_slot, 1);
+  }
+  
+  public void SetInputSlot(int slot)
+  {
+    input_slot = slot;
   }
 }

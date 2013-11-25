@@ -19,8 +19,9 @@ import net.minecraftforge.oredict.OreDictionary;
 
 public class ContainerOreConverter extends Container
 {
-  public InventoryCrafting ore_matrix = new InventoryCrafting(this, 3, 3);
-  public IInventory[] result_slots = new InventoryCraftResult[16];
+  private InventoryCrafting inv_inputs;
+  private IInventory inv_results;
+  private SlotOreConverter[] slots_results;
   protected World world_obj;
   private int pos_x;
   private int pos_y;
@@ -32,6 +33,109 @@ public class ContainerOreConverter extends Container
   private static final int SLOTS_INVENTORY = SLOTS_MATERIALS + 9;
   private static final int SLOTS_HOTBAR = SLOTS_INVENTORY + 3 * 9;
 
+  private class ResultInventory implements IInventory
+  {
+    private ItemStack[] items;
+
+    public ResultInventory()
+    {
+      items = new ItemStack[16];
+    }
+
+    @Override
+    public int getSizeInventory()
+    {
+      return 16;
+    }
+
+    @Override
+    public ItemStack getStackInSlot(int slot)
+    {
+      return items[slot];
+    }
+
+    @Override
+    public String getInvName()
+    {
+      return "OreConverter.Results";
+    }
+
+    @Override
+    public boolean isInvNameLocalized()
+    {
+      return false;
+    }
+
+    @Override
+    public ItemStack decrStackSize(int slot, int amount)
+    {
+      if(items[slot] != null)
+      {
+        ItemStack itemstack = items[slot];
+        items[slot] = null;
+        return itemstack;
+      } else
+      {
+        return null;
+      }
+    }
+
+    @Override
+    public ItemStack getStackInSlotOnClosing(int slot)
+    {
+      if(items[slot] != null)
+      {
+        ItemStack itemstack = items[slot];
+        items[slot] = null;
+        return itemstack;
+      } else
+      {
+        return null;
+      }
+    }
+
+    public void setInventorySlotContents(int slot, ItemStack stack)
+    {
+      items[slot] = stack;
+    }
+
+    @Override
+    public int getInventoryStackLimit()
+    {
+      return 64;
+    }
+
+    @Override
+    public void onInventoryChanged()
+    {
+
+    }
+
+    @Override
+    public boolean isUseableByPlayer(EntityPlayer par1EntityPlayer)
+    {
+      return true;
+    }
+
+    @Override
+    public void openChest()
+    {
+
+    }
+
+    @Override
+    public void closeChest()
+    {
+
+    }
+
+    @Override
+    public boolean isItemValidForSlot(int par1, ItemStack par2ItemStack)
+    {
+      return true;
+    }
+  }
+
   public ContainerOreConverter(InventoryPlayer inventory_player, World world)
   {
     this(inventory_player, world, 0, 9001, 0);
@@ -39,6 +143,10 @@ public class ContainerOreConverter extends Container
 
   public ContainerOreConverter(InventoryPlayer inventory_player, World world, int x, int y, int z)
   {
+    inv_inputs = new InventoryCrafting(this, 3, 3);
+    inv_results = new ResultInventory();
+    slots_results = new SlotOreConverter[16];
+
     world_obj = world;
     pos_x = x;
     pos_y = y;
@@ -48,9 +156,8 @@ public class ContainerOreConverter extends Container
     int i;
     for(i = 0; i < 16; i++)
     {
-      result_slots[i] = new InventoryCraftResult();
-
-      addSlotToContainer(new SlotOreConverter(inventory_player.player, ore_matrix, result_slots[i], i, 94 + (i % 4) * 18, 16 + (i / 4) * 18));
+      slots_results[i] = new SlotOreConverter(inventory_player.player, inv_inputs, inv_results, i, 94 + (i % 4) * 18, 16 + (i / 4) * 18);
+      addSlotToContainer(slots_results[i]);
     }
 
     // Ore matrix slots
@@ -59,7 +166,7 @@ public class ContainerOreConverter extends Container
     {
       for(j = 0; j < 3; ++j)
       {
-        addSlotToContainer(new Slot(ore_matrix, j + i * 3, 12 + j * 18, 25 + i * 18));
+        addSlotToContainer(new Slot(inv_inputs, j + i * 3, 12 + j * 18, 25 + i * 18));
       }
     }
 
@@ -78,7 +185,7 @@ public class ContainerOreConverter extends Container
       addSlotToContainer(new Slot(inventory_player, i, 8 + i * 18, 156));
     }
 
-    onCraftMatrixChanged(ore_matrix);
+    onCraftMatrixChanged(inv_inputs);
   }
 
   // Workaround for shift clicking converting more than one type of ore
@@ -113,17 +220,15 @@ public class ContainerOreConverter extends Container
     return res_stack;
   }
 
-  /**
-   * Callback for when the crafting matrix is changed.
-   */
+  @Override
   public void onCraftMatrixChanged(IInventory par1IInventory)
   {
     int i;
 
     ArrayList<ItemStack> results = new ArrayList<ItemStack>();
-    for(i = 0; i < ore_matrix.getSizeInventory(); i++)
+    for(i = 0; i < inv_inputs.getSizeInventory(); i++)
     {
-      ItemStack in = ore_matrix.getStackInSlot(i);
+      ItemStack in = inv_inputs.getStackInSlot(i);
       if(in != null)
       {
         Set<String> names = ModOreDicConvert.instance.FindAllOreNames(in);
@@ -145,26 +250,27 @@ public class ContainerOreConverter extends Container
               }
               if(!found)
               {
-                results.add(stack);
+                int j = results.size();
+                ItemStack res = stack.copy();
+                res.stackSize = 1;
+                slots_results[j].SetInputSlot(i);
+                inv_results.setInventorySlotContents(j, res);
+                results.add(res);
+                if(j == 15)
+                {
+                  return;
+                }
               }
             }
           }
         }
       }
     }
-
-    // Place all possible resulting ores in the result slots
-    for(i = 0; i < 16; i++)
+    for(i = results.size(); i < 16; i++)
     {
-      ItemStack it = null;
-      if(i < results.size())
-      {
-        it = results.get(i).copy();
-        it.stackSize = 1;
-      }
-      result_slots[i].setInventorySlotContents(i, it);
+      slots_results[i].SetInputSlot(-1);
+      inv_results.setInventorySlotContents(i, null);
     }
-
   }
 
   /**
@@ -179,7 +285,7 @@ public class ContainerOreConverter extends Container
     {
       for(int i = 0; i < 9; ++i)
       {
-        ItemStack stack = ore_matrix.getStackInSlotOnClosing(i);
+        ItemStack stack = inv_inputs.getStackInSlotOnClosing(i);
 
         if(stack != null)
         {

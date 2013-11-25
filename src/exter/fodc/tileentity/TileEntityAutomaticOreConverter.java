@@ -29,6 +29,9 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   private ItemStack[] inventory;
   private ItemStack[] targets;
 
+  private ItemStack last_input;
+  private ItemStack last_target;
+  
   static public int SIZE_INVENTORY = 14;
   static public int SIZE_TARGETS = 18;
   
@@ -268,11 +271,18 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   // or the item itself if its not registered in the ore dictionary.
   private ItemStack FindConversionTarget(ItemStack item)
   {
+    if(last_input != null && last_target != null && item.isItemEqual(last_input) && ItemStack.areItemStackTagsEqual(item, last_input))
+    {
+      return last_target;
+    }
     Set<String> names = ModOreDicConvert.instance.FindAllOreNames(item);
     if(names.isEmpty())
     {
+      last_input = item.copy();
+      last_target = last_input;
       return item;
     }
+    
     for(ItemStack t:targets)
     {
       if(t != null)
@@ -280,10 +290,14 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
         Set<String> target_names = ModOreDicConvert.instance.FindAllOreNames(t);
         if(names.containsAll(target_names))
         {
+          last_input = item.copy();
+          last_target = t;
           return t;
         }
       }
     }
+    ItemStack target = item;
+    int target_diff = Integer.MAX_VALUE;
     for(String name: names)
     {
       for(ItemStack stack:OreDictionary.getOres(name))
@@ -291,11 +305,24 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
         Set<String> target_names = ModOreDicConvert.instance.FindAllOreNames(stack);
         if(names.containsAll(target_names))
         {
-          return stack;
+          int diff = names.size() - target_names.size();
+          if(diff < target_diff)
+          {
+            target_diff = diff;
+            target = stack;
+            if(diff == 0)
+            {
+              last_input = item.copy();
+              last_target = target;
+              return target;
+            }
+          }
         }
       }
     }
-    return item;
+    last_input = item.copy();
+    last_target = target;
+    return target;
   }
   
   
@@ -351,6 +378,8 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     if(slot >= 0 && slot < SIZE_TARGETS && (target == null || !ModOreDicConvert.instance.FindAllOreNames(target).isEmpty()))
     {
       targets[slot] = target;
+      last_input = null;
+      last_target = null;
     }
   }
 
