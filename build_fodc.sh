@@ -1,7 +1,7 @@
 #!/bin/bash
 
 MODNAME=fodc
-MODVERSION=1.4.1
+MODVERSION=1.4.2
 
 rm -rf packed/*
 if ./recompile.sh && ./reobfuscate_srg.sh

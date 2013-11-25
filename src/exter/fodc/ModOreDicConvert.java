@@ -43,7 +43,7 @@ import exter.fodc.block.BlockAutomaticOreConverter;
 @Mod(
     modid = "fodc",
     name = "OreDicConvert",
-    version = "1.4.1",
+    version = "1.4.2",
     dependencies = "required-after:Forge@[9.10.0.842,)"
     )
 @NetworkMod(
