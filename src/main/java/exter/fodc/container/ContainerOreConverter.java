@@ -1,7 +1,6 @@
 package exter.fodc.container;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 
 import exter.fodc.ModOreDicConvert;
@@ -10,7 +9,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.InventoryCraftResult;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -28,7 +26,7 @@ public class ContainerOreConverter extends Container
   private int pos_z;
 
   // Slot numbers
-  private static final int SLOTS_RESULT = 0;
+  //private static final int SLOTS_RESULT = 0;
   private static final int SLOTS_MATERIALS = 16;
   private static final int SLOTS_INVENTORY = SLOTS_MATERIALS + 9;
   private static final int SLOTS_HOTBAR = SLOTS_INVENTORY + 3 * 9;
@@ -195,7 +193,6 @@ public class ContainerOreConverter extends Container
     ItemStack res_stack = null;
     if(par3 == 1 && (par2 == 0 || par2 == 1) && par1 != -999)
     {
-      InventoryPlayer inv_player = player.inventory;
       Slot slot = (Slot) inventorySlots.get(par1);
       if(slot != null && slot.canTakeStack(player))
       {
