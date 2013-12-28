@@ -1,10 +1,8 @@
 package exter.fodc.proxy;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ContainerChest;
 import net.minecraft.world.World;
 import cpw.mods.fml.common.network.IGuiHandler;
-import cpw.mods.fml.common.registry.GameRegistry;
 import exter.fodc.container.ContainerAutomaticOreConverter;
 import exter.fodc.container.ContainerOreConverter;
 import exter.fodc.gui.GuiAutomaticOreConverter;

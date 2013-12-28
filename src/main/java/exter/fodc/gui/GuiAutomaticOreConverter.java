@@ -1,41 +1,20 @@
 package exter.fodc.gui;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import exter.fodc.ModOreDicConvert;
 import exter.fodc.container.ContainerAutomaticOreConverter;
 import exter.fodc.network.ODCPacketHandler;
 import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiButtonMerchant;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.inventory.ContainerChest;
-import net.minecraft.inventory.ContainerMerchant;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
-import net.minecraft.village.MerchantRecipe;
-import net.minecraft.village.MerchantRecipeList;
-import net.minecraftforge.oredict.OreDictionary;
 
 @SideOnly(Side.CLIENT)
 public class GuiAutomaticOreConverter extends GuiContainer
@@ -129,10 +108,6 @@ public class GuiAutomaticOreConverter extends GuiContainer
   public void initGui()
   {
     super.initGui();
-
-    int window_x = (this.width - this.xSize) / 2;
-    int window_y = (this.height - this.ySize) / 2;
-
   }
 
   @Override
@@ -157,8 +132,6 @@ public class GuiAutomaticOreConverter extends GuiContainer
    */
   protected void drawGuiContainerForegroundLayer(int par1, int par2)
   {
-    int window_x = (this.width - this.xSize) / 2;
-    int window_y = (this.height - this.ySize) / 2;
     fontRenderer.drawString(StatCollector.translateToLocal(te_autoconverter.getInvName()), 8, 6, 4210752);
     fontRenderer.drawString(StatCollector.translateToLocal("Targets"), 8, 65, 4210752);
     fontRenderer.drawString(StatCollector.translateToLocal(player_inventory.getInvName()), 8, this.ySize - 96 + 2, 4210752);

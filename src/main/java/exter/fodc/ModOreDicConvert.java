@@ -2,27 +2,20 @@ package exter.fodc;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
 
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockWorkbench;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.crafting.CraftingManager;
 import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.oredict.OreDictionary;
-import net.minecraftforge.oredict.ShapelessOreRecipe;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.Mod.Init;
 import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.Mod.PostInit;
-import cpw.mods.fml.common.Mod.PreInit;
 import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
@@ -37,8 +30,6 @@ import exter.fodc.item.ItemOreConverter;
 import exter.fodc.network.ODCPacketHandler;
 import exter.fodc.proxy.CommonODCProxy;
 import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
-import exter.fodc.block.BlockOreConversionTable;
-import exter.fodc.block.BlockAutomaticOreConverter;
 
 @Mod(
     modid = "fodc",
@@ -139,7 +130,6 @@ public class ModOreDicConvert
 
   private void RegisterOreName(String name)
   {
-    int i;
     if(valid_ore_names.contains(name))
     {
       return;
@@ -155,7 +145,6 @@ public class ModOreDicConvert
     }
     if(found)
     {
-      List<ItemStack> ores = OreDictionary.getOres(name);
       valid_ore_names.add(name);
       log.info("registered ore name: " + name);
     }

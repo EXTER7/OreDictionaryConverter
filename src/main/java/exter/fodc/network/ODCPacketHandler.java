@@ -12,12 +12,10 @@ import com.google.common.io.ByteStreams;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.INetworkManager;
 import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.network.IPacketHandler;
 import cpw.mods.fml.common.network.PacketDispatcher;
@@ -71,7 +69,7 @@ public class ODCPacketHandler implements IPacketHandler
 
     Map<Integer,ItemStack> send_targets = new HashMap<Integer,ItemStack>();
     int i;
-    for(i = 0; i < sender.SIZE_TARGETS; i++)
+    for(i = 0; i < TileEntityAutomaticOreConverter.SIZE_TARGETS; i++)
     {
       ItemStack t = sender.GetTarget(i);
       if(t != null)
