@@ -11,6 +11,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
@@ -53,16 +54,11 @@ public class ContainerOreConverter extends Container
     }
 
     @Override
-    public String getInvName()
+    public String getInventoryName()
     {
       return "OreConverter.Results";
     }
 
-    @Override
-    public boolean isInvNameLocalized()
-    {
-      return false;
-    }
 
     @Override
     public ItemStack decrStackSize(int slot, int amount)
@@ -104,7 +100,7 @@ public class ContainerOreConverter extends Container
     }
 
     @Override
-    public void onInventoryChanged()
+    public void markDirty()
     {
 
     }
@@ -116,13 +112,13 @@ public class ContainerOreConverter extends Container
     }
 
     @Override
-    public void openChest()
+    public void openInventory()
     {
 
     }
 
     @Override
-    public void closeChest()
+    public void closeInventory()
     {
 
     }
@@ -132,6 +128,14 @@ public class ContainerOreConverter extends Container
     {
       return true;
     }
+
+    @Override
+    public boolean hasCustomInventoryName()
+    {
+      // TODO Auto-generated method stub
+      return false;
+    }
+
   }
 
   public ContainerOreConverter(InventoryPlayer inventory_player, World world)
@@ -199,12 +203,12 @@ public class ContainerOreConverter extends Container
         ItemStack stack = transferStackInSlot(player, par1);
         if(stack != null)
         {
-          int id = stack.itemID;
+          Item item = stack.getItem();
           int dv = stack.getItemDamage();
           res_stack = stack.copy();
 
           ItemStack is = slot.getStack();
-          if(slot != null && is != null && is.itemID == id && (!is.getHasSubtypes() || is.getItemDamage() == dv))
+          if(slot != null && is != null && is.getItem() == item && (!is.getHasSubtypes() || is.getItemDamage() == dv))
           {
             retrySlotClick(par1, par2, true, player);
           }
@@ -286,7 +290,7 @@ public class ContainerOreConverter extends Container
 
         if(stack != null)
         {
-          player.dropPlayerItem(stack);
+          player.dropPlayerItemWithRandomChoice(stack, false);
         }
       }
     }
@@ -351,13 +355,13 @@ public class ContainerOreConverter extends Container
   }
 
   @Override
-  public boolean canInteractWith(EntityPlayer playet)
+  public boolean canInteractWith(EntityPlayer player)
   {
     if(pos_y <= 9000)
     {
-      return this.world_obj.getBlockId(pos_x, pos_y, pos_z) != ModOreDicConvert.block_oreconvtable.blockID ? false : playet.getDistanceSq((double) pos_x + 0.5D, (double) pos_y + 0.5D, (double) pos_z + 0.5D) <= 64.0D;
+      return this.world_obj.getBlock(pos_x, pos_y, pos_z) != ModOreDicConvert.block_oreconvtable ? false : player.getDistanceSq((double) pos_x + 0.5D, (double) pos_y + 0.5D, (double) pos_z + 0.5D) <= 64.0D;
     }
-    return playet.inventory.hasItemStack(new ItemStack(ModOreDicConvert.item_oreconverter, 1));
+    return player.inventory.hasItemStack(new ItemStack(ModOreDicConvert.item_oreconverter, 1));
   }
 
 }

@@ -6,12 +6,12 @@ import java.util.Set;
 import java.util.logging.Logger;
 
 import net.minecraft.block.Block;
-import net.minecraft.item.Item;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.oredict.OreDictionary;
-import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -19,13 +19,13 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import exter.fodc.block.BlockAutomaticOreConverter;
 import exter.fodc.block.BlockOreConversionTable;
 import exter.fodc.item.ItemOreConverter;
-import exter.fodc.network.ODCPacketHandler;
 import exter.fodc.proxy.CommonODCProxy;
 import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 
@@ -82,22 +82,22 @@ public class ModOreDicConvert
     prefixes = classes.split(",");
     valid_ore_names = new ArrayList<String>();
 
-    NetworkRegistry.instance().registerGuiHandler(this, proxy);
+    NetworkRegistry.INSTANCE.registerGuiHandler(this, proxy);
 
-    block_oreconvtable = (BlockOreConversionTable) (new BlockOreConversionTable()).setHardness(2.5F).setStepSound(Block.soundWoodFootstep).setUnlocalizedName("oreConvTable");
-    block_oreautoconv = (BlockAutomaticOreConverter) (new BlockAutomaticOreConverter()).setHardness(2.5F).setStepSound(Block.soundWoodFootstep).setUnlocalizedName("autoOreConverter");
-    item_oreconverter = new ItemOreConverter(oc_id);
+    block_oreconvtable = (BlockOreConversionTable) (new BlockOreConversionTable()).setHardness(2.5F).setStepSound(Block.soundTypeWood);
+    block_oreautoconv = (BlockAutomaticOreConverter) (new BlockAutomaticOreConverter()).setHardness(2.5F).setStepSound(Block.soundTypeStone);
+    item_oreconverter = new ItemOreConverter();
   }
 
   @EventHandler
   public void load(FMLInitializationEvent event)
   {
 
-    ItemStack iron_stack = new ItemStack(Item.ingotIron);
-    ItemStack redstone_stack = new ItemStack(Item.redstone);
-    ItemStack workbench_stack = new ItemStack(Block.workbench);
-    ItemStack wood_stack = new ItemStack(Block.planks,1,-1);
-    ItemStack cobble_stack = new ItemStack(Block.cobblestone,1,-1);
+    ItemStack iron_stack = new ItemStack(Items.iron_ingot);
+    ItemStack redstone_stack = new ItemStack(Items.redstone);
+    ItemStack workbench_stack = new ItemStack(Blocks.crafting_table);
+    ItemStack wood_stack = new ItemStack(Blocks.planks,1,-1);
+    ItemStack cobble_stack = new ItemStack(Blocks.cobblestone,1,-1);
     ItemStack oreconverter_stack = new ItemStack(item_oreconverter);
     LanguageRegistry.addName(item_oreconverter, "Ore Converter");
     LanguageRegistry.addName(block_oreconvtable, "Ore Conversion Table");
@@ -137,7 +137,7 @@ public class ModOreDicConvert
   @EventHandler
   public void postInit(FMLPostInitializationEvent event)
   {
-    log.setParent(FMLLog.getLogger());
+    //log.setParent(FMLLog.getLogger());
     String[] ore_names = OreDictionary.getOreNames();
     for (String name : ore_names)
     {
@@ -151,7 +151,7 @@ public class ModOreDicConvert
     MinecraftForge.EVENT_BUS.register(this);
   }
 
-  @ForgeSubscribe
+  @SubscribeEvent
   public void OnOreDictionaryRegister(OreDictionary.OreRegisterEvent event)
   {
     log.info("Handling ore event: " + event.Name );

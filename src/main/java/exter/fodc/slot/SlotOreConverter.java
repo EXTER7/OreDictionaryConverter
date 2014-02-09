@@ -6,6 +6,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.registry.GameRegistry;
 import exter.fodc.ModOreDicConvert;
 
@@ -75,7 +76,7 @@ public class SlotOreConverter extends Slot
 
   public void onPickupFromSlot(EntityPlayer player, ItemStack stack)
   {
-    GameRegistry.onItemCrafted(player, stack, ore_matrix);
+    FMLCommonHandler.instance().firePlayerCraftingEvent(player, stack, ore_matrix);
     onCrafting(stack);
 
 
