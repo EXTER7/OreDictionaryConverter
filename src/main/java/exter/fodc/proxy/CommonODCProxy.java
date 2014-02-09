@@ -29,7 +29,7 @@ public class CommonODCProxy implements IGuiHandler
       return new ContainerOreConverter(player.inventory,world,x,y,z);
     } else if(ID == 2)
     {
-      return new ContainerAutomaticOreConverter((TileEntityAutomaticOreConverter)world.getBlockTileEntity(x, y, z),player.inventory);
+      return new ContainerAutomaticOreConverter((TileEntityAutomaticOreConverter)world.getTileEntity(x, y, z),player.inventory);
     }
     return null;
   }
@@ -45,10 +45,9 @@ public class CommonODCProxy implements IGuiHandler
       return new GuiOreConverter(player.inventory,world,x,y,z);
     } if(ID == 2)
     {
-      TileEntityAutomaticOreConverter te = (TileEntityAutomaticOreConverter)world.getBlockTileEntity(x, y, z);
+      TileEntityAutomaticOreConverter te = (TileEntityAutomaticOreConverter)world.getTileEntity(x, y, z);
       return new GuiAutomaticOreConverter(te,player.inventory);
     }
     return null;
   }
-
 }

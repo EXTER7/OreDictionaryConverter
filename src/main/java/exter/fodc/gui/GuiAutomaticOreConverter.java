@@ -65,10 +65,11 @@ public class GuiAutomaticOreConverter extends GuiContainer
         int window_x = (width - xSize) / 2;
         int window_y = (height - ySize) / 2;
 
-        itemRenderer.zLevel = 200F;
-        itemRenderer.renderItemAndEffectIntoGUI(fontRenderer, mc.renderEngine, item, window_x + x, window_y + y);
-        itemRenderer.renderItemOverlayIntoGUI(fontRenderer, mc.renderEngine, item, window_x + x, window_y + y);
-        itemRenderer.zLevel = 0.0F;
+        
+        itemRender.zLevel = 200F;
+        itemRender.renderItemAndEffectIntoGUI(fontRendererObj, mc.renderEngine, item, window_x + x, window_y + y);
+        itemRender.renderItemOverlayIntoGUI(fontRendererObj, mc.renderEngine, item, window_x + x, window_y + y);
+        itemRender.zLevel = 0.0F;
       }
     }
   }
@@ -132,9 +133,9 @@ public class GuiAutomaticOreConverter extends GuiContainer
    */
   protected void drawGuiContainerForegroundLayer(int par1, int par2)
   {
-    fontRenderer.drawString(StatCollector.translateToLocal(te_autoconverter.getInvName()), 8, 6, 4210752);
-    fontRenderer.drawString(StatCollector.translateToLocal("Targets"), 8, 65, 4210752);
-    fontRenderer.drawString(StatCollector.translateToLocal(player_inventory.getInvName()), 8, this.ySize - 96 + 2, 4210752);
+    fontRendererObj.drawString(StatCollector.translateToLocal(te_autoconverter.getInventoryName()), 8, 6, 4210752);
+    fontRendererObj.drawString(StatCollector.translateToLocal("Targets"), 8, 65, 4210752);
+    fontRendererObj.drawString(StatCollector.translateToLocal(player_inventory.getInventoryName()), 8, this.ySize - 96 + 2, 4210752);
   }
 
   /**

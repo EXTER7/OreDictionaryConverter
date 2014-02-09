@@ -132,7 +132,6 @@ public class ContainerOreConverter extends Container
     @Override
     public boolean hasCustomInventoryName()
     {
-      // TODO Auto-generated method stub
       return false;
     }
 

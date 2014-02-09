@@ -20,7 +20,7 @@ public class ContainerAutomaticOreConverter extends Container
   public ContainerAutomaticOreConverter(IInventory block_inventory, IInventory player_inventory)
   {
     inventory = block_inventory;
-    block_inventory.openChest();
+    block_inventory.openInventory();
     int i,j;
 
     //Input
@@ -118,6 +118,6 @@ public class ContainerAutomaticOreConverter extends Container
   public void onContainerClosed(EntityPlayer par1EntityPlayer)
   {
     super.onContainerClosed(par1EntityPlayer);
-    this.inventory.closeChest();
+    this.inventory.closeInventory();
   }
 }

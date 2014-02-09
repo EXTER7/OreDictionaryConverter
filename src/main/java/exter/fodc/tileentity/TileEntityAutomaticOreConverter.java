@@ -2,7 +2,6 @@ package exter.fodc.tileentity;
 
 import java.util.Set;
 
-import com.google.common.io.ByteArrayDataInput;
 
 import exter.fodc.ModOreDicConvert;
 import exter.fodc.network.ODCPacketHandler;
@@ -11,8 +10,6 @@ import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -37,14 +34,14 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   public void readFromNBT(NBTTagCompound par1NBTTagCompound)
   {
     super.readFromNBT(par1NBTTagCompound);
-    NBTTagList inv_tag = par1NBTTagCompound.getTagList("Items");
-    NBTTagList targets_tag = par1NBTTagCompound.getTagList("Targets");
+    NBTTagList inv_tag = par1NBTTagCompound.getTagList("Items",10);
+    NBTTagList targets_tag = par1NBTTagCompound.getTagList("Targets",10);
     inventory = new ItemStack[SIZE_INVENTORY];
     targets = new ItemStack[SIZE_TARGETS];
     int i;
     for(i = 0; i < inv_tag.tagCount(); i++)
     {
-      NBTTagCompound tag = (NBTTagCompound)inv_tag.tagAt(i);
+      NBTTagCompound tag = inv_tag.getCompoundTagAt(i);
       int slot = tag.getByte("Slot") & 255;
 
       if(slot >= 0 && slot < inventory.length)
@@ -54,7 +51,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     }
     for(i = 0; i < targets_tag.tagCount(); i++)
     {
-      NBTTagCompound tag = (NBTTagCompound)targets_tag.tagAt(i);
+      NBTTagCompound tag = targets_tag.getCompoundTagAt(i);
       int slot = tag.getByte("Slot") & 255;
 
       ItemStack is = ItemStack.loadItemStackFromNBT(tag);
@@ -99,6 +96,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     par1NBTTagCompound.setTag("Targets", targets_tag);
   }
 
+  /* //TODO: Implement this using the new packet system
   public void ReceivePacketData(INetworkManager manager, Packet250CustomPayload packet, EntityPlayer entityPlayer, ByteArrayDataInput data)
   {
     int type = data.readByte() & 255;
@@ -147,7 +145,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
       }
     }
   }
-
+*/
   @Override
   public int getSizeInventory()
   {
@@ -171,7 +169,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
       {
         var3 = inventory[slot];
         inventory[slot] = null;
-        onInventoryChanged();
+        markDirty();
         return var3;
       }
       else
@@ -183,7 +181,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
           inventory[slot] = null;
         }
 
-        onInventoryChanged();
+        markDirty();
         return var3;
       }
     }
@@ -217,11 +215,11 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
       par2ItemStack.stackSize = this.getInventoryStackLimit();
     }
 
-    onInventoryChanged();
+    markDirty();
   }
 
   @Override
-  public String getInvName()
+  public String getInventoryName()
   {
     return "Ore Autoconverter";
   }
@@ -235,12 +233,12 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   @Override
   public boolean isUseableByPlayer(EntityPlayer par1EntityPlayer)
   {
-    return worldObj.getBlockTileEntity(xCoord, yCoord, zCoord) != this ? false : par1EntityPlayer.getDistanceSq((double)xCoord + 0.5D, (double)yCoord + 0.5D, (double)zCoord + 0.5D) <= 64.0D;
+    return worldObj.getTileEntity(xCoord, yCoord, zCoord) != this ? false : par1EntityPlayer.getDistanceSq((double)xCoord + 0.5D, (double)yCoord + 0.5D, (double)zCoord + 0.5D) <= 64.0D;
   }
 
 
   @Override
-  public void openChest()
+  public void openInventory()
   {
     if(!worldObj.isRemote)
     {
@@ -249,7 +247,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   }
 
   @Override
-  public void closeChest()
+  public void closeInventory()
   {
     if(!worldObj.isRemote)
     {
@@ -358,7 +356,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
         {
           decrStackSize(i, 1);
           dest.stackSize++;
-          onInventoryChanged();
+          markDirty();
           return;
         }
       }
@@ -382,12 +380,6 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
       return null;
     }
     return targets[slot];
-  }
-
-  @Override
-  public boolean isInvNameLocalized()
-  {
-    return false;
   }
 
   static private final int[] ALL_SLOTS = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
@@ -414,5 +406,11 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   public boolean canExtractItem(int i, ItemStack itemstack, int j)
   {
     return i >= 6 && i < 14;
+  }
+
+  @Override
+  public boolean hasCustomInventoryName()
+  {
+    return false;
   }
 }
