@@ -8,9 +8,8 @@ import java.util.logging.Logger;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.ForgeSubscribe;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.oredict.OreDictionary;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
@@ -20,7 +19,6 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
@@ -37,19 +35,8 @@ import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
     version = "1.4.2",
     dependencies = "required-after:Forge@[9.10.0.842,)"
     )
-@NetworkMod(
-    channels = { "FODC" },
-    clientSideRequired = true,
-    serverSideRequired = true,
-    packetHandler = ODCPacketHandler.class
-    )
 public class ModOreDicConvert
 {
-  
-  //Block/Item IDs
-  private int oc_id;
-  private int oct_id;
-  private int aoc_id;
   
   //List of string that the ore name must begin with
   private String[] prefixes;
@@ -91,17 +78,14 @@ public class ModOreDicConvert
     Configuration config = new Configuration(event.getSuggestedConfigurationFile());
     config.load();
     String classes = config.get(Configuration.CATEGORY_GENERAL, "classprefixes", "ore,ingot,dust,block").getString();
-    oc_id = config.get(Configuration.CATEGORY_ITEM, "oreconverter", 9001).getInt(9001);
-    oct_id = config.get(Configuration.CATEGORY_BLOCK, "oreconverisontable", 3826).getInt(3826);
-    aoc_id = config.get(Configuration.CATEGORY_BLOCK, "oreautoconverter", 3827).getInt(3827);
     config.save();
     prefixes = classes.split(",");
     valid_ore_names = new ArrayList<String>();
 
     NetworkRegistry.instance().registerGuiHandler(this, proxy);
 
-    block_oreconvtable = (BlockOreConversionTable) (new BlockOreConversionTable(oct_id)).setHardness(2.5F).setStepSound(Block.soundWoodFootstep).setUnlocalizedName("oreConvTable");
-    block_oreautoconv = (BlockAutomaticOreConverter) (new BlockAutomaticOreConverter(aoc_id)).setHardness(2.5F).setStepSound(Block.soundWoodFootstep).setUnlocalizedName("autoOreConverter");
+    block_oreconvtable = (BlockOreConversionTable) (new BlockOreConversionTable()).setHardness(2.5F).setStepSound(Block.soundWoodFootstep).setUnlocalizedName("oreConvTable");
+    block_oreautoconv = (BlockAutomaticOreConverter) (new BlockAutomaticOreConverter()).setHardness(2.5F).setStepSound(Block.soundWoodFootstep).setUnlocalizedName("autoOreConverter");
     item_oreconverter = new ItemOreConverter(oc_id);
   }
 

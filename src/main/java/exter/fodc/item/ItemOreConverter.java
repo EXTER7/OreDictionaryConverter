@@ -1,6 +1,6 @@
 package exter.fodc.item;
 
-import net.minecraft.client.renderer.texture.IconRegister;
+import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -12,9 +12,9 @@ import exter.fodc.ModOreDicConvert;
 
 public class ItemOreConverter extends Item
 {
-  public ItemOreConverter(int id)
+  public ItemOreConverter()
   {
-    super(id);
+    super();
     maxStackSize = 1;
     setCreativeTab(CreativeTabs.tabMisc);
     setUnlocalizedName("oreConverter");
@@ -22,7 +22,7 @@ public class ItemOreConverter extends Item
   
   @Override
   @SideOnly(Side.CLIENT)
-  public void registerIcons(IconRegister iconRegister)
+  public void registerIcons(IIconRegister iconRegister)
   {
     itemIcon = iconRegister.registerIcon("fodc:ore_converter");
   }
