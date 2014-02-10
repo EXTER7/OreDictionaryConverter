@@ -31,7 +31,7 @@ public class BlockAutomaticOreConverter extends BlockContainer
     setHardness(1.0F);
     setResistance(8.0F);
     setStepSound(Block.soundTypeStone);
-    //setUnlocalizedName("autoOreConverter");
+    setBlockName("oreAutoconverter");
     setCreativeTab(CreativeTabs.tabDecorations);
   }
 

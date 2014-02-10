@@ -16,7 +16,8 @@ public class BlockOreConversionTable extends Block
   public BlockOreConversionTable()
   {
     super(Material.wood);
-    this.setCreativeTab(CreativeTabs.tabDecorations);
+    setBlockName("oreConvTable");
+    setCreativeTab(CreativeTabs.tabDecorations);
   }
   
   private IIcon texture_top;

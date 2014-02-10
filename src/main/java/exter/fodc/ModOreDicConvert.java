@@ -94,6 +94,10 @@ public class ModOreDicConvert
     block_oreautoconv = (BlockAutomaticOreConverter) (new BlockAutomaticOreConverter()).setHardness(2.5F).setStepSound(Block.soundTypeStone);
     item_oreconverter = new ItemOreConverter();
     network_channel = NetworkRegistry.INSTANCE.newEventDrivenChannel("EXTER.FODC");
+    GameRegistry.registerBlock(block_oreconvtable,"oreConvTable");
+    GameRegistry.registerBlock(block_oreautoconv,"oreAutoconverter");
+    GameRegistry.registerItem(item_oreconverter, "oreConverter");
+    
     net_handler = new ODCPacketHandler();
     network_channel.register(net_handler);
   }
@@ -105,20 +109,38 @@ public class ModOreDicConvert
     ItemStack iron_stack = new ItemStack(Items.iron_ingot);
     ItemStack redstone_stack = new ItemStack(Items.redstone);
     ItemStack workbench_stack = new ItemStack(Blocks.crafting_table);
-    ItemStack wood_stack = new ItemStack(Blocks.planks,1,-1);
-    ItemStack cobble_stack = new ItemStack(Blocks.cobblestone,1,-1);
+    ItemStack wood_stack = new ItemStack(Blocks.planks,1,OreDictionary.WILDCARD_VALUE);
+    ItemStack cobble_stack = new ItemStack(Blocks.cobblestone,1,OreDictionary.WILDCARD_VALUE);
     ItemStack oreconverter_stack = new ItemStack(item_oreconverter);
     LanguageRegistry.addName(item_oreconverter, "Ore Converter");
     LanguageRegistry.addName(block_oreconvtable, "Ore Conversion Table");
     LanguageRegistry.addName(block_oreautoconv, "Automatic Ore Converter");
-    GameRegistry.registerBlock(block_oreconvtable,"oreConvTable");
-    GameRegistry.registerBlock(block_oreautoconv,"oreConvChest");
     GameRegistry.registerTileEntity(TileEntityAutomaticOreConverter.class, "AutoOreConverter");
     proxy.Init();
     
-    GameRegistry.addRecipe(oreconverter_stack, "I","C","B", 'I', iron_stack, 'C', cobble_stack, 'B', workbench_stack);
-    GameRegistry.addRecipe(new ItemStack(block_oreconvtable), "O","W", 'O', oreconverter_stack, 'W', wood_stack);
-    GameRegistry.addRecipe(new ItemStack(block_oreautoconv), "IOI","CRC","ICI", 'I', iron_stack, 'O', oreconverter_stack, 'R', redstone_stack, 'C', cobble_stack);
+    GameRegistry.addRecipe(
+        oreconverter_stack,
+        "I",
+        "C",
+        "B",
+        'I', iron_stack,
+        'C', cobble_stack,
+        'B', workbench_stack);
+    GameRegistry.addRecipe(
+        new ItemStack(block_oreconvtable),
+        "O",
+        "W",
+        'O', oreconverter_stack,
+        'W', wood_stack);
+    GameRegistry.addRecipe(
+        new ItemStack(block_oreautoconv),
+        "IOI",
+        "CRC",
+        "ICI",
+        'I', iron_stack,
+        'O', oreconverter_stack,
+        'R', redstone_stack,
+        'C', cobble_stack);
   }
 
   private void RegisterOreName(String name)
