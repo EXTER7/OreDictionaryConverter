@@ -1,34 +1,36 @@
 package exter.fodc.network;
 
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufInputStream;
+import io.netty.buffer.ByteBufOutputStream;
+import io.netty.buffer.Unpooled;
+
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import com.google.common.io.ByteArrayDataInput;
-import com.google.common.io.ByteStreams;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.Packet250CustomPayload;
+import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.network.IPacketHandler;
-import cpw.mods.fml.common.network.PacketDispatcher;
-import cpw.mods.fml.common.network.Player;
+import net.minecraftforge.common.DimensionManager;
+import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.network.FMLNetworkEvent.ClientCustomPacketEvent;
+import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
+import cpw.mods.fml.common.network.internal.FMLProxyPacket;
+import exter.fodc.ModOreDicConvert;
 import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 
-public class ODCPacketHandler implements IPacketHandler
+public class ODCPacketHandler
 {
 
   static public void SendAutoOreConverterTarget(TileEntityAutomaticOreConverter sender, int slot, ItemStack target)
   {
-    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-    DataOutputStream data = new DataOutputStream(bytes);
+    ByteBuf bytes = Unpooled.buffer();
+    ByteBufOutputStream data = new ByteBufOutputStream(bytes);
     try
     {
       //Position
@@ -38,34 +40,33 @@ public class ODCPacketHandler implements IPacketHandler
       
       //Packet type
       data.writeByte(0);
-      
       data.writeByte(slot);
+      
       if(target == null)
       {
-        data.writeInt(-1);
-        data.writeInt(-1);
+        data.writeBoolean(false);
       } else
       {
-        data.writeInt(target.itemID);
-        data.writeInt(target.getItemDamage());
+        data.writeBoolean(true);
+        data.writeByte(slot);
+        NBTTagCompound tag = new NBTTagCompound();
+        target.writeToNBT(tag);
+        CompressedStreamTools.writeCompressed(tag, data);
       }
+      
     } catch(IOException e)
     {
       e.printStackTrace();
     }
 
-    Packet250CustomPayload packet = new Packet250CustomPayload();
-    packet.channel = "FODC";
-    packet.data = bytes.toByteArray();
-    packet.length = packet.data.length;
-    packet.isChunkDataPacket = true;
-    PacketDispatcher.sendPacketToServer(packet);
+    FMLProxyPacket packet = new FMLProxyPacket(bytes,"EXTER.FODC");
+    ModOreDicConvert.network_channel.sendToServer(packet);
   }
 
   public static void SendAllAutoOreConverterTargets(TileEntityAutomaticOreConverter sender)
   {
-    ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-    DataOutputStream data = new DataOutputStream(bytes);
+    ByteBuf bytes = Unpooled.buffer();
+    ByteBufOutputStream data = new ByteBufOutputStream(bytes);
 
     Map<Integer,ItemStack> send_targets = new HashMap<Integer,ItemStack>();
     int i;
@@ -85,6 +86,7 @@ public class ODCPacketHandler implements IPacketHandler
       data.writeInt(sender.xCoord);
       data.writeInt(sender.yCoord);
       data.writeInt(sender.zCoord);
+      data.writeInt(sender.getWorldObj().provider.dimensionId);
       
       //Packet type
       data.writeByte(1);
@@ -96,42 +98,44 @@ public class ODCPacketHandler implements IPacketHandler
       {
         ItemStack target = send_targets.get(s);
         data.writeByte(s.intValue());
-        data.writeInt(target.itemID);
-        data.writeInt(target.getItemDamage());
+        NBTTagCompound tag = new NBTTagCompound();
+        target.writeToNBT(tag);
+        CompressedStreamTools.writeCompressed(tag, data);
       }
     } catch(IOException e)
     {
       e.printStackTrace();
     }
 
-    Packet250CustomPayload packet = new Packet250CustomPayload();
-    packet.channel = "FODC";
-    packet.data = bytes.toByteArray();
-    packet.length = packet.data.length;
-    packet.isChunkDataPacket = true;
-    FMLCommonHandler.instance().getMinecraftServerInstance().getConfigurationManager().sendPacketToAllPlayers(packet);
+    FMLProxyPacket packet = new FMLProxyPacket(bytes,"EXTER.FODC");
+    ModOreDicConvert.network_channel.sendToAllAround(packet,
+        new TargetPoint(
+            sender.getWorldObj().provider.dimensionId,
+            sender.xCoord,sender.yCoord,sender.zCoord,
+            192));
   }
   
-  @Override
-  public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player)
+  @SubscribeEvent
+  public void onPacketData(ClientCustomPacketEvent event)
   {
     try
     {
-      ByteArrayDataInput data = ByteStreams.newDataInput(packet.data);
+      ByteBufInputStream data = new ByteBufInputStream(event.packet.payload());
       int x = data.readInt();
       int y = data.readInt();
       int z = data.readInt();
-      World world = ((EntityPlayer)player).worldObj;
+      int d = data.readInt();
+      World world = DimensionManager.getWorld(d);
 
       if(world != null)
       {
-        TileEntity tileEntity = world.getBlockTileEntity(x, y, z);
+        TileEntity tileEntity = world.getTileEntity(x, y, z);
 
         if(tileEntity != null)
         {
           if(tileEntity instanceof TileEntityAutomaticOreConverter)
           {
-            ((TileEntityAutomaticOreConverter)tileEntity).ReceivePacketData(manager, packet, ((EntityPlayer)player), data);
+            ((TileEntityAutomaticOreConverter)tileEntity).ReceivePacketData(data);
           }
         }
       }

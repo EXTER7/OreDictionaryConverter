@@ -20,12 +20,14 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.network.FMLEventChannel;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import exter.fodc.block.BlockAutomaticOreConverter;
 import exter.fodc.block.BlockOreConversionTable;
 import exter.fodc.item.ItemOreConverter;
+import exter.fodc.network.ODCPacketHandler;
 import exter.fodc.proxy.CommonODCProxy;
 import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 
@@ -54,6 +56,10 @@ public class ModOreDicConvert
   
   public static Logger log = Logger.getLogger("OreDicConvert");
 
+  public static FMLEventChannel network_channel;
+  
+  public static ODCPacketHandler net_handler;
+  
   // Find all ore names of a item stack in the dictionary.
   public Set<String> FindAllOreNames(ItemStack it)
   {
@@ -87,6 +93,9 @@ public class ModOreDicConvert
     block_oreconvtable = (BlockOreConversionTable) (new BlockOreConversionTable()).setHardness(2.5F).setStepSound(Block.soundTypeWood);
     block_oreautoconv = (BlockAutomaticOreConverter) (new BlockAutomaticOreConverter()).setHardness(2.5F).setStepSound(Block.soundTypeStone);
     item_oreconverter = new ItemOreConverter();
+    network_channel = NetworkRegistry.INSTANCE.newEventDrivenChannel("EXTER.FODC");
+    net_handler = new ODCPacketHandler();
+    network_channel.register(net_handler);
   }
 
   @EventHandler

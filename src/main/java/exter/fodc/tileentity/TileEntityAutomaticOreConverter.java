@@ -1,13 +1,16 @@
 package exter.fodc.tileentity;
 
-import java.util.Set;
+import io.netty.buffer.ByteBufInputStream;
 
+import java.io.IOException;
+import java.util.Set;
 
 import exter.fodc.ModOreDicConvert;
 import exter.fodc.network.ODCPacketHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
@@ -20,10 +23,10 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
 
   private ItemStack last_input;
   private ItemStack last_target;
-  
+
   static public int SIZE_INVENTORY = 14;
   static public int SIZE_TARGETS = 18;
-  
+
   public TileEntityAutomaticOreConverter()
   {
     inventory = new ItemStack[SIZE_INVENTORY];
@@ -34,8 +37,8 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   public void readFromNBT(NBTTagCompound par1NBTTagCompound)
   {
     super.readFromNBT(par1NBTTagCompound);
-    NBTTagList inv_tag = par1NBTTagCompound.getTagList("Items",10);
-    NBTTagList targets_tag = par1NBTTagCompound.getTagList("Targets",10);
+    NBTTagList inv_tag = par1NBTTagCompound.getTagList("Items", 10);
+    NBTTagList targets_tag = par1NBTTagCompound.getTagList("Targets", 10);
     inventory = new ItemStack[SIZE_INVENTORY];
     targets = new ItemStack[SIZE_TARGETS];
     int i;
@@ -56,7 +59,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
 
       ItemStack is = ItemStack.loadItemStackFromNBT(tag);
       is.stackSize = 1;
-      SetTarget(slot,is);
+      SetTarget(slot, is);
     }
   }
 
@@ -74,7 +77,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
       if(is != null)
       {
         NBTTagCompound tag = new NBTTagCompound();
-        tag.setByte("Slot", (byte)i);
+        tag.setByte("Slot", (byte) i);
         is.writeToNBT(tag);
         inv_tag.appendTag(tag);
       }
@@ -82,11 +85,11 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
 
     for(i = 0; i < targets.length; i++)
     {
-      ItemStack t = targets[i]; 
+      ItemStack t = targets[i];
       if(t != null)
       {
         NBTTagCompound tag = new NBTTagCompound();
-        tag.setByte("Slot", (byte)i);
+        tag.setByte("Slot", (byte) i);
         t.writeToNBT(tag);
         targets_tag.appendTag(tag);
       }
@@ -96,56 +99,62 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     par1NBTTagCompound.setTag("Targets", targets_tag);
   }
 
-  /* //TODO: Implement this using the new packet system
-  public void ReceivePacketData(INetworkManager manager, Packet250CustomPayload packet, EntityPlayer entityPlayer, ByteArrayDataInput data)
+  public void ReceivePacketData(ByteBufInputStream data)
   {
-    int type = data.readByte() & 255;
-    switch(type)
+    int type;
+    try
     {
-      case 0:
+      type = data.readByte() & 255;
+      switch(type)
       {
-        int slot = data.readByte() & 255;
-        int target_id = data.readInt();
-        int target_dmg = data.readInt();
-
-        ItemStack target = null;
-        if(target_id >= 0)
-        {
-          target = new ItemStack(target_id, 1, target_dmg);
-        }
-
-        if(!worldObj.isRemote)
-        {
-          SetTarget(slot, target);
-        }
-        break;
-      }
-      case 1:
-      {
-        int size = data.readByte() & 255;
-        int i;
-        for(i = 0; i < size; i++)
+        case 0:
         {
           int slot = data.readByte() & 255;
-          int target_id = data.readInt();
-          int target_dmg = data.readInt();
-
+          boolean has_targat = data.readBoolean();
           ItemStack target = null;
-          if(target_id >= 0)
+          if(has_targat)
           {
-            target = new ItemStack(target_id, 1, target_dmg);
+            target = ItemStack.loadItemStackFromNBT(CompressedStreamTools.readCompressed(data));
           }
 
-          if(worldObj.isRemote)
+          if(!worldObj.isRemote)
           {
             SetTarget(slot, target);
           }
+          break;
         }
-        break;
+        case 1:
+        {
+          int i;
+          for(i = 0; i < SIZE_TARGETS; i++)
+          {
+            if(worldObj.isRemote)
+            {
+              SetTarget(i, null);
+            }
+          }
+          int size = data.readByte() & 255;
+          for(i = 0; i < size; i++)
+          {
+            int slot = data.readByte() & 255;
+
+            ItemStack target = ItemStack.loadItemStackFromNBT(CompressedStreamTools.readCompressed(data));
+
+            if(worldObj.isRemote)
+            {
+              SetTarget(slot, target);
+            }
+          }
+          break;
+        }
       }
+    } catch(IOException e)
+    {
+      throw new RuntimeException(e);
     }
+
   }
-*/
+
   @Override
   public int getSizeInventory()
   {
@@ -171,8 +180,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
         inventory[slot] = null;
         markDirty();
         return var3;
-      }
-      else
+      } else
       {
         var3 = inventory[slot].splitStack(amount);
 
@@ -184,8 +192,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
         markDirty();
         return var3;
       }
-    }
-    else
+    } else
     {
       return null;
     }
@@ -233,9 +240,8 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   @Override
   public boolean isUseableByPlayer(EntityPlayer par1EntityPlayer)
   {
-    return worldObj.getTileEntity(xCoord, yCoord, zCoord) != this ? false : par1EntityPlayer.getDistanceSq((double)xCoord + 0.5D, (double)yCoord + 0.5D, (double)zCoord + 0.5D) <= 64.0D;
+    return worldObj.getTileEntity(xCoord, yCoord, zCoord) != this ? false : par1EntityPlayer.getDistanceSq((double) xCoord + 0.5D, (double) yCoord + 0.5D, (double) zCoord + 0.5D) <= 64.0D;
   }
-
 
   @Override
   public void openInventory()
@@ -255,8 +261,6 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     }
   }
 
-
-  
   // Returns the version of the item to be converted,
   // or the item itself if its not registered in the ore dictionary.
   private ItemStack FindConversionTarget(ItemStack item)
@@ -272,8 +276,8 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
       last_target = last_input;
       return item;
     }
-    
-    for(ItemStack t:targets)
+
+    for(ItemStack t : targets)
     {
       if(t != null)
       {
@@ -288,9 +292,9 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     }
     ItemStack target = item;
     int target_diff = Integer.MAX_VALUE;
-    for(String name: names)
+    for(String name : names)
     {
-      for(ItemStack stack:OreDictionary.getOres(name))
+      for(ItemStack stack : OreDictionary.getOres(name))
       {
         Set<String> target_names = ModOreDicConvert.instance.FindAllOreNames(stack);
         if(names.containsAll(target_names))
@@ -314,9 +318,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     last_target = target;
     return target;
   }
-  
-  
-  
+
   @Override
   public void updateEntity()
   {
@@ -332,7 +334,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
         for(j = 8; j < 14; j++)
         {
           ItemStack d = inventory[j];
-          if(d != null && d.stackSize < d.getMaxStackSize() && d.isItemEqual(target) && ItemStack.areItemStackTagsEqual(target,d))
+          if(d != null && d.stackSize < d.getMaxStackSize() && d.isItemEqual(target) && ItemStack.areItemStackTagsEqual(target, d))
           {
             dest = d;
             break;
@@ -363,7 +365,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     }
   }
 
-  public void SetTarget(int slot,ItemStack target)
+  public void SetTarget(int slot, ItemStack target)
   {
     if(slot >= 0 && slot < SIZE_TARGETS && (target == null || !ModOreDicConvert.instance.FindAllOreNames(target).isEmpty()))
     {
