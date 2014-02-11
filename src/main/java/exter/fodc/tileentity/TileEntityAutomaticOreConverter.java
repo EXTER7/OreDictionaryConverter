@@ -8,7 +8,6 @@ import java.util.Set;
 import cpw.mods.fml.common.FMLCommonHandler;
 import exter.fodc.ModOreDicConvert;
 import exter.fodc.network.ODCPacketHandler;
-import exter.fodc.proxy.ClientODCProxy;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
@@ -132,10 +131,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
               target = ReadItem(data);
             }
 
-            if(!worldObj.isRemote)
-            {
-              SetTarget(slot, target);
-            }
+            SetTarget(slot, target);
           }
           break;
         }

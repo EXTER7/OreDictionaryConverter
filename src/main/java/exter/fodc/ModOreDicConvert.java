@@ -23,7 +23,6 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.network.FMLEventChannel;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.common.registry.LanguageRegistry;
 import exter.fodc.block.BlockAutomaticOreConverter;
 import exter.fodc.block.BlockOreConversionTable;
 import exter.fodc.item.ItemOreConverter;
@@ -111,9 +110,6 @@ public class ModOreDicConvert
     ItemStack wood_stack = new ItemStack(Blocks.planks,1,OreDictionary.WILDCARD_VALUE);
     ItemStack cobble_stack = new ItemStack(Blocks.cobblestone,1,OreDictionary.WILDCARD_VALUE);
     ItemStack oreconverter_stack = new ItemStack(item_oreconverter);
-    LanguageRegistry.addName(item_oreconverter, "Ore Converter");
-    LanguageRegistry.addName(block_oreconvtable, "Ore Conversion Table");
-    LanguageRegistry.addName(block_oreautoconv, "Automatic Ore Converter");
     GameRegistry.registerTileEntity(TileEntityAutomaticOreConverter.class, "AutoOreConverter");
     proxy.Init();
     
