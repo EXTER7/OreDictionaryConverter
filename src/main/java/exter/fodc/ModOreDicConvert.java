@@ -70,7 +70,6 @@ public class ModOreDicConvert
       {
         if (it.isItemEqual(ore))
         {
-          log.info("  " + name);
           results.add(name);
         }
       }
@@ -185,7 +184,6 @@ public class ModOreDicConvert
   @SubscribeEvent
   public void OnOreDictionaryRegister(OreDictionary.OreRegisterEvent event)
   {
-    log.info("Handling ore event: " + event.Name );
     RegisterOreName(event.Name);
   }
 }

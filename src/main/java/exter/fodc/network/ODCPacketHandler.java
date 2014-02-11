@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-
+import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
@@ -19,6 +19,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.network.FMLNetworkEvent.ClientCustomPacketEvent;
+import cpw.mods.fml.common.network.FMLNetworkEvent.ServerCustomPacketEvent;
 import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
 import cpw.mods.fml.common.network.internal.FMLProxyPacket;
 import exter.fodc.ModOreDicConvert;
@@ -27,39 +28,47 @@ import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 public class ODCPacketHandler
 {
 
+  private static void WriteItem(ByteBufOutputStream data, ItemStack item) throws IOException
+  {
+    NBTTagCompound tag = new NBTTagCompound();
+    item.writeToNBT(tag);
+    byte[] bytes = CompressedStreamTools.compress(tag);
+    data.writeInt(bytes.length);
+    data.write(bytes);
+  }
+
   static public void SendAutoOreConverterTarget(TileEntityAutomaticOreConverter sender, int slot, ItemStack target)
   {
     ByteBuf bytes = Unpooled.buffer();
     ByteBufOutputStream data = new ByteBufOutputStream(bytes);
     try
     {
-      //Position
+      // Position
       data.writeInt(sender.xCoord);
       data.writeInt(sender.yCoord);
       data.writeInt(sender.zCoord);
-      
-      //Packet type
+      data.writeInt(sender.getWorldObj().provider.dimensionId);
+
+      // Packet type
       data.writeByte(0);
+
       data.writeByte(slot);
-      
+
       if(target == null)
       {
         data.writeBoolean(false);
       } else
       {
         data.writeBoolean(true);
-        data.writeByte(slot);
-        NBTTagCompound tag = new NBTTagCompound();
-        target.writeToNBT(tag);
-        CompressedStreamTools.writeCompressed(tag, data);
+        WriteItem(data, target);
       }
-      
+
     } catch(IOException e)
     {
-      e.printStackTrace();
+      throw new RuntimeException(e);
     }
 
-    FMLProxyPacket packet = new FMLProxyPacket(bytes,"EXTER.FODC");
+    FMLProxyPacket packet = new FMLProxyPacket(bytes, "EXTER.FODC");
     ModOreDicConvert.network_channel.sendToServer(packet);
   }
 
@@ -68,7 +77,7 @@ public class ODCPacketHandler
     ByteBuf bytes = Unpooled.buffer();
     ByteBufOutputStream data = new ByteBufOutputStream(bytes);
 
-    Map<Integer,ItemStack> send_targets = new HashMap<Integer,ItemStack>();
+    Map<Integer, ItemStack> send_targets = new HashMap<Integer, ItemStack>();
     int i;
     for(i = 0; i < TileEntityAutomaticOreConverter.SIZE_TARGETS; i++)
     {
@@ -81,42 +90,72 @@ public class ODCPacketHandler
     Set<Integer> slots = send_targets.keySet();
     try
     {
-      
-      //Position
+
+      // Position
       data.writeInt(sender.xCoord);
       data.writeInt(sender.yCoord);
       data.writeInt(sender.zCoord);
       data.writeInt(sender.getWorldObj().provider.dimensionId);
-      
-      //Packet type
+
+      // Packet type
       data.writeByte(1);
-      
-      
-      //Target slots
+
+      // Target slots
       data.writeByte(slots.size());
-      for(Integer s:slots)
+      for(Integer s : slots)
       {
         ItemStack target = send_targets.get(s);
         data.writeByte(s.intValue());
-        NBTTagCompound tag = new NBTTagCompound();
-        target.writeToNBT(tag);
-        CompressedStreamTools.writeCompressed(tag, data);
+        WriteItem(data, target);
       }
     } catch(IOException e)
     {
       e.printStackTrace();
     }
 
-    FMLProxyPacket packet = new FMLProxyPacket(bytes,"EXTER.FODC");
-    ModOreDicConvert.network_channel.sendToAllAround(packet,
-        new TargetPoint(
-            sender.getWorldObj().provider.dimensionId,
-            sender.xCoord,sender.yCoord,sender.zCoord,
-            192));
+    FMLProxyPacket packet = new FMLProxyPacket(bytes, "EXTER.FODC");
+    ModOreDicConvert.network_channel.sendToAllAround(packet, new TargetPoint(sender.getWorldObj().provider.dimensionId, sender.xCoord, sender.yCoord, sender.zCoord, 192));
   }
-  
+
+  private void OnTEPacketData(ByteBufInputStream data, World world, int x, int y, int z)
+  {
+    if(world != null)
+    {
+      TileEntity tileEntity = world.getTileEntity(x, y, z);
+
+      if(tileEntity != null)
+      {
+        if(tileEntity instanceof TileEntityAutomaticOreConverter)
+        {
+          ((TileEntityAutomaticOreConverter) tileEntity).ReceivePacketData(data);
+        }
+      }
+    }
+  }
+
   @SubscribeEvent
-  public void onPacketData(ClientCustomPacketEvent event)
+  public void onClientPacketData(ClientCustomPacketEvent event)
+  {
+    try
+    {
+      ByteBufInputStream data = new ByteBufInputStream(event.packet.payload());
+      int x = data.readInt();
+      int y = data.readInt();
+      int z = data.readInt();
+      int d = data.readInt();
+      World world = Minecraft.getMinecraft().theWorld;
+      if(d == world.provider.dimensionId)
+      {
+        OnTEPacketData(data, world, x, y, z);
+      }
+    } catch(Exception e)
+    {
+      new RuntimeException(e);
+    }
+  }
+
+  @SubscribeEvent
+  public void onServerPacketData(ServerCustomPacketEvent event)
   {
     try
     {
@@ -126,25 +165,10 @@ public class ODCPacketHandler
       int z = data.readInt();
       int d = data.readInt();
       World world = DimensionManager.getWorld(d);
-
-      if(world != null)
-      {
-        TileEntity tileEntity = world.getTileEntity(x, y, z);
-
-        if(tileEntity != null)
-        {
-          if(tileEntity instanceof TileEntityAutomaticOreConverter)
-          {
-            ((TileEntityAutomaticOreConverter)tileEntity).ReceivePacketData(data);
-          }
-        }
-      }
-
+      OnTEPacketData(data, world, x, y, z);
     } catch(Exception e)
     {
-      e.printStackTrace();
+      new RuntimeException(e);
     }
-
   }
-
 }

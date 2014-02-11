@@ -5,8 +5,10 @@ import io.netty.buffer.ByteBufInputStream;
 import java.io.IOException;
 import java.util.Set;
 
+import cpw.mods.fml.common.FMLCommonHandler;
 import exter.fodc.ModOreDicConvert;
 import exter.fodc.network.ODCPacketHandler;
+import exter.fodc.proxy.ClientODCProxy;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
@@ -98,6 +100,17 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     par1NBTTagCompound.setTag("Items", inv_tag);
     par1NBTTagCompound.setTag("Targets", targets_tag);
   }
+  
+  private static ItemStack ReadItem(ByteBufInputStream data) throws IOException
+  {
+    int len = data.readInt();
+    byte[] bytes = new byte[len];
+    if(data.read(bytes) < len)
+    {
+      throw new IOException();
+    }
+    return ItemStack.loadItemStackFromNBT(CompressedStreamTools.decompress(bytes));
+  }
 
   public void ReceivePacketData(ByteBufInputStream data)
   {
@@ -109,39 +122,37 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
       {
         case 0:
         {
-          int slot = data.readByte() & 255;
-          boolean has_targat = data.readBoolean();
-          ItemStack target = null;
-          if(has_targat)
+          if(FMLCommonHandler.instance().getEffectiveSide().isServer())
           {
-            target = ItemStack.loadItemStackFromNBT(CompressedStreamTools.readCompressed(data));
-          }
+            int slot = data.readByte() & 255;
+            boolean has_target = data.readBoolean();
+            ItemStack target = null;
+            if(has_target)
+            {
+              target = ReadItem(data);
+            }
 
-          if(!worldObj.isRemote)
-          {
-            SetTarget(slot, target);
+            if(!worldObj.isRemote)
+            {
+              SetTarget(slot, target);
+            }
           }
           break;
         }
         case 1:
         {
-          int i;
-          for(i = 0; i < SIZE_TARGETS; i++)
+          if(FMLCommonHandler.instance().getEffectiveSide().isClient())
           {
-            if(worldObj.isRemote)
+            int i;
+            for(i = 0; i < SIZE_TARGETS; i++)
             {
               SetTarget(i, null);
             }
-          }
-          int size = data.readByte() & 255;
-          for(i = 0; i < size; i++)
-          {
-            int slot = data.readByte() & 255;
-
-            ItemStack target = ItemStack.loadItemStackFromNBT(CompressedStreamTools.readCompressed(data));
-
-            if(worldObj.isRemote)
+            int size = data.readByte() & 255;
+            for(i = 0; i < size; i++)
             {
+              int slot = data.readByte() & 255;
+              ItemStack target = ReadItem(data);
               SetTarget(slot, target);
             }
           }
@@ -246,7 +257,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   @Override
   public void openInventory()
   {
-    if(!worldObj.isRemote)
+    if(FMLCommonHandler.instance().getEffectiveSide().isServer())
     {
       ODCPacketHandler.SendAllAutoOreConverterTargets(this);
     }
@@ -255,7 +266,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   @Override
   public void closeInventory()
   {
-    if(!worldObj.isRemote)
+    if(FMLCommonHandler.instance().getEffectiveSide().isServer())
     {
       ODCPacketHandler.SendAllAutoOreConverterTargets(this);
     }
