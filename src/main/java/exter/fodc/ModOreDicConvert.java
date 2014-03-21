@@ -77,7 +77,6 @@ public class ModOreDicConvert
       {
         if (it.isItemEqual(ore))
         {
-          log.info("  " + name);
           results.add(name);
         }
       }
