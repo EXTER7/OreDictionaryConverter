@@ -169,7 +169,6 @@ public class ModOreDicConvert
   @ForgeSubscribe
   public void OnOreDictionaryRegister(OreDictionary.OreRegisterEvent event)
   {
-    log.info("Handling ore event: " + event.Name );
     RegisterOreName(event.Name);
   }
 }
