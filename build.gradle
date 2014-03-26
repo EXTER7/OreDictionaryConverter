@@ -17,12 +17,12 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "1.4.3"
+version = "1.5.0"
 group= "exter.fodc" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "OreDictionaryConverter"
 
 minecraft {
-    version = "1.7.2-10.12.0.1025"
+    version = "1.7.2-10.12.0.1047"
     assetDir = "eclipse/assets"
 }
 processResources
