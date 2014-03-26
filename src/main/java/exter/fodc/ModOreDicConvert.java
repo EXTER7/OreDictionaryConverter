@@ -2,8 +2,11 @@ package exter.fodc;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.logging.Logger;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -40,7 +43,8 @@ public class ModOreDicConvert
 {
   
   //List of string that the ore name must begin with
-  private String[] prefixes;
+  private List<Pattern> whitelist;
+  private List<Pattern> blacklist;
 
   public static ItemOreConverter item_oreconverter = null;
   @Instance("fodc")
@@ -51,7 +55,7 @@ public class ModOreDicConvert
   public static CommonODCProxy proxy;
   public static BlockOreConversionTable block_oreconvtable;
   public static BlockAutomaticOreConverter block_oreautoconv;
-  public ArrayList<String> valid_ore_names;
+  public Set<String> valid_ore_names;
   
   public static Logger log = Logger.getLogger("OreDicConvert");
 
@@ -75,17 +79,54 @@ public class ModOreDicConvert
     }
     return results;
   }
+  
+  private List<Pattern> CompilePatterns(String line)
+  {
+    List<Pattern> list = new ArrayList<Pattern>();
+    String[] tokens = line.split(",");
+    for(String t: tokens)
+    {
+      t = t.trim();
+      if(t == null || t.isEmpty())
+      {
+        continue;
+      }
+      try
+      {
+        list.add(Pattern.compile(t));
+      } catch(PatternSyntaxException e)
+      {
+        log.warning("Pattern '" + t + "' has invalid syntax.");
+      }
+    }
+    return list;
+  }
+  
+  private boolean MatchesAnyPattern(String str, List<Pattern> patterns)
+  {
+    for(Pattern p:patterns)
+    {
+      if(p.matcher(str).matches())
+      {
+        return true;
+      }
+    }
+    return false;
+  }
 
   @EventHandler
   public void preInit(FMLPreInitializationEvent event)
   {
     Configuration config = new Configuration(event.getSuggestedConfigurationFile());
     config.load();
-    String classes = config.get(Configuration.CATEGORY_GENERAL, "classprefixes", "ore,ingot,dust,block").getString();
+    String whitelist_line = config.get(Configuration.CATEGORY_GENERAL, "whitelist", "^ore.*,^ingot.*,^dust.*,^block.*").getString();
+    String blacklist_line = config.get(Configuration.CATEGORY_GENERAL, "blacklist", "").getString();
     config.save();
-    prefixes = classes.split(",");
-    valid_ore_names = new ArrayList<String>();
-
+    valid_ore_names = new HashSet<String>();
+    whitelist = CompilePatterns(whitelist_line);
+    blacklist = CompilePatterns(blacklist_line);
+    
+    
     NetworkRegistry.INSTANCE.registerGuiHandler(this, proxy);
 
     block_oreconvtable = (BlockOreConversionTable) (new BlockOreConversionTable()).setHardness(2.5F).setStepSound(Block.soundTypeWood);
@@ -140,20 +181,7 @@ public class ModOreDicConvert
 
   private void RegisterOreName(String name)
   {
-    if(valid_ore_names.contains(name))
-    {
-      return;
-    }
-    boolean found = false;
-    for (String cl : prefixes)
-    {
-      if (cl != null && name.startsWith(cl))
-      {
-        found = true;
-        break;
-      }
-    }
-    if(found)
+    if(MatchesAnyPattern(name,whitelist) && !MatchesAnyPattern(name,blacklist))
     {
       valid_ore_names.add(name);
       log.info("registered ore name: " + name);
