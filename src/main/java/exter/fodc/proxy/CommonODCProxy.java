@@ -2,7 +2,6 @@ package exter.fodc.proxy;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
-import net.minecraftforge.common.DimensionManager;
 import cpw.mods.fml.common.network.IGuiHandler;
 import exter.fodc.container.ContainerAutomaticOreConverter;
 import exter.fodc.container.ContainerOreConverter;
@@ -46,7 +45,6 @@ public class CommonODCProxy implements IGuiHandler
       return new GuiOreConverter(player.inventory,world,x,y,z);
     } if(ID == 2)
     {
-      world = DimensionManager.getWorld(world.provider.dimensionId);
       TileEntityAutomaticOreConverter te = (TileEntityAutomaticOreConverter)world.getTileEntity(x, y, z);
       return new GuiAutomaticOreConverter(te,player.inventory);
     }
