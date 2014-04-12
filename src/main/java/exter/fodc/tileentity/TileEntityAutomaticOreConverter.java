@@ -7,7 +7,6 @@ import java.util.Set;
 
 import cpw.mods.fml.common.FMLCommonHandler;
 import exter.fodc.ModOreDicConvert;
-import exter.fodc.network.ODCPacketHandler;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ISidedInventory;
@@ -34,15 +33,17 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
 
   private int process_tick;
 
+  private boolean update_targets;
 
   public TileEntityAutomaticOreConverter()
   {
     inventory = new ItemStack[SIZE_INVENTORY];
     targets = new ItemStack[SIZE_TARGETS];
     process_tick = 0;
+    update_targets = false;
   }
 
-  private void WriteInventoryItemToNBT(NBTTagCompound compound, int slot)
+  private void WriteItemToNBT(NBTTagCompound compound, int slot)
   {
     ItemStack is = getStackInSlot(slot);
     NBTTagCompound tag = new NBTTagCompound();
@@ -61,7 +62,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   public void readFromNBT(NBTTagCompound compound)
   {
     super.readFromNBT(compound);
-    NBTTagList targets_tag = (NBTTagList)compound.getTag("Targets");
+    NBTTagList targets_tag = (NBTTagList) compound.getTag("Targets");
     int i;
 
     for(i = 0; i < inventory.length; i++)
@@ -93,18 +94,11 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     }
   }
 
-  @Override
-  public void writeToNBT(NBTTagCompound compound)
+  private void WriteTargetsToNBT(NBTTagCompound compound)
   {
-    super.writeToNBT(compound);
     NBTTagList targets_tag = new NBTTagList();
 
     int i;
-    for(i = 0; i < inventory.length; i++)
-    {
-      WriteInventoryItemToNBT(compound, i);
-    }
-
     for(i = 0; i < targets.length; i++)
     {
       ItemStack t = targets[i];
@@ -117,6 +111,20 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
       }
     }
     compound.setTag("Targets", targets_tag);
+  }
+
+  @Override
+  public void writeToNBT(NBTTagCompound compound)
+  {
+    super.writeToNBT(compound);
+
+    int i;
+    for(i = 0; i < inventory.length; i++)
+    {
+      WriteItemToNBT(compound, i);
+    }
+
+    WriteTargetsToNBT(compound);
   }
 
   private static ItemStack ReadItem(ByteBufInputStream data) throws IOException
@@ -149,47 +157,20 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
 
   public void ReceivePacketData(ByteBufInputStream data)
   {
-    int type;
     try
     {
-      type = data.readByte() & 255;
-      switch(type)
+      if(FMLCommonHandler.instance().getEffectiveSide().isServer())
       {
-        case 0:
+        int slot = data.readByte() & 255;
+        boolean has_target = data.readBoolean();
+        ItemStack target = null;
+        if(has_target)
         {
-          if(FMLCommonHandler.instance().getEffectiveSide().isServer())
-          {
-            int slot = data.readByte() & 255;
-            boolean has_target = data.readBoolean();
-            ItemStack target = null;
-            if(has_target)
-            {
-              target = ReadItem(data);
-            }
+          target = ReadItem(data);
+        }
 
-            SetTarget(slot, target);
-          }
-          break;
-        }
-        case 1:
-        {
-          if(FMLCommonHandler.instance().getEffectiveSide().isClient())
-          {
-            int i;
-            for(i = 0; i < SIZE_TARGETS; i++)
-            {
-              SetTarget(i, null);
-            }
-            int size = data.readByte() & 255;
-            for(i = 0; i < size; i++)
-            {
-              int slot = data.readByte() & 255;
-              ItemStack target = ReadItem(data);
-              SetTarget(slot, target);
-            }
-          }
-          break;
-        }
+        update_targets = true;
+        SetTarget(slot, target);
       }
     } catch(IOException e)
     {
@@ -287,19 +268,13 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   @Override
   public void openInventory()
   {
-    if(FMLCommonHandler.instance().getEffectiveSide().isServer())
-    {
-      ODCPacketHandler.SendAllAutoOreConverterTargets(this);
-    }
+
   }
 
   @Override
   public void closeInventory()
   {
-    if(FMLCommonHandler.instance().getEffectiveSide().isServer())
-    {
-      ODCPacketHandler.SendAllAutoOreConverterTargets(this);
-    }
+
   }
 
   // Returns the version of the item to be converted,
@@ -359,7 +334,14 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     last_target = target;
     return target;
   }
-  
+
+  private NBTTagCompound CreateUpdatePacket()
+  {
+    NBTTagCompound packet = new NBTTagCompound();
+    super.writeToNBT(packet);
+    return packet;
+  }
+
   private NBTTagCompound ProcessItems()
   {
     int i;
@@ -381,11 +363,10 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
             inventory[i] = null;
             if(packet == null)
             {
-              packet = new NBTTagCompound();
-              super.writeToNBT(packet);
+              packet = CreateUpdatePacket();
             }
-            WriteInventoryItemToNBT(packet, i);
-            WriteInventoryItemToNBT(packet, j);
+            WriteItemToNBT(packet, i);
+            WriteItemToNBT(packet, j);
             return packet;
           } else if(output.stackSize < output.getMaxStackSize() && output.isItemEqual(target) && ItemStack.areItemStackTagsEqual(target, output))
           {
@@ -396,11 +377,10 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
               output.stackSize += input.stackSize;
               if(packet == null)
               {
-                packet = new NBTTagCompound();
-                super.writeToNBT(packet);
+                packet = CreateUpdatePacket();
               }
-              WriteInventoryItemToNBT(packet, i);
-              WriteInventoryItemToNBT(packet, j);
+              WriteItemToNBT(packet, i);
+              WriteItemToNBT(packet, j);
               return packet;
             } else
             {
@@ -408,11 +388,10 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
               output.stackSize += transfer;
               if(packet == null)
               {
-                packet = new NBTTagCompound();
-                super.writeToNBT(packet);
+                packet = CreateUpdatePacket();
               }
-              WriteInventoryItemToNBT(packet, i);
-              WriteInventoryItemToNBT(packet, j);
+              WriteItemToNBT(packet, i);
+              WriteItemToNBT(packet, j);
             }
           }
         }
@@ -439,11 +418,20 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
       return;
     }
     process_tick = (process_tick + 1) % 5;
-    if(process_tick != 0)
+    NBTTagCompound packet = null;
+    if(process_tick == 0)
     {
-      return;
+      packet = ProcessItems();
     }
-    NBTTagCompound packet = ProcessItems();
+    if(update_targets)
+    {
+      update_targets = false;
+      if(packet == null)
+      {
+        packet = CreateUpdatePacket();
+      }
+      WriteTargetsToNBT(packet);
+    }
     if(packet != null)
     {
       markDirty();
@@ -512,12 +500,12 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     }
     // worldObj.markBlockForRenderUpdate(xCoord, yCoord, zCoord);
   }
-  
+
   @Override
   public Packet getDescriptionPacket()
   {
     NBTTagCompound nbt = new NBTTagCompound();
-    writeToNBT(nbt);    
+    writeToNBT(nbt);
     return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, nbt);
   }
 
