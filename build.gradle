@@ -11,7 +11,7 @@ buildscript {
         }
     }
     dependencies {
-        classpath 'net.minecraftforge.gradle:ForgeGradle:1.1-SNAPSHOT'
+        classpath 'net.minecraftforge.gradle:ForgeGradle:1.2-SNAPSHOT'
     }
 }
 
@@ -22,7 +22,7 @@ group= "exter.fodc" // http://maven.apache.org/guides/mini/guide-naming-conventi
 archivesBaseName = "OreDictionaryConverter"
 
 minecraft {
-    version = "1.7.2-10.12.0.1047"
+    version = "1.7.2-10.12.0.1057"
     assetDir = "eclipse/assets"
 }
 processResources
