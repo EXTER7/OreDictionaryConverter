@@ -19,14 +19,19 @@ public class OreNameRegistry
   static private List<Pattern> whitelist;
   static private List<Pattern> blacklist;
 
+  static private final String REGEX_COMMENT = "Supports multiple expressions separated by commas.\n"
+      + "Uses Java's Pattern class regex syntax. See the following page for more info about Pattern regex syntax:\n"
+      + "http://docs.oracle.com/javase/7/docs/api/java/util/regex/Pattern.html";
+  
+  static private final String WHITELIST_COMMENT = "Only names that match any of these regexes will be registered. " + REGEX_COMMENT;
+  static private final String BLACKLIST_COMMENT = "Names that match any of these regexes will not be registered. " + REGEX_COMMENT;
+
   static public void PreInit(Configuration config)
-  {  
-    String whitelist_line = config.get(Configuration.CATEGORY_GENERAL, "whitelist", "^ore.*,^ingot.*,^dust.*,^block.*").getString();
-    String blacklist_line = config.get(Configuration.CATEGORY_GENERAL, "blacklist", "").getString();
+  {
+    String whitelist_line = config.get(Configuration.CATEGORY_GENERAL, "whitelist", "^ore.*,^ingot.*,^dust.*,^block.*",WHITELIST_COMMENT).getString();
+    String blacklist_line = config.get(Configuration.CATEGORY_GENERAL, "blacklist", "",BLACKLIST_COMMENT).getString();
     whitelist = CompilePatterns(whitelist_line);
     blacklist = CompilePatterns(blacklist_line);
-
-    
   }
   
   static private List<Pattern> CompilePatterns(String line)
