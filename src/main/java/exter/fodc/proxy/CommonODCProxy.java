@@ -11,25 +11,22 @@ import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 
 public class CommonODCProxy implements IGuiHandler
 {
-  public static String ITEMS_PNG = "/exter/fodc/items.png";
-  public static String BLOCKS_PNG = "/exter/fodc/blocks.png";
-  public void Init()
-  {
-    // Nothing here as this is the server side proxy
-  }
 
+  static public final int GUI_ORECONVERTER = 0;
+  static public final int GUI_ORECONVERTIONTABLE = 1;
+  static public final int GUI_OREAUTOCONVERTER = 2;
+  
   @Override
   public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
   {
-    if(ID == 0)
+    switch(ID)
     {
-      return new ContainerOreConverter(player.inventory,world);
-    } else if(ID == 1)
-    {
-      return new ContainerOreConverter(player.inventory,world,x,y,z);
-    } else if(ID == 2)
-    {
-      return new ContainerAutomaticOreConverter((TileEntityAutomaticOreConverter)world.getTileEntity(x, y, z),player.inventory);
+      case GUI_ORECONVERTER:
+        return new ContainerOreConverter(player.inventory,world);
+      case GUI_ORECONVERTIONTABLE:
+        return new ContainerOreConverter(player.inventory,world,x,y,z);
+      case GUI_OREAUTOCONVERTER:
+        return new ContainerAutomaticOreConverter((TileEntityAutomaticOreConverter)world.getTileEntity(x, y, z),player.inventory);
     }
     return null;
   }
@@ -37,16 +34,17 @@ public class CommonODCProxy implements IGuiHandler
   @Override
   public Object getClientGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
   {
-    if(ID == 0)
+    switch(ID)
     {
-      return new GuiOreConverter(player.inventory,world);
-    } else if(ID == 1)
-    {
-      return new GuiOreConverter(player.inventory,world,x,y,z);
-    } if(ID == 2)
-    {
-      TileEntityAutomaticOreConverter te = (TileEntityAutomaticOreConverter)world.getTileEntity(x, y, z);
-      return new GuiAutomaticOreConverter(te,player.inventory);
+      case GUI_ORECONVERTER:
+        return new GuiOreConverter(player.inventory,world);
+      case GUI_ORECONVERTIONTABLE:
+        return new GuiOreConverter(player.inventory,world,x,y,z);
+      case GUI_OREAUTOCONVERTER:
+      {
+        TileEntityAutomaticOreConverter te = (TileEntityAutomaticOreConverter)world.getTileEntity(x, y, z);
+        return new GuiAutomaticOreConverter(te,player.inventory);
+      }
     }
     return null;
   }

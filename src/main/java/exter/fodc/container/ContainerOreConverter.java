@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Set;
 
 import exter.fodc.ModOreDicConvert;
+import exter.fodc.registry.OreNameRegistry;
 import exter.fodc.slot.SlotOreConverter;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -231,13 +232,13 @@ public class ContainerOreConverter extends Container
       ItemStack in = inv_inputs.getStackInSlot(i);
       if(in != null)
       {
-        Set<String> names = ModOreDicConvert.instance.FindAllOreNames(in);
+        Set<String> names = OreNameRegistry.FindAllOreNames(in);
 
         for(String n : names)
         {
           for(ItemStack stack : OreDictionary.getOres(n))
           {
-            if(names.containsAll(ModOreDicConvert.instance.FindAllOreNames(stack)))
+            if(names.containsAll(OreNameRegistry.FindAllOreNames(stack)))
             {
               boolean found = false;
               for(ItemStack r : results)

@@ -9,6 +9,7 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import exter.fodc.ModOreDicConvert;
+import exter.fodc.proxy.CommonODCProxy;
 
 public class ItemOreConverter extends Item
 {
@@ -30,7 +31,7 @@ public class ItemOreConverter extends Item
   @Override
   public ItemStack onItemRightClick(ItemStack stack, World world, EntityPlayer player)
   {
-    player.openGui(ModOreDicConvert.instance, 0, world, 0, 0, 0);
+    player.openGui(ModOreDicConvert.instance, CommonODCProxy.GUI_ORECONVERTER, world, 0, 0, 0);
     return stack;
   }
 }

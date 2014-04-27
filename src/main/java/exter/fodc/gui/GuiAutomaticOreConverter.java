@@ -5,9 +5,9 @@ import org.lwjgl.opengl.GL12;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import exter.fodc.ModOreDicConvert;
 import exter.fodc.container.ContainerAutomaticOreConverter;
 import exter.fodc.network.ODCPacketHandler;
+import exter.fodc.registry.OreNameRegistry;
 import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.RenderHelper;
@@ -43,7 +43,7 @@ public class GuiAutomaticOreConverter extends GuiContainer
       ItemStack player_stack = mc.thePlayer.inventory.getItemStack();
 
       ItemStack target_stack;
-      if(player_stack != null && !ModOreDicConvert.instance.FindAllOreNames(player_stack).isEmpty())
+      if(player_stack != null && !OreNameRegistry.FindAllOreNames(player_stack).isEmpty())
       {
         target_stack = player_stack.copy();
         target_stack.stackSize = 1;

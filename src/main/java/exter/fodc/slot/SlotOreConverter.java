@@ -7,7 +7,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import cpw.mods.fml.common.FMLCommonHandler;
-import exter.fodc.ModOreDicConvert;
+import exter.fodc.registry.OreNameRegistry;
 
 public class SlotOreConverter extends Slot
 {
@@ -82,7 +82,7 @@ public class SlotOreConverter extends Slot
     if(input_slot < 0)
     {
       //Something went wrong.
-      Set<String> res_names = ModOreDicConvert.instance.FindAllOreNames(stack);
+      Set<String> res_names = OreNameRegistry.FindAllOreNames(stack);
       String message = "Ore converter atempted to convert without consuming an input. Ore names:";
       for(String n:res_names)
       {

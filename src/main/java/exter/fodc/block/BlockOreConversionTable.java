@@ -10,6 +10,7 @@ import net.minecraft.world.World;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import exter.fodc.ModOreDicConvert;
+import exter.fodc.proxy.CommonODCProxy;
 
 public class BlockOreConversionTable extends Block
 {
@@ -58,7 +59,7 @@ public class BlockOreConversionTable extends Block
       return true;
     } else
     {
-      player.openGui(ModOreDicConvert.instance, 1, world, x, y, z);
+      player.openGui(ModOreDicConvert.instance, CommonODCProxy.GUI_ORECONVERTIONTABLE, world, x, y, z);
       return true;
     }
   }

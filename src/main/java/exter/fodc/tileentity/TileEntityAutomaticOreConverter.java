@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Set;
 
 import cpw.mods.fml.common.FMLCommonHandler;
-import exter.fodc.ModOreDicConvert;
+import exter.fodc.registry.OreNameRegistry;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ISidedInventory;
@@ -285,7 +285,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     {
       return last_target;
     }
-    Set<String> names = ModOreDicConvert.instance.FindAllOreNames(item);
+    Set<String> names = OreNameRegistry.FindAllOreNames(item);
     if(names.isEmpty())
     {
       last_input = item.copy();
@@ -297,7 +297,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     {
       if(t != null)
       {
-        Set<String> target_names = ModOreDicConvert.instance.FindAllOreNames(t);
+        Set<String> target_names = OreNameRegistry.FindAllOreNames(t);
         if(names.containsAll(target_names))
         {
           last_input = item.copy();
@@ -312,7 +312,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     {
       for(ItemStack stack : OreDictionary.getOres(name))
       {
-        Set<String> target_names = ModOreDicConvert.instance.FindAllOreNames(stack);
+        Set<String> target_names = OreNameRegistry.FindAllOreNames(stack);
         if(names.containsAll(target_names))
         {
           int diff = names.size() - target_names.size();
@@ -441,7 +441,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
 
   public void SetTarget(int slot, ItemStack target)
   {
-    if(slot >= 0 && slot < SIZE_TARGETS && (target == null || !ModOreDicConvert.instance.FindAllOreNames(target).isEmpty()))
+    if(slot >= 0 && slot < SIZE_TARGETS && (target == null || !OreNameRegistry.FindAllOreNames(target).isEmpty()))
     {
       targets[slot] = target;
       last_input = null;

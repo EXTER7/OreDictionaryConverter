@@ -1,12 +1,6 @@
 package exter.fodc;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -31,6 +25,7 @@ import exter.fodc.block.BlockOreConversionTable;
 import exter.fodc.item.ItemOreConverter;
 import exter.fodc.network.ODCPacketHandler;
 import exter.fodc.proxy.CommonODCProxy;
+import exter.fodc.registry.OreNameRegistry;
 import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 
 @Mod(
@@ -43,8 +38,6 @@ public class ModOreDicConvert
 {
   
   //List of string that the ore name must begin with
-  private List<Pattern> whitelist;
-  private List<Pattern> blacklist;
 
   public static ItemOreConverter item_oreconverter = null;
   @Instance("fodc")
@@ -55,7 +48,6 @@ public class ModOreDicConvert
   public static CommonODCProxy proxy;
   public static BlockOreConversionTable block_oreconvtable;
   public static BlockAutomaticOreConverter block_oreautoconv;
-  public Set<String> valid_ore_names;
   
   public static Logger log = Logger.getLogger("OreDicConvert");
 
@@ -63,68 +55,15 @@ public class ModOreDicConvert
   
   public static ODCPacketHandler net_handler;
   
-  // Find all ore names of a item stack in the dictionary.
-  public Set<String> FindAllOreNames(ItemStack it)
-  {
-    Set<String> results = new HashSet<String>();
-    for (String name : valid_ore_names)
-    {
-      for (ItemStack ore : OreDictionary.getOres(name))
-      {
-        if (it.isItemEqual(ore))
-        {
-          results.add(name);
-        }
-      }
-    }
-    return results;
-  }
   
-  private List<Pattern> CompilePatterns(String line)
-  {
-    List<Pattern> list = new ArrayList<Pattern>();
-    String[] tokens = line.split(",");
-    for(String t: tokens)
-    {
-      t = t.trim();
-      if(t == null || t.isEmpty())
-      {
-        continue;
-      }
-      try
-      {
-        list.add(Pattern.compile(t));
-      } catch(PatternSyntaxException e)
-      {
-        log.warning("Pattern '" + t + "' has invalid syntax.");
-      }
-    }
-    return list;
-  }
-  
-  private boolean MatchesAnyPattern(String str, List<Pattern> patterns)
-  {
-    for(Pattern p:patterns)
-    {
-      if(p.matcher(str).matches())
-      {
-        return true;
-      }
-    }
-    return false;
-  }
 
   @EventHandler
   public void preInit(FMLPreInitializationEvent event)
   {
     Configuration config = new Configuration(event.getSuggestedConfigurationFile());
     config.load();
-    String whitelist_line = config.get(Configuration.CATEGORY_GENERAL, "whitelist", "^ore.*,^ingot.*,^dust.*,^block.*").getString();
-    String blacklist_line = config.get(Configuration.CATEGORY_GENERAL, "blacklist", "").getString();
+    OreNameRegistry.PreInit(config);
     config.save();
-    valid_ore_names = new HashSet<String>();
-    whitelist = CompilePatterns(whitelist_line);
-    blacklist = CompilePatterns(blacklist_line);
     
     
     NetworkRegistry.INSTANCE.registerGuiHandler(this, proxy);
@@ -152,7 +91,6 @@ public class ModOreDicConvert
     ItemStack cobble_stack = new ItemStack(Blocks.cobblestone,1,OreDictionary.WILDCARD_VALUE);
     ItemStack oreconverter_stack = new ItemStack(item_oreconverter);
     GameRegistry.registerTileEntity(TileEntityAutomaticOreConverter.class, "AutoOreConverter");
-    proxy.Init();
     
     GameRegistry.addRecipe(
         oreconverter_stack,
@@ -179,14 +117,6 @@ public class ModOreDicConvert
         'C', cobble_stack);
   }
 
-  private void RegisterOreName(String name)
-  {
-    if(MatchesAnyPattern(name,whitelist) && !MatchesAnyPattern(name,blacklist))
-    {
-      valid_ore_names.add(name);
-      log.info("registered ore name: " + name);
-    }
-  }
 
   @EventHandler
   public void postInit(FMLPostInitializationEvent event)
@@ -200,7 +130,7 @@ public class ModOreDicConvert
         log.warning("null name in Ore Dictionary.");
         continue;
       }
-      RegisterOreName(name);
+      OreNameRegistry.RegisterOreName(name);
     }
     MinecraftForge.EVENT_BUS.register(this);
   }
@@ -208,6 +138,6 @@ public class ModOreDicConvert
   @SubscribeEvent
   public void OnOreDictionaryRegister(OreDictionary.OreRegisterEvent event)
   {
-    RegisterOreName(event.Name);
+    OreNameRegistry.RegisterOreName(event.Name);
   }
 }

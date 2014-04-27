@@ -5,6 +5,7 @@ import java.util.Random;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import exter.fodc.ModOreDicConvert;
+import exter.fodc.proxy.CommonODCProxy;
 import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
@@ -94,7 +95,7 @@ public class BlockAutomaticOreConverter extends BlockContainer
       return true;
     } else
     {
-      player.openGui(ModOreDicConvert.instance, 2, world, x, y, z);
+      player.openGui(ModOreDicConvert.instance, CommonODCProxy.GUI_OREAUTOCONVERTER, world, x, y, z);
       return true;
     }
   }
