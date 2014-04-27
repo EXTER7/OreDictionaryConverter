@@ -28,6 +28,7 @@ public class OreNameRegistry
 
   static public void PreInit(Configuration config)
   {
+    valid_ore_names = new HashSet<String>();
     String whitelist_line = config.get(Configuration.CATEGORY_GENERAL, "whitelist", "^ore.*,^ingot.*,^dust.*,^block.*",WHITELIST_COMMENT).getString();
     String blacklist_line = config.get(Configuration.CATEGORY_GENERAL, "blacklist", "",BLACKLIST_COMMENT).getString();
     whitelist = CompilePatterns(whitelist_line);
