@@ -18,6 +18,8 @@ import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.network.FMLNetworkEvent.ClientCustomPacketEvent;
 import cpw.mods.fml.common.network.FMLNetworkEvent.ServerCustomPacketEvent;
 import cpw.mods.fml.common.network.internal.FMLProxyPacket;
+import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 import exter.fodc.ModOreDicConvert;
 import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 
@@ -82,6 +84,7 @@ public class ODCPacketHandler
   }
 
   @SubscribeEvent
+  @SideOnly(Side.CLIENT)
   public void onClientPacketData(ClientCustomPacketEvent event)
   {
     try
