@@ -12,6 +12,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
+import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
@@ -135,7 +136,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     {
       throw new IOException();
     }
-    return ItemStack.loadItemStackFromNBT(CompressedStreamTools.decompress(bytes));
+    return ItemStack.loadItemStackFromNBT(CompressedStreamTools./*decompress*/func_152457_a(bytes,NBTSizeTracker.field_152451_a));
   }
 
   private void SendPacketToPlayers(Packet packet)
