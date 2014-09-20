@@ -29,14 +29,17 @@ import exter.fodc.registry.OreNameRegistry;
 import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 
 @Mod(
-    modid = "fodc",
-    name = "OreDicConvert",
-    version = "1.5.2",
+    modid = ModOreDicConvert.MODID,
+    name = ModOreDicConvert.MODNAME,
+    version = ModOreDicConvert.MODVERSION,
     dependencies = "required-after:Forge@[10.13.0.1200,)"
     )
 public class ModOreDicConvert
 {
-  
+  public static final String MODID = "fodc";
+  public static final String MODNAME = "Ore Dictionary Converter";
+  public static final String MODVERSION = "1.5.2";
+
   //List of string that the ore name must begin with
 
   public static ItemOreConverter item_oreconverter = null;

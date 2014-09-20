@@ -1,6 +1,7 @@
 package exter.fodc.registry;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -95,5 +96,10 @@ public class OreNameRegistry
       valid_ore_names.add(name);
       ModOreDicConvert.log.info("registered ore name: " + name);
     }
+  }
+  
+  static public Set<String> GetOreNames()
+  {
+    return Collections.unmodifiableSet(valid_ore_names);
   }
 }

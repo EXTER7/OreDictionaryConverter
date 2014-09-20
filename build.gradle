@@ -21,10 +21,26 @@ version = "1.5.2"
 group= "exter.fodc" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "OreDictionaryConverter"
 
+
+repositories {
+    maven {
+        name = "ChickenBones"
+        url = "http://chickenbones.net/maven"
+    }
+}
+
+dependencies {
+    compile "codechicken:NotEnoughItems:1.7.10-1.0.2.15:dev"
+    compile "codechicken:CodeChickenCore:1.7.10-1.0.2.9:dev"
+    compile "codechicken:CodeChickenLib:1.7.10-1.1.1.93:dev"
+}
+
+
 minecraft {
     version = "1.7.10-10.13.0.1200"
     assetDir = "eclipse/assets"
 }
+
 processResources
 {
     // replace stuff in mcmod.info, nothing else
