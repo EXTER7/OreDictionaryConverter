@@ -1,0 +1,5 @@
+item.oreConverter.name=矿辞转换面板
+tile.oreConvTable.name=矿辞转换台
+tile.oreAutoconverter.name=自动矿辞转换台
+
+container.oreAutoconverter=自动矿辞转换台
