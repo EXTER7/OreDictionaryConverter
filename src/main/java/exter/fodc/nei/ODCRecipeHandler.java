@@ -107,8 +107,12 @@ public class ODCRecipeHandler  extends TemplateRecipeHandler
       int i;
       for(i = 0; i < results.size(); i++)
       {
+        if(i == 16)
+        {
+          break;
+        }
         ItemStack res = results.get(i);
-        output.add(new PositionedStack(res,18 * (i % 3) + 94 - 5,18 * (i / 3) + 16 - 11));
+        output.add(new PositionedStack(res,18 * (i % 4) + 94 - 5,18 * (i / 4) + 16 - 11));
       }
     }
 
