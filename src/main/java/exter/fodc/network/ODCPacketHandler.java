@@ -5,21 +5,24 @@ import io.netty.buffer.ByteBufInputStream;
 import io.netty.buffer.ByteBufOutputStream;
 import io.netty.buffer.Unpooled;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.network.FMLNetworkEvent.ClientCustomPacketEvent;
-import cpw.mods.fml.common.network.FMLNetworkEvent.ServerCustomPacketEvent;
-import cpw.mods.fml.common.network.internal.FMLProxyPacket;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent.ClientCustomPacketEvent;
+import net.minecraftforge.fml.common.network.FMLNetworkEvent.ServerCustomPacketEvent;
+import net.minecraftforge.fml.common.network.internal.FMLProxyPacket;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
 import exter.fodc.ModOreDicConvert;
 import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 
@@ -30,7 +33,9 @@ public class ODCPacketHandler
   {
     NBTTagCompound tag = new NBTTagCompound();
     item.writeToNBT(tag);
-    byte[] bytes = CompressedStreamTools.compress(tag);
+    ByteArrayOutputStream s = new ByteArrayOutputStream();
+    CompressedStreamTools.writeCompressed(tag,s);
+    byte[] bytes = s.toByteArray();
     data.writeInt(bytes.length);
     data.write(bytes);
   }
@@ -42,10 +47,11 @@ public class ODCPacketHandler
     try
     {
       // Position
-      data.writeInt(sender.xCoord);
-      data.writeInt(sender.yCoord);
-      data.writeInt(sender.zCoord);
-      data.writeInt(sender.getWorldObj().provider.dimensionId);
+      BlockPos p = sender.getPos();
+      data.writeInt(p.getX());
+      data.writeInt(p.getY());
+      data.writeInt(p.getZ());
+      data.writeInt(sender.getWorld().provider.getDimensionId());
 
       data.writeByte(slot);
 
@@ -63,7 +69,7 @@ public class ODCPacketHandler
       throw new RuntimeException(e);
     }
 
-    FMLProxyPacket packet = new FMLProxyPacket(bytes, "EXTER.FODC");
+    FMLProxyPacket packet = new FMLProxyPacket(new PacketBuffer(bytes), "EXTER.FODC");
     ModOreDicConvert.network_channel.sendToServer(packet);
   }
 
@@ -71,7 +77,7 @@ public class ODCPacketHandler
   {
     if(world != null)
     {
-      TileEntity tileEntity = world.getTileEntity(x, y, z);
+      TileEntity tileEntity = world.getTileEntity(new BlockPos(x, y, z));
 
       if(tileEntity != null)
       {
@@ -95,7 +101,7 @@ public class ODCPacketHandler
       int z = data.readInt();
       int d = data.readInt();
       World world = Minecraft.getMinecraft().theWorld;
-      if(d == world.provider.dimensionId)
+      if(d == world.provider.getDimensionId())
       {
         OnTEPacketData(data, world, x, y, z);
       }

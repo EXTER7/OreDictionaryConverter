@@ -8,18 +8,18 @@ import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.common.Mod.EventHandler;
+import net.minecraftforge.fml.common.Mod.Instance;
+import net.minecraftforge.fml.common.SidedProxy;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.network.FMLEventChannel;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.OreDictionary;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.Mod.EventHandler;
-import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.eventhandler.SubscribeEvent;
-import cpw.mods.fml.common.network.FMLEventChannel;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.registry.GameRegistry;
 import exter.fodc.block.BlockAutomaticOreConverter;
 import exter.fodc.block.BlockOreConversionTable;
 import exter.fodc.item.ItemOreConverter;
@@ -32,13 +32,13 @@ import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
     modid = ModOreDicConvert.MODID,
     name = ModOreDicConvert.MODNAME,
     version = ModOreDicConvert.MODVERSION,
-    dependencies = "required-after:Forge@[10.13.0.1200,)"
+    dependencies = "required-after:Forge@[11.14.0.1285,)"
     )
 public class ModOreDicConvert
 {
   public static final String MODID = "fodc";
   public static final String MODNAME = "Ore Dictionary Converter";
-  public static final String MODVERSION = "1.6.0";
+  public static final String MODVERSION = "1.7.0";
 
   //List of string that the ore name must begin with
 

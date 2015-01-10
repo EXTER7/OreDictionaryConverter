@@ -17,7 +17,7 @@ buildscript {
 
 apply plugin: 'forge'
 
-version = "1.6.0"
+version = "1.7.0"
 group= "exter.fodc" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "OreDictionaryConverter"
 
@@ -30,14 +30,14 @@ repositories {
 }
 
 dependencies {
-    compile "codechicken:NotEnoughItems:1.7.10-1.0.2.15:dev"
-    compile "codechicken:CodeChickenCore:1.7.10-1.0.2.9:dev"
-    compile "codechicken:CodeChickenLib:1.7.10-1.1.1.93:dev"
+    compile "codechicken:NotEnoughItems:1.8-1.0.5.82:dev"
+    compile "codechicken:CodeChickenCore:1.8-1.0.5.34:dev"
+    compile "codechicken:CodeChickenLib:1.8-1.1.2.115:dev"
 }
 
 
 minecraft {
-    version = "1.7.10-10.13.0.1200"
+    version = "1.8-11.14.0.1285-1.8"
     assetDir = "eclipse/assets"
 }
 

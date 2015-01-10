@@ -14,6 +14,8 @@ import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -23,9 +25,7 @@ public class ContainerOreConverter extends Container
   private IInventory inv_results;
   private SlotOreConverter[] slots_results;
   protected World world_obj;
-  private int pos_x;
-  private int pos_y;
-  private int pos_z;
+  private BlockPos pos;
 
   // Slot numbers
   //private static final int SLOTS_RESULT = 0;
@@ -55,7 +55,7 @@ public class ContainerOreConverter extends Container
     }
 
     @Override
-    public String getInventoryName()
+    public String getName()
     {
       return "OreConverter.Results";
     }
@@ -113,13 +113,13 @@ public class ContainerOreConverter extends Container
     }
 
     @Override
-    public void openInventory()
+    public void openInventory(EntityPlayer playerIn)
     {
 
     }
 
     @Override
-    public void closeInventory()
+    public void closeInventory(EntityPlayer playerIn)
     {
 
     }
@@ -131,28 +131,61 @@ public class ContainerOreConverter extends Container
     }
 
     @Override
-    public boolean hasCustomInventoryName()
+    public boolean hasCustomName()
     {
       return false;
+    }
+
+    @Override
+    public IChatComponent getDisplayName()
+    {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public int getField(int id)
+    {
+      // TODO Auto-generated method stub
+      return 0;
+    }
+
+    @Override
+    public void setField(int id, int value)
+    {
+      // TODO Auto-generated method stub
+      
+    }
+
+    @Override
+    public int getFieldCount()
+    {
+      // TODO Auto-generated method stub
+      return 0;
+    }
+
+    @Override
+    public void clear()
+    {
+      // TODO Auto-generated method stub
+      
     }
 
   }
 
   public ContainerOreConverter(InventoryPlayer inventory_player, World world)
   {
-    this(inventory_player, world, 0, 9001, 0);
+    this(inventory_player, world, new BlockPos(0, 9001, 0));
   }
 
-  public ContainerOreConverter(InventoryPlayer inventory_player, World world, int x, int y, int z)
+  public ContainerOreConverter(InventoryPlayer inventory_player, World world, BlockPos bp)
   {
     inv_inputs = new InventoryCrafting(this, 3, 3);
     inv_results = new ResultInventory();
     slots_results = new SlotOreConverter[16];
 
     world_obj = world;
-    pos_x = x;
-    pos_y = y;
-    pos_z = z;
+    pos = bp;
 
     // Result slots
     int i;
@@ -357,9 +390,9 @@ public class ContainerOreConverter extends Container
   @Override
   public boolean canInteractWith(EntityPlayer player)
   {
-    if(pos_y <= 9000)
+    if(pos.getY() <= 9000)
     {
-      return this.world_obj.getBlock(pos_x, pos_y, pos_z) != ModOreDicConvert.block_oreconvtable ? false : player.getDistanceSq((double) pos_x + 0.5D, (double) pos_y + 0.5D, (double) pos_z + 0.5D) <= 64.0D;
+      return this.world_obj.getBlockState(pos).getBlock() != ModOreDicConvert.block_oreconvtable ? false : pos.distanceSq(player.posX, player.posY, player.posZ) <= 64.0D;
     }
     return player.inventory.hasItemStack(new ItemStack(ModOreDicConvert.item_oreconverter, 1));
   }

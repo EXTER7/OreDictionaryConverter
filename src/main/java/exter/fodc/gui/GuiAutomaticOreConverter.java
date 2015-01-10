@@ -1,20 +1,25 @@
 package exter.fodc.gui;
 
+import java.io.IOException;
+
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import exter.fodc.container.ContainerAutomaticOreConverter;
 import exter.fodc.network.ODCPacketHandler;
 import exter.fodc.registry.OreNameRegistry;
 import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
 
 @SideOnly(Side.CLIENT)
 public class GuiAutomaticOreConverter extends GuiContainer
@@ -65,10 +70,15 @@ public class GuiAutomaticOreConverter extends GuiContainer
         int window_x = (width - xSize) / 2;
         int window_y = (height - ySize) / 2;
 
-        
-        itemRender.zLevel = 200F;
-        itemRender.renderItemAndEffectIntoGUI(fontRendererObj, mc.renderEngine, item, window_x + x, window_y + y);
-        itemRender.renderItemOverlayIntoGUI(fontRendererObj, mc.renderEngine, item, window_x + x, window_y + y);
+        GlStateManager.translate(0.0F, 0.0F, 32.0F);
+        zLevel = 200.0F;
+        itemRender.zLevel = 200.0F;
+        FontRenderer font = null;
+        if (item != null) font = item.getItem().getFontRenderer(item);
+        if (font == null) font = fontRendererObj;
+        itemRender.func_180450_b(item, window_x + x, window_y + y);
+        itemRender.func_180453_a(font, item, window_x + x, window_y + y, null);
+        zLevel = 0.0F;
         itemRender.zLevel = 0.0F;
       }
     }
@@ -86,10 +96,10 @@ public class GuiAutomaticOreConverter extends GuiContainer
     return null;
   }
 
-  public GuiAutomaticOreConverter(TileEntityAutomaticOreConverter aoc, IInventory player_inv)
+  public GuiAutomaticOreConverter(TileEntityAutomaticOreConverter aoc, EntityPlayer player)
   {
-    super(new ContainerAutomaticOreConverter(aoc, player_inv));
-    player_inventory = player_inv;
+    super(new ContainerAutomaticOreConverter(aoc, player));
+    player_inventory = player.inventory;
     allowUserInput = false;
     ySize = 210;
     te_autoconverter = aoc;
@@ -112,7 +122,7 @@ public class GuiAutomaticOreConverter extends GuiContainer
   }
 
   @Override
-  protected void mouseClicked(int x, int y, int par3)
+  protected void mouseClicked(int x, int y, int par3) throws IOException
   {
     super.mouseClicked(x, y, par3);
     int window_x = (width - xSize) / 2;
@@ -134,9 +144,9 @@ public class GuiAutomaticOreConverter extends GuiContainer
   @Override
   protected void drawGuiContainerForegroundLayer(int par1, int par2)
   {
-    fontRendererObj.drawString(StatCollector.translateToLocal(te_autoconverter.getInventoryName()), 8, 6, 4210752);
+    fontRendererObj.drawString(StatCollector.translateToLocal(te_autoconverter.getName()), 8, 6, 4210752);
     fontRendererObj.drawString(StatCollector.translateToLocal("Targets"), 8, 65, 4210752);
-    fontRendererObj.drawString(StatCollector.translateToLocal(player_inventory.getInventoryName()), 8, this.ySize - 96 + 2, 4210752);
+    fontRendererObj.drawString(StatCollector.translateToLocal(player_inventory.getName()), 8, this.ySize - 96 + 2, 4210752);
   }
 
   /**

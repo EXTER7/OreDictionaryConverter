@@ -2,26 +2,30 @@ package exter.fodc.tileentity;
 
 import io.netty.buffer.ByteBufInputStream;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Set;
 
-import cpw.mods.fml.common.FMLCommonHandler;
 import exter.fodc.registry.OreNameRegistry;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
-import net.minecraft.nbt.NBTSizeTracker;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.ChatComponentText;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IChatComponent;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.oredict.OreDictionary;
 
-public class TileEntityAutomaticOreConverter extends TileEntity implements ISidedInventory
+public class TileEntityAutomaticOreConverter extends TileEntity implements IUpdatePlayerListBox,ISidedInventory
 {
   private ItemStack[] inventory;
   private ItemStack[] targets;
@@ -136,7 +140,10 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     {
       throw new IOException();
     }
-    return ItemStack.loadItemStackFromNBT(CompressedStreamTools./*decompress*/func_152457_a(bytes,NBTSizeTracker.field_152451_a));
+    ByteArrayInputStream s = new ByteArrayInputStream(bytes);
+    ItemStack item = ItemStack.loadItemStackFromNBT(CompressedStreamTools.readCompressed(s));
+    s.close();
+    return item;
   }
 
   private void SendPacketToPlayers(Packet packet)
@@ -144,11 +151,14 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     final int MAX_DISTANCE = 192;
     if(!worldObj.isRemote && packet != null)
     {
+      int xCoord = pos.getX();
+      int yCoord = pos.getY();
+      int zCoord = pos.getZ();
       for(int j = 0; j < worldObj.playerEntities.size(); j++)
       {
         EntityPlayerMP player = (EntityPlayerMP) worldObj.playerEntities.get(j);
 
-        if(Math.abs(player.posX - xCoord) <= MAX_DISTANCE && Math.abs(player.posY - yCoord) <= MAX_DISTANCE && Math.abs(player.posZ - zCoord) <= MAX_DISTANCE && player.dimension == worldObj.provider.dimensionId)
+        if(Math.abs(player.posX - xCoord) <= MAX_DISTANCE && Math.abs(player.posY - yCoord) <= MAX_DISTANCE && Math.abs(player.posZ - zCoord) <= MAX_DISTANCE && player.dimension == worldObj.provider.getDimensionId())
         {
           player.playerNetServerHandler.sendPacket(packet);
         }
@@ -249,7 +259,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   }
 
   @Override
-  public String getInventoryName()
+  public String getName()
   {
     return "container.oreAutoconverter";
   }
@@ -261,19 +271,19 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   }
 
   @Override
-  public boolean isUseableByPlayer(EntityPlayer par1EntityPlayer)
+  public boolean isUseableByPlayer(EntityPlayer player)
   {
-    return worldObj.getTileEntity(xCoord, yCoord, zCoord) != this ? false : par1EntityPlayer.getDistanceSq((double) xCoord + 0.5D, (double) yCoord + 0.5D, (double) zCoord + 0.5D) <= 64.0D;
+    return worldObj.getTileEntity(pos) != this ? false : getDistanceSq(player.posX, player.posY, player.posZ) <= 64.0D;
   }
 
   @Override
-  public void openInventory()
+  public void openInventory(EntityPlayer playerIn)
   {
 
   }
 
   @Override
-  public void closeInventory()
+  public void closeInventory(EntityPlayer playerIn)
   {
 
   }
@@ -406,13 +416,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   }
 
   @Override
-  public boolean canUpdate()
-  {
-    return !FMLCommonHandler.instance().getEffectiveSide().isClient();
-  }
-
-  @Override
-  public void updateEntity()
+  public void update()
   {
     if(worldObj.isRemote)
     {
@@ -436,7 +440,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     if(packet != null)
     {
       markDirty();
-      SendPacketToPlayers(new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, packet));
+      SendPacketToPlayers(new S35PacketUpdateTileEntity(pos, 0, packet));
     }
   }
 
@@ -468,28 +472,23 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   }
 
   @Override
-  public int[] getAccessibleSlotsFromSide(int side)
+  public int[] getSlotsForFace(EnumFacing side)
   {
     return ALL_SLOTS;
   }
 
   @Override
-  public boolean canInsertItem(int i, ItemStack itemstack, int j)
+  public boolean canInsertItem(int i, ItemStack itemstack, EnumFacing direction)
   {
     return isItemValidForSlot(i, itemstack);
   }
 
   @Override
-  public boolean canExtractItem(int i, ItemStack itemstack, int j)
+  public boolean canExtractItem(int i, ItemStack itemstack, EnumFacing direction)
   {
     return i >= 8 && i < 14;
   }
 
-  @Override
-  public boolean hasCustomInventoryName()
-  {
-    return true;
-  }
 
   @Override
   public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
@@ -497,7 +496,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
     super.onDataPacket(net, pkt);
     if(FMLCommonHandler.instance().getEffectiveSide().isClient())
     {
-      readFromNBT(pkt.func_148857_g());
+      readFromNBT(pkt.getNbtCompound());
     }
     // worldObj.markBlockForRenderUpdate(xCoord, yCoord, zCoord);
   }
@@ -507,7 +506,47 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ISide
   {
     NBTTagCompound nbt = new NBTTagCompound();
     writeToNBT(nbt);
-    return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 0, nbt);
+    return new S35PacketUpdateTileEntity(pos, 0, nbt);
+  }
+
+  @Override
+  public int getField(int id)
+  {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  @Override
+  public void setField(int id, int value)
+  {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public int getFieldCount()
+  {
+    // TODO Auto-generated method stub
+    return 0;
+  }
+
+  @Override
+  public void clear()
+  {
+    // TODO Auto-generated method stub
+    
+  }
+
+  @Override
+  public boolean hasCustomName()
+  {
+    return true;
+  }
+
+  @Override
+  public IChatComponent getDisplayName()
+  {
+    return new ChatComponentText("Ore Autoconverter");
   }
 
 }

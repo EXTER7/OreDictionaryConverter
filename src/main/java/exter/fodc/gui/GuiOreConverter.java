@@ -3,14 +3,15 @@ package exter.fodc.gui;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.Side;
 
 import org.lwjgl.opengl.GL11;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import exter.fodc.container.ContainerOreConverter;
 
 @SideOnly(Side.CLIENT)
@@ -31,7 +32,7 @@ public class GuiOreConverter extends GuiContainer
 
   public GuiOreConverter(InventoryPlayer player, World world, int x, int y, int z)
   {
-    super(new ContainerOreConverter(player, world, x, y, z));
+    super(new ContainerOreConverter(player, world, new BlockPos(x, y, z)));
     ySize = 180;
   }
 

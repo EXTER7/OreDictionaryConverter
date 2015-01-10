@@ -1,8 +1,9 @@
 package exter.fodc.proxy;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
-import cpw.mods.fml.common.network.IGuiHandler;
+import net.minecraftforge.fml.common.network.IGuiHandler;
 import exter.fodc.container.ContainerAutomaticOreConverter;
 import exter.fodc.container.ContainerOreConverter;
 import exter.fodc.gui.GuiAutomaticOreConverter;
@@ -24,9 +25,9 @@ public class CommonODCProxy implements IGuiHandler
       case GUI_ORECONVERTER:
         return new ContainerOreConverter(player.inventory,world);
       case GUI_ORECONVERTIONTABLE:
-        return new ContainerOreConverter(player.inventory,world,x,y,z);
+        return new ContainerOreConverter(player.inventory,world,new BlockPos(x,y,z));
       case GUI_OREAUTOCONVERTER:
-        return new ContainerAutomaticOreConverter((TileEntityAutomaticOreConverter)world.getTileEntity(x, y, z),player.inventory);
+        return new ContainerAutomaticOreConverter((TileEntityAutomaticOreConverter)world.getTileEntity(new BlockPos(x, y, z)),player);
     }
     return null;
   }
@@ -42,8 +43,8 @@ public class CommonODCProxy implements IGuiHandler
         return new GuiOreConverter(player.inventory,world,x,y,z);
       case GUI_OREAUTOCONVERTER:
       {
-        TileEntityAutomaticOreConverter te = (TileEntityAutomaticOreConverter)world.getTileEntity(x, y, z);
-        return new GuiAutomaticOreConverter(te,player.inventory);
+        TileEntityAutomaticOreConverter te = (TileEntityAutomaticOreConverter)world.getTileEntity(new BlockPos(x, y, z));
+        return new GuiAutomaticOreConverter(te,player);
       }
     }
     return null;

@@ -2,13 +2,9 @@ package exter.fodc.block;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
-import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import exter.fodc.ModOreDicConvert;
 import exter.fodc.proxy.CommonODCProxy;
 
@@ -17,10 +13,11 @@ public class BlockOreConversionTable extends Block
   public BlockOreConversionTable()
   {
     super(Material.wood);
-    setBlockName("oreConvTable");
+    this.setUnlocalizedName("oreConvTable");
     setCreativeTab(CreativeTabs.tabDecorations);
   }
   
+  /*
   private IIcon texture_top;
   private IIcon texture_bottom;
   private IIcon texture_sides;
@@ -33,7 +30,6 @@ public class BlockOreConversionTable extends Block
     texture_bottom = register.registerIcon("fodc:ore_conv_table_bottom");
     texture_sides = register.registerIcon("fodc:ore_conv_table_sides");
   }
-	
   @Override
   @SideOnly(Side.CLIENT)
   public IIcon getIcon(int side,int meta)
@@ -48,6 +44,7 @@ public class BlockOreConversionTable extends Block
         return texture_sides;
     }
   }
+  */
   
   /**
    * Called upon block activation (right click on the block.)

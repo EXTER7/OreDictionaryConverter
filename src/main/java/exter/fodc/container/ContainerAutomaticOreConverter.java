@@ -4,7 +4,6 @@ import exter.fodc.slot.SlotAutomaticOreConverter;
 import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
@@ -18,10 +17,10 @@ public class ContainerAutomaticOreConverter extends Container
   private static final int SLOTS_INVENTORY = 14;
   private static final int SLOTS_HOTBAR = 14 + 3 * 9;
 
-  public ContainerAutomaticOreConverter(TileEntityAutomaticOreConverter aoc, IInventory player_inventory)
+  public ContainerAutomaticOreConverter(TileEntityAutomaticOreConverter aoc, EntityPlayer player)
   {
     te_aoc = aoc;
-    aoc.openInventory();
+    aoc.openInventory(player);
     int i,j;
 
     //Input
@@ -47,12 +46,12 @@ public class ContainerAutomaticOreConverter extends Container
     {
       for(j = 0; j < 9; ++j)
       {
-        addSlotToContainer(new Slot(player_inventory, j + i * 9 + 9, 8 + j * 18, 128 + i * 18));
+        addSlotToContainer(new Slot(player.inventory, j + i * 9 + 9, 8 + j * 18, 128 + i * 18));
       }
     }
     for(i = 0; i < 9; ++i)
     {
-      addSlotToContainer(new Slot(player_inventory, i, 8 + i * 18, 186));
+      addSlotToContainer(new Slot(player.inventory, i, 8 + i * 18, 186));
     }
   }
 
@@ -120,6 +119,6 @@ public class ContainerAutomaticOreConverter extends Container
   public void onContainerClosed(EntityPlayer par1EntityPlayer)
   {
     super.onContainerClosed(par1EntityPlayer);
-    this.te_aoc.closeInventory();
+    this.te_aoc.closeInventory(par1EntityPlayer);
   }
 }
