@@ -13,7 +13,9 @@
 /.classpath
 /.project
 /bin
+/*.launch
 
 /*.txt
 /gradlew*
 /gradle
+
