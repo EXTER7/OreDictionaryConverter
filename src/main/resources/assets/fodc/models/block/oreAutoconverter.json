@@ -1,0 +1,13 @@
+{
+    "parent": "minecraft:block/cube",
+    "textures": {
+        "particle": "fodc:blocks/auto_ore_converter_sides",
+        "up": "fodc:blocks/auto_ore_converter_top",
+        "down": "fodc:blocks/auto_ore_converter_sides",
+        "east": "fodc:blocks/auto_ore_converter_sides",
+        "west": "fodc:blocks/auto_ore_converter_sides",
+        "north": "fodc:blocks/auto_ore_converter_sides",
+        "south": "fodc:blocks/auto_ore_converter_sides"
+    }
+}
+

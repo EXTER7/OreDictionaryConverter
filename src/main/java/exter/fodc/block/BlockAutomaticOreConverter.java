@@ -34,6 +34,12 @@ public class BlockAutomaticOreConverter extends BlockContainer
   }
 
   @Override
+  public int getRenderType()
+  {
+      return 3;
+  }
+
+  @Override
   public void breakBlock(World world, BlockPos pos, IBlockState state)
   {
     TileEntityAutomaticOreConverter te_aoc = (TileEntityAutomaticOreConverter)world.getTileEntity(pos);

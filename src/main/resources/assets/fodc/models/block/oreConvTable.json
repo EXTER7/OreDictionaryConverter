@@ -1,0 +1,13 @@
+{
+    "parent": "minecraft:block/cube",
+    "textures": {
+        "particle": "fodc:blocks/ore_conv_table_sides",
+        "up": "fodc:blocks/ore_conv_table_top",
+        "down": "fodc:blocks/ore_conv_table_bottom",
+        "east": "fodc:blocks/ore_conv_table_sides",
+        "west": "fodc:blocks/ore_conv_table_sides",
+        "north": "fodc:blocks/ore_conv_table_sides",
+        "south": "fodc:blocks/ore_conv_table_sides"
+    }
+}
+
