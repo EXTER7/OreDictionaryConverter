@@ -1,6 +1,5 @@
 package exter.fodc;
 
-import java.util.logging.Logger;
 
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -20,6 +19,9 @@ import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.OreDictionary;
+
+import java.util.logging.Logger;
+
 import exter.fodc.block.BlockAutomaticOreConverter;
 import exter.fodc.block.BlockOreConversionTable;
 import exter.fodc.item.ItemOreConverter;
@@ -32,7 +34,7 @@ import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
     modid = ModOreDicConvert.MODID,
     name = ModOreDicConvert.MODNAME,
     version = ModOreDicConvert.MODVERSION,
-    dependencies = "required-after:Forge@[11.14.0.1285,)"
+    dependencies = "required-after:Forge@[11.14.1.1402,)"
     )
 public class ModOreDicConvert
 {
@@ -84,8 +86,10 @@ public class ModOreDicConvert
   }
 
   @EventHandler
-  public void load(FMLInitializationEvent event)
+  public void init(FMLInitializationEvent event)
   {
+    GameRegistry.registerTileEntity(TileEntityAutomaticOreConverter.class, "AutoOreConverter");
+    proxy.Init();
 
     ItemStack iron_stack = new ItemStack(Items.iron_ingot);
     ItemStack redstone_stack = new ItemStack(Items.redstone);
@@ -93,7 +97,6 @@ public class ModOreDicConvert
     ItemStack wood_stack = new ItemStack(Blocks.planks,1,OreDictionary.WILDCARD_VALUE);
     ItemStack cobble_stack = new ItemStack(Blocks.cobblestone,1,OreDictionary.WILDCARD_VALUE);
     ItemStack oreconverter_stack = new ItemStack(item_oreconverter);
-    GameRegistry.registerTileEntity(TileEntityAutomaticOreConverter.class, "AutoOreConverter");
     
     GameRegistry.addRecipe(
         oreconverter_stack,

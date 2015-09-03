@@ -76,8 +76,8 @@ public class GuiAutomaticOreConverter extends GuiContainer
         FontRenderer font = null;
         if (item != null) font = item.getItem().getFontRenderer(item);
         if (font == null) font = fontRendererObj;
-        itemRender.func_180450_b(item, window_x + x, window_y + y);
-        itemRender.func_180453_a(font, item, window_x + x, window_y + y, null);
+        itemRender.renderItemAndEffectIntoGUI(item, window_x + x, window_y + y);
+        itemRender.renderItemOverlayIntoGUI(font, item, window_x + x, window_y + y, null);
         zLevel = 0.0F;
         itemRender.zLevel = 0.0F;
       }
@@ -144,9 +144,9 @@ public class GuiAutomaticOreConverter extends GuiContainer
   @Override
   protected void drawGuiContainerForegroundLayer(int par1, int par2)
   {
-    fontRendererObj.drawString(StatCollector.translateToLocal(te_autoconverter.getName()), 8, 6, 4210752);
+    fontRendererObj.drawString(StatCollector.translateToLocal("Ore Autoconverter"), 8, 6, 4210752);
     fontRendererObj.drawString(StatCollector.translateToLocal("Targets"), 8, 65, 4210752);
-    fontRendererObj.drawString(StatCollector.translateToLocal(player_inventory.getName()), 8, this.ySize - 96 + 2, 4210752);
+    fontRendererObj.drawString(player_inventory.getDisplayName().getFormattedText(), 8, this.ySize - 96 + 2, 4210752);
   }
 
   /**

@@ -17,6 +17,11 @@ public class CommonODCProxy implements IGuiHandler
   static public final int GUI_ORECONVERTIONTABLE = 1;
   static public final int GUI_OREAUTOCONVERTER = 2;
   
+  public void Init()
+  {
+    
+  }
+  
   @Override
   public Object getServerGuiElement(int ID, EntityPlayer player, World world, int x, int y, int z)
   {

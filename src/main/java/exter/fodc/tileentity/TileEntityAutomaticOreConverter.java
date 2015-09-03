@@ -258,11 +258,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements IUpda
     }
   }
 
-  @Override
-  public String getName()
-  {
-    return "container.oreAutoconverter";
-  }
+
 
   @Override
   public int getInventoryStackLimit()
@@ -547,6 +543,13 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements IUpda
   public IChatComponent getDisplayName()
   {
     return new ChatComponentText("Ore Autoconverter");
+  }
+
+  @Override
+  public String getCommandSenderName()
+  {
+    // TODO Auto-generated method stub
+    return null;
   }
 
 }

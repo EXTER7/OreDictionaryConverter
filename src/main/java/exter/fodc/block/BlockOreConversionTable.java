@@ -16,36 +16,7 @@ public class BlockOreConversionTable extends Block
     this.setUnlocalizedName("oreConvTable");
     setCreativeTab(CreativeTabs.tabDecorations);
   }
-  
-  /*
-  private IIcon texture_top;
-  private IIcon texture_bottom;
-  private IIcon texture_sides;
-
-  @Override
-  @SideOnly(Side.CLIENT)
-  public void registerBlockIcons(IIconRegister register)
-  {
-    texture_top = register.registerIcon("fodc:ore_conv_table_top");
-    texture_bottom = register.registerIcon("fodc:ore_conv_table_bottom");
-    texture_sides = register.registerIcon("fodc:ore_conv_table_sides");
-  }
-  @Override
-  @SideOnly(Side.CLIENT)
-  public IIcon getIcon(int side,int meta)
-  {
-    switch(side)
-    {
-      case 0:
-        return texture_bottom;
-      case 1:
-        return texture_top;
-      default:
-        return texture_sides;
-    }
-  }
-  */
-  
+    
   /**
    * Called upon block activation (right click on the block.)
    */

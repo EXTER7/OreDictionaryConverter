@@ -55,13 +55,6 @@ public class ContainerOreConverter extends Container
     }
 
     @Override
-    public String getName()
-    {
-      return "OreConverter.Results";
-    }
-
-
-    @Override
     public ItemStack decrStackSize(int slot, int amount)
     {
       if(items[slot] != null)
@@ -169,6 +162,13 @@ public class ContainerOreConverter extends Container
     {
       // TODO Auto-generated method stub
       
+    }
+
+    @Override
+    public String getCommandSenderName()
+    {
+      // TODO Auto-generated method stub
+      return null;
     }
 
   }

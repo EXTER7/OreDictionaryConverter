@@ -23,8 +23,6 @@ public class BlockAutomaticOreConverter extends BlockContainer
 {
   private Random rand = new Random();
   
-  //private IIcon icon_top;
-
   public BlockAutomaticOreConverter()
   {
     super(Material.rock);
@@ -61,29 +59,6 @@ public class BlockAutomaticOreConverter extends BlockContainer
     }
     super.breakBlock(world, pos, state);
   }
-
-
-  /*
-  @Override
-  @SideOnly(Side.CLIENT)
-  public void registerBlockIcons(IIconRegister register)
-  {
-      blockIcon = register.registerIcon("fodc:auto_ore_converter_sides");
-      icon_top = register.registerIcon("fodc:auto_ore_converter_top");
-  }
-  
-  @Override 
-  public IIcon getIcon(int side, int meta)
-  {
-     switch(side)
-	 {
-	   case 1:
-       return icon_top;
-	   default:
-       return blockIcon;
-	  }
-  }
-  */
 
   @Override
   public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ)
