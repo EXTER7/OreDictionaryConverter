@@ -13,9 +13,8 @@
 /.classpath
 /.project
 /bin
-/*.launch
 
+*.launch
 /*.txt
-/gradlew*
-/gradle
+
 

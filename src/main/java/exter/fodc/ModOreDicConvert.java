@@ -1,6 +1,5 @@
 package exter.fodc;
 
-
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
@@ -34,15 +33,13 @@ import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
     modid = ModOreDicConvert.MODID,
     name = ModOreDicConvert.MODNAME,
     version = ModOreDicConvert.MODVERSION,
-    dependencies = "required-after:Forge@[11.14.1.1402,)"
+    dependencies = "required-after:Forge@[11.14.3.1543,)"
     )
 public class ModOreDicConvert
 {
   public static final String MODID = "fodc";
   public static final String MODNAME = "Ore Dictionary Converter";
   public static final String MODVERSION = "1.7.0";
-
-  //List of string that the ore name must begin with
 
   public static ItemOreConverter item_oreconverter = null;
   @Instance("fodc")
@@ -53,14 +50,13 @@ public class ModOreDicConvert
   public static CommonODCProxy proxy;
   public static BlockOreConversionTable block_oreconvtable;
   public static BlockAutomaticOreConverter block_oreautoconv;
-  
+    
   public static Logger log = Logger.getLogger("OreDicConvert");
 
   public static FMLEventChannel network_channel;
   
   public static ODCPacketHandler net_handler;
-  
-  
+    
 
   @EventHandler
   public void preInit(FMLPreInitializationEvent event)
