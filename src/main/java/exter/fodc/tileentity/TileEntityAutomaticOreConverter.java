@@ -17,15 +17,15 @@ import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
-import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ITickable;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.oredict.OreDictionary;
 
-public class TileEntityAutomaticOreConverter extends TileEntity implements IUpdatePlayerListBox,ISidedInventory
+public class TileEntityAutomaticOreConverter extends TileEntity implements ITickable,ISidedInventory
 {
   private ItemStack[] inventory;
   private ItemStack[] targets;
@@ -146,7 +146,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements IUpda
     return item;
   }
 
-  private void SendPacketToPlayers(Packet packet)
+  private void SendPacketToPlayers(Packet<?> packet)
   {
     final int MAX_DISTANCE = 192;
     if(!worldObj.isRemote && packet != null)
@@ -498,7 +498,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements IUpda
   }
 
   @Override
-  public Packet getDescriptionPacket()
+  public Packet<?> getDescriptionPacket()
   {
     NBTTagCompound nbt = new NBTTagCompound();
     writeToNBT(nbt);
@@ -548,7 +548,6 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements IUpda
   @Override
   public String getCommandSenderName()
   {
-    // TODO Auto-generated method stub
     return null;
   }
 
