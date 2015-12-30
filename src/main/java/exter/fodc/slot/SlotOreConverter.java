@@ -82,7 +82,7 @@ public class SlotOreConverter extends Slot
     if(input_slot < 0)
     {
       //Something went wrong.
-      Set<String> res_names = OreNameRegistry.FindAllOreNames(stack);
+      Set<String> res_names = OreNameRegistry.findAllOreNames(stack);
       String message = "Ore converter atempted to convert without consuming an input. Ore names:";
       for(String n:res_names)
       {

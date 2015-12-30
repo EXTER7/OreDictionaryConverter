@@ -48,7 +48,7 @@ public class GuiAutomaticOreConverter extends GuiContainer
       ItemStack player_stack = mc.thePlayer.inventory.getItemStack();
 
       ItemStack target_stack;
-      if(player_stack != null && !OreNameRegistry.FindAllOreNames(player_stack).isEmpty())
+      if(player_stack != null && !OreNameRegistry.findAllOreNames(player_stack).isEmpty())
       {
         target_stack = player_stack.copy();
         target_stack.stackSize = 1;
@@ -56,7 +56,7 @@ public class GuiAutomaticOreConverter extends GuiContainer
       {
         target_stack = null;
       }
-      te_autoconverter.SetTarget(position, target_stack);
+      te_autoconverter.setTarget(position, target_stack);
       ODCPacketHandler.SendAutoOreConverterTarget(te_autoconverter, position, target_stack);
       
     }
@@ -64,7 +64,7 @@ public class GuiAutomaticOreConverter extends GuiContainer
     public void DrawSlot()
     {
 
-      ItemStack item = te_autoconverter.GetTarget(position);
+      ItemStack item = te_autoconverter.getTarget(position);
       if(item != null)
       {
         int window_x = (width - xSize) / 2;

@@ -10,7 +10,7 @@ public class ClientODCProxy extends CommonODCProxy
 {
 
   @Override
-  public void Init()
+  public void init()
   {
     RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();    
     renderItem.getItemModelMesher().register(ModOreDicConvert.item_oreconverter, 0, new ModelResourceLocation(ModOreDicConvert.MODID + ":" + "oreConverter", "inventory"));

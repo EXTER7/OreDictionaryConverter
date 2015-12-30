@@ -27,16 +27,16 @@ public class OreNameRegistry
   static private final String WHITELIST_COMMENT = "Only names that match any of these regexes will be registered. " + REGEX_COMMENT;
   static private final String BLACKLIST_COMMENT = "Names that match any of these regexes will not be registered. " + REGEX_COMMENT;
 
-  static public void PreInit(Configuration config)
+  static public void preInit(Configuration config)
   {
     valid_ore_names = new HashSet<String>();
     String whitelist_line = config.get(Configuration.CATEGORY_GENERAL, "whitelist", "^ore.*,^ingot.*,^dust.*,^block.*",WHITELIST_COMMENT).getString();
     String blacklist_line = config.get(Configuration.CATEGORY_GENERAL, "blacklist", "",BLACKLIST_COMMENT).getString();
-    whitelist = CompilePatterns(whitelist_line);
-    blacklist = CompilePatterns(blacklist_line);
+    whitelist = compilePatterns(whitelist_line);
+    blacklist = compilePatterns(blacklist_line);
   }
   
-  static private List<Pattern> CompilePatterns(String line)
+  static private List<Pattern> compilePatterns(String line)
   {
     List<Pattern> list = new ArrayList<Pattern>();
     String[] tokens = line.split(",");
@@ -58,7 +58,7 @@ public class OreNameRegistry
     return list;
   }
 
-  static private boolean MatchesAnyPattern(String str, List<Pattern> patterns)
+  static private boolean matchesAnyPattern(String str, List<Pattern> patterns)
   {
     for(Pattern p:patterns)
     {
@@ -73,7 +73,7 @@ public class OreNameRegistry
   
 
   // Find all ore names of a item stack in the dictionary.
-  static public Set<String> FindAllOreNames(ItemStack it)
+  static public Set<String> findAllOreNames(ItemStack it)
   {
     Set<String> results = new HashSet<String>();
     for (String name : valid_ore_names)
@@ -89,16 +89,16 @@ public class OreNameRegistry
     return results;
   }
  
-  static public void RegisterOreName(String name)
+  static public void registerOreName(String name)
   {
-    if(MatchesAnyPattern(name,whitelist) && !MatchesAnyPattern(name,blacklist))
+    if(matchesAnyPattern(name,whitelist) && !matchesAnyPattern(name,blacklist))
     {
       valid_ore_names.add(name);
       ModOreDicConvert.log.info("registered ore name: " + name);
     }
   }
   
-  static public Set<String> GetOreNames()
+  static public Set<String> getOreNames()
   {
     return Collections.unmodifiableSet(valid_ore_names);
   }

@@ -8,7 +8,6 @@ import java.util.Set;
 
 import exter.fodc.registry.OreNameRegistry;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompressedStreamTools;
@@ -38,17 +37,14 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
 
   private int process_tick;
 
-  private boolean update_targets;
-
   public TileEntityAutomaticOreConverter()
   {
     inventory = new ItemStack[SIZE_INVENTORY];
     targets = new ItemStack[SIZE_TARGETS];
     process_tick = 0;
-    update_targets = false;
   }
 
-  private void WriteItemToNBT(NBTTagCompound compound, int slot)
+  private void writeItemToNBT(NBTTagCompound compound, int slot)
   {
     ItemStack is = getStackInSlot(slot);
     NBTTagCompound tag = new NBTTagCompound();
@@ -94,12 +90,12 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
 
         ItemStack is = ItemStack.loadItemStackFromNBT(tag);
         is.stackSize = 1;
-        SetTarget(slot, is);
+        setTarget(slot, is);
       }
     }
   }
 
-  private void WriteTargetsToNBT(NBTTagCompound compound)
+  private void writeTargetsToNBT(NBTTagCompound compound)
   {
     NBTTagList targets_tag = new NBTTagList();
 
@@ -126,13 +122,13 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
     int i;
     for(i = 0; i < inventory.length; i++)
     {
-      WriteItemToNBT(compound, i);
+      writeItemToNBT(compound, i);
     }
 
-    WriteTargetsToNBT(compound);
+    writeTargetsToNBT(compound);
   }
 
-  private static ItemStack ReadItem(ByteBufInputStream data) throws IOException
+  private static ItemStack readItem(ByteBufInputStream data) throws IOException
   {
     int len = data.readInt();
     byte[] bytes = new byte[len];
@@ -146,48 +142,27 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
     return item;
   }
 
-  private void SendPacketToPlayers(Packet<?> packet)
-  {
-    final int MAX_DISTANCE = 192;
-    if(!worldObj.isRemote && packet != null)
-    {
-      int xCoord = pos.getX();
-      int yCoord = pos.getY();
-      int zCoord = pos.getZ();
-      for(int j = 0; j < worldObj.playerEntities.size(); j++)
-      {
-        EntityPlayerMP player = (EntityPlayerMP) worldObj.playerEntities.get(j);
-
-        if(Math.abs(player.posX - xCoord) <= MAX_DISTANCE && Math.abs(player.posY - yCoord) <= MAX_DISTANCE && Math.abs(player.posZ - zCoord) <= MAX_DISTANCE && player.dimension == worldObj.provider.getDimensionId())
-        {
-          player.playerNetServerHandler.sendPacket(packet);
-        }
-      }
-    }
-  }
-
-  public void ReceivePacketData(ByteBufInputStream data)
+  public void receivePacketData(ByteBufInputStream data)
   {
     try
     {
-      if(FMLCommonHandler.instance().getEffectiveSide().isServer())
+      if(!worldObj.isRemote)
       {
         int slot = data.readByte() & 255;
         boolean has_target = data.readBoolean();
         ItemStack target = null;
         if(has_target)
         {
-          target = ReadItem(data);
+          target = readItem(data);
         }
 
-        update_targets = true;
-        SetTarget(slot, target);
+        setTarget(slot, target);
+        markDirty();
       }
     } catch(IOException e)
     {
       throw new RuntimeException(e);
     }
-
   }
 
   @Override
@@ -234,12 +209,12 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
   }
 
   @Override
-  public ItemStack getStackInSlotOnClosing(int par1)
+  public ItemStack removeStackFromSlot(int index)
   {
-    if(inventory[par1] != null)
+    if(inventory[index] != null)
     {
-      ItemStack var2 = inventory[par1];
-      inventory[par1] = null;
+      ItemStack var2 = inventory[index];
+      inventory[index] = null;
       return var2;
     } else
     {
@@ -286,13 +261,13 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
 
   // Returns the version of the item to be converted,
   // or the item itself if its not registered in the ore dictionary.
-  private ItemStack FindConversionTarget(ItemStack item)
+  private ItemStack findConversionTarget(ItemStack item)
   {
     if(last_input != null && last_target != null && item.isItemEqual(last_input) && ItemStack.areItemStackTagsEqual(item, last_input))
     {
       return last_target;
     }
-    Set<String> names = OreNameRegistry.FindAllOreNames(item);
+    Set<String> names = OreNameRegistry.findAllOreNames(item);
     if(names.isEmpty())
     {
       last_input = item.copy();
@@ -304,7 +279,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
     {
       if(t != null)
       {
-        Set<String> target_names = OreNameRegistry.FindAllOreNames(t);
+        Set<String> target_names = OreNameRegistry.findAllOreNames(t);
         if(names.containsAll(target_names))
         {
           last_input = item.copy();
@@ -319,7 +294,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
     {
       for(ItemStack stack : OreDictionary.getOres(name))
       {
-        Set<String> target_names = OreNameRegistry.FindAllOreNames(stack);
+        Set<String> target_names = OreNameRegistry.findAllOreNames(stack);
         if(names.containsAll(target_names))
         {
           int diff = names.size() - target_names.size();
@@ -342,23 +317,15 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
     return target;
   }
 
-  private NBTTagCompound CreateUpdatePacket()
-  {
-    NBTTagCompound packet = new NBTTagCompound();
-    super.writeToNBT(packet);
-    return packet;
-  }
-
-  private NBTTagCompound ProcessItems()
+  private void processItems()
   {
     int i;
-    NBTTagCompound packet = null;
     for(i = 7; i >= 0; i--)
     {
       ItemStack input = inventory[i];
       if(input != null)
       {
-        ItemStack target = FindConversionTarget(input);
+        ItemStack target = findConversionTarget(input);
         int j;
         for(j = 8; j < 14; j++)
         {
@@ -368,13 +335,8 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
             inventory[j] = target.copy();
             inventory[j].stackSize = input.stackSize;
             inventory[i] = null;
-            if(packet == null)
-            {
-              packet = CreateUpdatePacket();
-            }
-            WriteItemToNBT(packet, i);
-            WriteItemToNBT(packet, j);
-            return packet;
+            markDirty();
+            return;
           } else if(output.stackSize < output.getMaxStackSize() && output.isItemEqual(target) && ItemStack.areItemStackTagsEqual(target, output))
           {
             int transfer = output.getMaxStackSize() - output.stackSize;
@@ -382,33 +344,17 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
             {
               inventory[i] = null;
               output.stackSize += input.stackSize;
-              if(packet == null)
-              {
-                packet = CreateUpdatePacket();
-              }
-              WriteItemToNBT(packet, i);
-              WriteItemToNBT(packet, j);
-              return packet;
             } else
             {
               input.stackSize -= transfer;
               output.stackSize += transfer;
-              if(packet == null)
-              {
-                packet = CreateUpdatePacket();
-              }
-              WriteItemToNBT(packet, i);
-              WriteItemToNBT(packet, j);
             }
+            markDirty();
+            return;
           }
-        }
-        if(packet != null)
-        {
-          break;
         }
       }
     }
-    return packet;
   }
 
   @Override
@@ -419,30 +365,15 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
       return;
     }
     process_tick = (process_tick + 1) % 5;
-    NBTTagCompound packet = null;
     if(process_tick == 0)
     {
-      packet = ProcessItems();
-    }
-    if(update_targets)
-    {
-      update_targets = false;
-      if(packet == null)
-      {
-        packet = CreateUpdatePacket();
-      }
-      WriteTargetsToNBT(packet);
-    }
-    if(packet != null)
-    {
-      markDirty();
-      SendPacketToPlayers(new S35PacketUpdateTileEntity(pos, 0, packet));
+      processItems();
     }
   }
 
-  public void SetTarget(int slot, ItemStack target)
+  public void setTarget(int slot, ItemStack target)
   {
-    if(slot >= 0 && slot < SIZE_TARGETS && (target == null || !OreNameRegistry.FindAllOreNames(target).isEmpty()))
+    if(slot >= 0 && slot < SIZE_TARGETS && (target == null || !OreNameRegistry.findAllOreNames(target).isEmpty()))
     {
       targets[slot] = target;
       last_input = null;
@@ -450,7 +381,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
     }
   }
 
-  public ItemStack GetTarget(int slot)
+  public ItemStack getTarget(int slot)
   {
     if(slot < 0 || slot >= SIZE_TARGETS)
     {
@@ -494,7 +425,6 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
     {
       readFromNBT(pkt.getNbtCompound());
     }
-    // worldObj.markBlockForRenderUpdate(xCoord, yCoord, zCoord);
   }
 
   @Override
@@ -508,28 +438,24 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
   @Override
   public int getField(int id)
   {
-    // TODO Auto-generated method stub
     return 0;
   }
 
   @Override
   public void setField(int id, int value)
   {
-    // TODO Auto-generated method stub
-    
+   
   }
 
   @Override
   public int getFieldCount()
   {
-    // TODO Auto-generated method stub
     return 0;
   }
 
   @Override
   public void clear()
   {
-    // TODO Auto-generated method stub
     
   }
 
@@ -546,9 +472,8 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
   }
 
   @Override
-  public String getCommandSenderName()
+  public String getName()
   {
-    return null;
+    return "Ore Autoconverter";
   }
-
 }

@@ -63,7 +63,7 @@ public class ModOreDicConvert
   {
     Configuration config = new Configuration(event.getSuggestedConfigurationFile());
     config.load();
-    OreNameRegistry.PreInit(config);
+    OreNameRegistry.preInit(config);
     config.save();
     
     
@@ -85,7 +85,7 @@ public class ModOreDicConvert
   public void init(FMLInitializationEvent event)
   {
     GameRegistry.registerTileEntity(TileEntityAutomaticOreConverter.class, "AutoOreConverter");
-    proxy.Init();
+    proxy.init();
 
     ItemStack iron_stack = new ItemStack(Items.iron_ingot);
     ItemStack redstone_stack = new ItemStack(Items.redstone);
@@ -132,14 +132,14 @@ public class ModOreDicConvert
         log.warning("null name in Ore Dictionary.");
         continue;
       }
-      OreNameRegistry.RegisterOreName(name);
+      OreNameRegistry.registerOreName(name);
     }
     MinecraftForge.EVENT_BUS.register(this);
   }
 
   @SubscribeEvent
-  public void OnOreDictionaryRegister(OreDictionary.OreRegisterEvent event)
+  public void onOreDictionaryRegister(OreDictionary.OreRegisterEvent event)
   {
-    OreNameRegistry.RegisterOreName(event.Name);
+    OreNameRegistry.registerOreName(event.Name);
   }
 }

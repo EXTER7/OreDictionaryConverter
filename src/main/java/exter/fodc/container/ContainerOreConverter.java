@@ -69,12 +69,12 @@ public class ContainerOreConverter extends Container
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int slot)
+    public ItemStack removeStackFromSlot(int index)
     {
-      if(items[slot] != null)
+      if(items[index] != null)
       {
-        ItemStack itemstack = items[slot];
-        items[slot] = null;
+        ItemStack itemstack = items[index];
+        items[index] = null;
         return itemstack;
       } else
       {
@@ -132,42 +132,36 @@ public class ContainerOreConverter extends Container
     @Override
     public IChatComponent getDisplayName()
     {
-      // TODO Auto-generated method stub
       return null;
     }
 
     @Override
     public int getField(int id)
     {
-      // TODO Auto-generated method stub
       return 0;
     }
 
     @Override
     public void setField(int id, int value)
     {
-      // TODO Auto-generated method stub
       
     }
 
     @Override
     public int getFieldCount()
     {
-      // TODO Auto-generated method stub
       return 0;
     }
 
     @Override
     public void clear()
     {
-      // TODO Auto-generated method stub
       
     }
 
     @Override
-    public String getCommandSenderName()
+    public String getName()
     {
-      // TODO Auto-generated method stub
       return null;
     }
 
@@ -225,15 +219,15 @@ public class ContainerOreConverter extends Container
 
   // Workaround for shift clicking converting more than one type of ore
   @Override
-  public ItemStack slotClick(int par1, int par2, int par3, EntityPlayer player)
+  public ItemStack slotClick(int slot_index, int button, int mode, EntityPlayer player)
   {
     ItemStack res_stack = null;
-    if(par3 == 1 && (par2 == 0 || par2 == 1) && par1 != -999)
+    if(mode == 1 && (button == 0 || button == 1) && slot_index != -999)
     {
-      Slot slot = (Slot) inventorySlots.get(par1);
+      Slot slot = (Slot) inventorySlots.get(slot_index);
       if(slot != null && slot.canTakeStack(player))
       {
-        ItemStack stack = transferStackInSlot(player, par1);
+        ItemStack stack = transferStackInSlot(player, slot_index);
         if(stack != null)
         {
           Item item = stack.getItem();
@@ -243,13 +237,13 @@ public class ContainerOreConverter extends Container
           ItemStack is = slot.getStack();
           if(slot != null && is != null && is.getItem() == item && (!is.getHasSubtypes() || is.getItemDamage() == dv))
           {
-            retrySlotClick(par1, par2, true, player);
+            retrySlotClick(slot_index, button, true, player);
           }
         }
       }
     } else
     {
-      res_stack = super.slotClick(par1, par2, par3, player);
+      res_stack = super.slotClick(slot_index, button, mode, player);
     }
     return res_stack;
   }
@@ -265,13 +259,13 @@ public class ContainerOreConverter extends Container
       ItemStack in = inv_inputs.getStackInSlot(i);
       if(in != null)
       {
-        Set<String> names = OreNameRegistry.FindAllOreNames(in);
+        Set<String> names = OreNameRegistry.findAllOreNames(in);
 
         for(String n : names)
         {
           for(ItemStack stack : OreDictionary.getOres(n))
           {
-            if(names.containsAll(OreNameRegistry.FindAllOreNames(stack)))
+            if(names.containsAll(OreNameRegistry.findAllOreNames(stack)))
             {
               boolean found = false;
               for(ItemStack r : results)
@@ -319,7 +313,7 @@ public class ContainerOreConverter extends Container
     {
       for(int i = 0; i < 9; ++i)
       {
-        ItemStack stack = inv_inputs.getStackInSlotOnClosing(i);
+        ItemStack stack = inv_inputs.removeStackFromSlot(i);
 
         if(stack != null)
         {

@@ -17,7 +17,7 @@ public class CommonODCProxy implements IGuiHandler
   static public final int GUI_ORECONVERTIONTABLE = 1;
   static public final int GUI_OREAUTOCONVERTER = 2;
   
-  public void Init()
+  public void init()
   {
     
   }

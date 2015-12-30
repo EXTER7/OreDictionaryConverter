@@ -83,7 +83,7 @@ public class ODCPacketHandler
       {
         if(tileEntity instanceof TileEntityAutomaticOreConverter)
         {
-          ((TileEntityAutomaticOreConverter) tileEntity).ReceivePacketData(data);
+          ((TileEntityAutomaticOreConverter) tileEntity).receivePacketData(data);
         }
       }
     }

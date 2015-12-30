@@ -31,7 +31,7 @@ public class ODCRecipeHandler  extends TemplateRecipeHandler
       out = out.copy();
       out.stackSize = 1;
       output = new PositionedStack(out,94 - 5,16 - 11);
-      Set<String> names = OreNameRegistry.FindAllOreNames(out);
+      Set<String> names = OreNameRegistry.findAllOreNames(out);
       if(names.isEmpty())
       {
         output = null;
@@ -42,7 +42,7 @@ public class ODCRecipeHandler  extends TemplateRecipeHandler
       {
         for(ItemStack stack : OreDictionary.getOres(n))
         {
-          if(names.containsAll(OreNameRegistry.FindAllOreNames(stack)))
+          if(names.containsAll(OreNameRegistry.findAllOreNames(stack)))
           {
              ItemStack res = stack.copy();
              res.stackSize = 1;
@@ -79,7 +79,7 @@ public class ODCRecipeHandler  extends TemplateRecipeHandler
       input = new PositionedStack(in,12 - 5,25 - 11);
 
       ArrayList<ItemStack> results = new ArrayList<ItemStack>();
-      Set<String> names = OreNameRegistry.FindAllOreNames(in);
+      Set<String> names = OreNameRegistry.findAllOreNames(in);
       if(names.isEmpty())
       {
         input = null;
@@ -90,7 +90,7 @@ public class ODCRecipeHandler  extends TemplateRecipeHandler
       {
         for(ItemStack stack : OreDictionary.getOres(n))
         {
-          if(names.containsAll(OreNameRegistry.FindAllOreNames(stack)))
+          if(names.containsAll(OreNameRegistry.findAllOreNames(stack)))
           {
              int j = results.size();
              ItemStack res = stack.copy();
@@ -151,7 +151,7 @@ public class ODCRecipeHandler  extends TemplateRecipeHandler
   public void loadAllRecipes()
   {
     List<ItemStack> items = new ArrayList<ItemStack>();
-    for(String name:OreNameRegistry.GetOreNames())
+    for(String name:OreNameRegistry.getOreNames())
     {
       items.addAll(OreDictionary.getOres(name));
     }
