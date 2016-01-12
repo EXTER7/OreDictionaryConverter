@@ -18,24 +18,26 @@ group= "exter.fodc" // http://maven.apache.org/guides/mini/guide-naming-conventi
 archivesBaseName = "OreDictionaryConverter"
 
 
+
+dependencies {
+
+}
+
 repositories {
-    maven {
-        name = "ChickenBones"
-        url = "http://chickenbones.net/maven"
+     maven {
+        name "DVS1 Maven FS'"
+        url 'http://dvs1.progwml6.com/files/maven'
     }
 }
 
-dependencies {
-    //compile "codechicken:NotEnoughItems:1.8-1.0.5.104:dev"
-    //compile "codechicken:CodeChickenCore:1.8-1.0.5.36:dev"
-    //compile "codechicken:CodeChickenLib:1.8-1.1.2.139:dev"
+minecraft {
+    version = "1.8.9-11.15.0.1684"
+    runDir = "eclipse"
+    mappings = "stable_20"
 }
 
-
-minecraft {
-    version = "1.8.8-11.15.0.1655"
-    runDir = "eclipse"
-    mappings = "snapshot_20151206"
+dependencies {
+    deobfCompile "mezz.jei:jei_1.8.9:2.15.1.71"
 }
 
 processResources
