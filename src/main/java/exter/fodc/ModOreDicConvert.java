@@ -33,13 +33,13 @@ import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
     modid = ModOreDicConvert.MODID,
     name = ModOreDicConvert.MODNAME,
     version = ModOreDicConvert.MODVERSION,
-    dependencies = "required-after:Forge@[11.14.3.1543,)"
+    dependencies = "required-after:Forge@[11.15.0.1684,)"
     )
 public class ModOreDicConvert
 {
   public static final String MODID = "fodc";
   public static final String MODNAME = "Ore Dictionary Converter";
-  public static final String MODVERSION = "1.7.0";
+  public static final String MODVERSION = "1.7.1";
 
   public static ItemOreConverter item_oreconverter = null;
   @Instance("fodc")
