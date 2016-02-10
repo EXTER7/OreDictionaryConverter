@@ -3,3 +3,5 @@ tile.oreConvTable.name=Ore Conversion Table
 tile.oreAutoconverter.name=Automatic Ore Converter
 
 container.oreAutoconverter=Automatic Ore Converter
+
+gui.jei.oreconverter=Ore Converter

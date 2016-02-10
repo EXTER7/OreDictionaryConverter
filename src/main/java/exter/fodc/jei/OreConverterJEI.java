@@ -16,7 +16,6 @@ import mezz.jei.api.gui.IRecipeLayout;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeHandler;
 import mezz.jei.api.recipe.IRecipeWrapper;
-import mezz.jei.util.StackUtil;
 import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
@@ -108,6 +107,18 @@ public class OreConverterJEI
     {
       return null;
     }
+
+    @Override
+    public void drawInfo(Minecraft minecraft, int recipeWidth, int recipeHeight, int mouseX, int mouseY)
+    {
+      
+    }
+
+    @Override
+    public boolean handleClick(Minecraft minecraft, int mouseX, int mouseY, int mouseButton)
+    {
+      return false;
+    }
   }
 
   static public class Category implements IRecipeCategory
@@ -118,8 +129,11 @@ public class OreConverterJEI
     @Nonnull
     private final String localizedName;
 
+    private final IJeiHelpers helpers;
+    
     public Category(IJeiHelpers helpers)
     {
+      this.helpers = helpers;
       IGuiHelper guiHelper = helpers.getGuiHelper();
 
       ResourceLocation location = new ResourceLocation("fodc", "textures/gui/oc_gui.png");
@@ -167,7 +181,7 @@ public class OreConverterJEI
       IGuiItemStackGroup guiItemStacks = recipeLayout.getItemStacks();
 
       guiItemStacks.init(0, true, 1, 10);
-      guiItemStacks.setFromRecipe(0, StackUtil.toItemStackList(recipeWrapper.getInputs().get(0)));
+      guiItemStacks.setFromRecipe(0, helpers.getStackHelper().toItemStackList(recipeWrapper.getInputs().get(0)));
       int i = 0;
       for(ItemStack output:(List<ItemStack>)recipeWrapper.getOutputs())
       {

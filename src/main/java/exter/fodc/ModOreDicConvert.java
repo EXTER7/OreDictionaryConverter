@@ -33,7 +33,7 @@ import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
     modid = ModOreDicConvert.MODID,
     name = ModOreDicConvert.MODNAME,
     version = ModOreDicConvert.MODVERSION,
-    dependencies = "required-after:Forge@[11.15.0.1684,)"
+    dependencies = "required-after:Forge@[11.15.1.1724,)"
     )
 public class ModOreDicConvert
 {
