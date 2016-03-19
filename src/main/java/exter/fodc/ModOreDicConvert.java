@@ -1,6 +1,5 @@
 package exter.fodc;
 
-import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
@@ -33,13 +32,13 @@ import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
     modid = ModOreDicConvert.MODID,
     name = ModOreDicConvert.MODNAME,
     version = ModOreDicConvert.MODVERSION,
-    dependencies = "required-after:Forge@[11.15.1.1724,)"
+    dependencies = "required-after:Forge@[12.16.0.1770,)"
     )
 public class ModOreDicConvert
 {
   public static final String MODID = "fodc";
   public static final String MODNAME = "Ore Dictionary Converter";
-  public static final String MODVERSION = "1.7.2";
+  public static final String MODVERSION = "1.8.0";
 
   public static ItemOreConverter item_oreconverter = null;
   @Instance("fodc")
@@ -69,8 +68,8 @@ public class ModOreDicConvert
     
     NetworkRegistry.INSTANCE.registerGuiHandler(this, proxy);
 
-    block_oreconvtable = (BlockOreConversionTable) (new BlockOreConversionTable()).setHardness(2.5F).setStepSound(Block.soundTypeWood);
-    block_oreautoconv = (BlockAutomaticOreConverter) (new BlockAutomaticOreConverter()).setHardness(2.5F).setStepSound(Block.soundTypeStone);
+    block_oreconvtable = new BlockOreConversionTable();
+    block_oreautoconv = new BlockAutomaticOreConverter();
     item_oreconverter = new ItemOreConverter();
     network_channel = NetworkRegistry.INSTANCE.newEventDrivenChannel("EXTER.FODC");
     GameRegistry.registerBlock(block_oreconvtable,"oreConvTable");

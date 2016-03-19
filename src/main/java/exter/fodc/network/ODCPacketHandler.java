@@ -14,7 +14,7 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.PacketBuffer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -51,7 +51,7 @@ public class ODCPacketHandler
       data.writeInt(p.getX());
       data.writeInt(p.getY());
       data.writeInt(p.getZ());
-      data.writeInt(sender.getWorld().provider.getDimensionId());
+      data.writeInt(sender.getWorld().provider.getDimension());
 
       data.writeByte(slot);
 
@@ -101,7 +101,7 @@ public class ODCPacketHandler
       int z = data.readInt();
       int d = data.readInt();
       World world = Minecraft.getMinecraft().theWorld;
-      if(d == world.provider.getDimensionId())
+      if(d == world.provider.getDimension())
       {
         OnTEPacketData(data, world, x, y, z);
       }

@@ -15,12 +15,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.IChatComponent;
 import net.minecraft.util.ITickable;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -418,7 +418,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
 
 
   @Override
-  public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity pkt)
+  public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt)
   {
     super.onDataPacket(net, pkt);
     if(FMLCommonHandler.instance().getEffectiveSide().isClient())
@@ -432,7 +432,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
   {
     NBTTagCompound nbt = new NBTTagCompound();
     writeToNBT(nbt);
-    return new S35PacketUpdateTileEntity(pos, 0, nbt);
+    return new SPacketUpdateTileEntity(pos, 0, nbt);
   }
 
   @Override
@@ -466,9 +466,9 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
   }
 
   @Override
-  public IChatComponent getDisplayName()
+  public ITextComponent getDisplayName()
   {
-    return new ChatComponentText("Ore Autoconverter");
+    return new TextComponentString("Ore Autoconverter");
   }
 
   @Override

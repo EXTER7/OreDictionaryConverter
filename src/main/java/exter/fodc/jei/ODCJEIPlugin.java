@@ -1,34 +1,19 @@
 package exter.fodc.jei;
 
 import exter.fodc.container.ContainerOreConverter;
-import mezz.jei.api.IItemRegistry;
 import mezz.jei.api.IJeiHelpers;
 import mezz.jei.api.IJeiRuntime;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.IModRegistry;
-import mezz.jei.api.IRecipeRegistry;
 import mezz.jei.api.JEIPlugin;
 
 @JEIPlugin
 public class ODCJEIPlugin implements IModPlugin
 {
-  private IJeiHelpers helpers;
-  
-  @Override
-  public void onJeiHelpersAvailable(IJeiHelpers helpers)
-  {
-    this.helpers = helpers;
-  }
-
-  @Override
-  public void onItemRegistryAvailable(IItemRegistry itemRegistry)
-  {
-    
-  }
-
   @Override
   public void register(IModRegistry registry)
   {
+    IJeiHelpers helpers = registry.getJeiHelpers();
     registry.addRecipeCategories(new OreConverterJEI.Category(helpers));
     registry.addRecipeHandlers(new OreConverterJEI.Handler());    
     registry.addRecipes(OreConverterJEI.getRecipes());    
@@ -37,14 +22,8 @@ public class ODCJEIPlugin implements IModPlugin
   }
 
   @Override
-  public void onRecipeRegistryAvailable(IRecipeRegistry recipeRegistry)
+  public void onRuntimeAvailable(IJeiRuntime runtime)
   {
-    
-  }
 
-  @Override
-  public void onRuntimeAvailable(IJeiRuntime jeiRuntime)
-  {
-    
   }
 }

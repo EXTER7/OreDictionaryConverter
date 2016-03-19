@@ -17,7 +17,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.fml.relauncher.Side;
 
@@ -144,8 +144,8 @@ public class GuiAutomaticOreConverter extends GuiContainer
   @Override
   protected void drawGuiContainerForegroundLayer(int par1, int par2)
   {
-    fontRendererObj.drawString(StatCollector.translateToLocal("Ore Autoconverter"), 8, 6, 4210752);
-    fontRendererObj.drawString(StatCollector.translateToLocal("Targets"), 8, 65, 4210752);
+    fontRendererObj.drawString(I18n.translateToLocal("Ore Autoconverter"), 8, 6, 4210752);
+    fontRendererObj.drawString(I18n.translateToLocal("Targets"), 8, 65, 4210752);
     fontRendererObj.drawString(player_inventory.getDisplayName().getFormattedText(), 8, this.ySize - 96 + 2, 4210752);
   }
 

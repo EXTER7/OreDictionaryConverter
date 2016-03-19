@@ -5,8 +5,8 @@ import java.util.Random;
 import exter.fodc.ModOreDicConvert;
 import exter.fodc.proxy.CommonODCProxy;
 import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockContainer;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
@@ -14,8 +14,10 @@ import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 
@@ -26,17 +28,16 @@ public class BlockAutomaticOreConverter extends BlockContainer
   public BlockAutomaticOreConverter()
   {
     super(Material.rock);
-    setHardness(1.0F);
     setResistance(8.0F);
-    setStepSound(Block.soundTypeStone);
+    setHardness(2.5F);
+    setSoundType(SoundType.STONE);
     setUnlocalizedName("oreAutoconverter");
     setCreativeTab(CreativeTabs.tabDecorations);
   }
 
-  @Override
-  public int getRenderType()
+  public EnumBlockRenderType getRenderType(IBlockState state)
   {
-      return 3;
+    return EnumBlockRenderType.MODEL;
   }
 
   @Override
@@ -67,7 +68,7 @@ public class BlockAutomaticOreConverter extends BlockContainer
   }
 
   @Override
-  public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ)
+  public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
   {
     if (world.isRemote)
     {

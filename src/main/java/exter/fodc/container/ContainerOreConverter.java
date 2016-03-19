@@ -8,14 +8,14 @@ import exter.fodc.registry.OreNameRegistry;
 import exter.fodc.slot.SlotOreConverter;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.inventory.Slot;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.IChatComponent;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.ITextComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -130,7 +130,7 @@ public class ContainerOreConverter extends Container
     }
 
     @Override
-    public IChatComponent getDisplayName()
+    public ITextComponent getDisplayName()
     {
       return null;
     }
@@ -219,31 +219,44 @@ public class ContainerOreConverter extends Container
 
   // Workaround for shift clicking converting more than one type of ore
   @Override
-  public ItemStack slotClick(int slot_index, int button, int mode, EntityPlayer player)
+  public ItemStack func_184996_a/*slotClick*/(int slot_index, int drag, ClickType click, EntityPlayer player)
   {
     ItemStack res_stack = null;
-    if(mode == 1 && (button == 0 || button == 1) && slot_index != -999)
+    if(click == ClickType.QUICK_MOVE && (drag == 0 || drag == 1) && slot_index != -999)
     {
+      ItemStack itemstack = null;
+      if(slot_index < 0)
+      {
+        return null;
+      }
       Slot slot = (Slot) inventorySlots.get(slot_index);
+
       if(slot != null && slot.canTakeStack(player))
       {
-        ItemStack stack = transferStackInSlot(player, slot_index);
-        if(stack != null)
-        {
-          Item item = stack.getItem();
-          int dv = stack.getItemDamage();
-          res_stack = stack.copy();
+        ItemStack slot_stack = slot.getStack();
 
-          ItemStack is = slot.getStack();
-          if(slot != null && is != null && is.getItem() == item && (!is.getHasSubtypes() || is.getItemDamage() == dv))
+        if(slot_stack != null && slot_stack.stackSize <= 0)
+        {
+          itemstack = slot_stack.copy();
+          slot.putStack((ItemStack) null);
+        }
+
+        ItemStack transfer_stack = transferStackInSlot(player, slot_index);
+
+        if(transfer_stack != null)
+        {
+          itemstack = transfer_stack.copy();
+
+          if(slot.getStack() != null && slot.getStack().isItemEqual(transfer_stack))
           {
-            retrySlotClick(slot_index, button, true, player);
+            retrySlotClick(slot_index, drag, true, player);
           }
         }
       }
+      return itemstack;
     } else
     {
-      res_stack = super.slotClick(slot_index, button, mode, player);
+      res_stack = super.func_184996_a/*slotClick*/(slot_index, drag, click, player);
     }
     return res_stack;
   }

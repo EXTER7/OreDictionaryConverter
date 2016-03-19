@@ -1,8 +1,8 @@
 package exter.fodc.proxy;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.entity.RenderItem;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.renderer.RenderItem;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import exter.fodc.ModOreDicConvert;
 
