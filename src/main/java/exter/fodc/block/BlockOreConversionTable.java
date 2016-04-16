@@ -18,11 +18,12 @@ public class BlockOreConversionTable extends Block
 {
   public BlockOreConversionTable()
   {
-    super(Material.wood);
+    super(Material.WOOD);
     setUnlocalizedName("oreConvTable");
     setHardness(2.5F);
     setSoundType(SoundType.WOOD);
-    setCreativeTab(CreativeTabs.tabDecorations);
+    setCreativeTab(CreativeTabs.DECORATIONS);
+    setRegistryName("oreConvTable");
   }
     
   /**

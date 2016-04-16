@@ -2,6 +2,7 @@ package exter.fodc;
 
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
@@ -72,9 +73,15 @@ public class ModOreDicConvert
     block_oreautoconv = new BlockAutomaticOreConverter();
     item_oreconverter = new ItemOreConverter();
     network_channel = NetworkRegistry.INSTANCE.newEventDrivenChannel("EXTER.FODC");
-    GameRegistry.registerBlock(block_oreconvtable,"oreConvTable");
-    GameRegistry.registerBlock(block_oreautoconv,"oreAutoconverter");
-    GameRegistry.registerItem(item_oreconverter, "oreConverter");
+
+    GameRegistry.register(item_oreconverter);
+
+    GameRegistry.register(block_oreconvtable);
+    GameRegistry.register(block_oreautoconv);
+    GameRegistry.register(new ItemBlock(block_oreconvtable).setRegistryName(block_oreconvtable.getRegistryName()));
+    GameRegistry.register(new ItemBlock(block_oreautoconv).setRegistryName(block_oreautoconv.getRegistryName()));
+
+    
     
     net_handler = new ODCPacketHandler();
     network_channel.register(net_handler);
@@ -86,11 +93,11 @@ public class ModOreDicConvert
     GameRegistry.registerTileEntity(TileEntityAutomaticOreConverter.class, "AutoOreConverter");
     proxy.init();
 
-    ItemStack iron_stack = new ItemStack(Items.iron_ingot);
-    ItemStack redstone_stack = new ItemStack(Items.redstone);
-    ItemStack workbench_stack = new ItemStack(Blocks.crafting_table);
-    ItemStack wood_stack = new ItemStack(Blocks.planks,1,OreDictionary.WILDCARD_VALUE);
-    ItemStack cobble_stack = new ItemStack(Blocks.cobblestone,1,OreDictionary.WILDCARD_VALUE);
+    ItemStack iron_stack = new ItemStack(Items.IRON_INGOT);
+    ItemStack redstone_stack = new ItemStack(Items.REDSTONE);
+    ItemStack workbench_stack = new ItemStack(Blocks.CRAFTING_TABLE);
+    ItemStack wood_stack = new ItemStack(Blocks.PLANKS,1,OreDictionary.WILDCARD_VALUE);
+    ItemStack cobble_stack = new ItemStack(Blocks.COBBLESTONE,1,OreDictionary.WILDCARD_VALUE);
     ItemStack oreconverter_stack = new ItemStack(item_oreconverter);
     
     GameRegistry.addRecipe(
@@ -139,6 +146,6 @@ public class ModOreDicConvert
   @SubscribeEvent
   public void onOreDictionaryRegister(OreDictionary.OreRegisterEvent event)
   {
-    OreNameRegistry.registerOreName(event.Name);
+    OreNameRegistry.registerOreName(event.getName());
   }
 }

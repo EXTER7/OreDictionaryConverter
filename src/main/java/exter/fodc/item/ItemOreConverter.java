@@ -18,8 +18,9 @@ public class ItemOreConverter extends Item
   {
     super();
     maxStackSize = 1;
-    setCreativeTab(CreativeTabs.tabMisc);
+    setCreativeTab(CreativeTabs.MISC);
     setUnlocalizedName("oreConverter");
+    setRegistryName("oreConverter");
   }
 
   @Override

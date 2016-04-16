@@ -27,12 +27,13 @@ public class BlockAutomaticOreConverter extends BlockContainer
   
   public BlockAutomaticOreConverter()
   {
-    super(Material.rock);
+    super(Material.ROCK);
     setResistance(8.0F);
     setHardness(2.5F);
     setSoundType(SoundType.STONE);
     setUnlocalizedName("oreAutoconverter");
-    setCreativeTab(CreativeTabs.tabDecorations);
+    setCreativeTab(CreativeTabs.DECORATIONS);
+    setRegistryName("oreAutoconverter");
   }
 
   public EnumBlockRenderType getRenderType(IBlockState state)

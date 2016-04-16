@@ -43,7 +43,7 @@ public class GuiAutomaticOreConverter extends GuiContainer
       position = pos;
     }
     
-    public void OnClick()
+    public void onClick()
     {
       ItemStack player_stack = mc.thePlayer.inventory.getItemStack();
 
@@ -57,11 +57,11 @@ public class GuiAutomaticOreConverter extends GuiContainer
         target_stack = null;
       }
       te_autoconverter.setTarget(position, target_stack);
-      ODCPacketHandler.SendAutoOreConverterTarget(te_autoconverter, position, target_stack);
+      ODCPacketHandler.sendAutoOreConverterTarget(te_autoconverter, position, target_stack);
       
     }
 
-    public void DrawSlot()
+    public void drawSlot()
     {
 
       ItemStack item = te_autoconverter.getTarget(position);
@@ -84,7 +84,7 @@ public class GuiAutomaticOreConverter extends GuiContainer
     }
   }
 
-  public TargetSlot GetTargetSlotAt(int x, int y)
+  public TargetSlot getTargetSlotAt(int x, int y)
   {
     for(TargetSlot s:target_slots)
     {
@@ -129,11 +129,11 @@ public class GuiAutomaticOreConverter extends GuiContainer
     int window_y = (height - ySize) / 2;
 
 
-    TargetSlot slot = GetTargetSlotAt(x - window_x, y - window_y);
+    TargetSlot slot = getTargetSlotAt(x - window_x, y - window_y);
 
     if(slot != null)
     {
-      slot.OnClick();
+      slot.onClick();
     }
   }
 
@@ -175,7 +175,7 @@ public class GuiAutomaticOreConverter extends GuiContainer
     int i;
     for(i = 0; i < 18; i++)
     {
-      target_slots[i].DrawSlot();
+      target_slots[i].drawSlot();
     }
     GL11.glPopMatrix();
     GL11.glEnable(GL11.GL_LIGHTING);

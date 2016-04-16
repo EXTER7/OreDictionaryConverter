@@ -29,7 +29,7 @@ import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 public class ODCPacketHandler
 {
 
-  private static void WriteItem(ByteBufOutputStream data, ItemStack item) throws IOException
+  private static void writeItem(ByteBufOutputStream data, ItemStack item) throws IOException
   {
     NBTTagCompound tag = new NBTTagCompound();
     item.writeToNBT(tag);
@@ -40,7 +40,7 @@ public class ODCPacketHandler
     data.write(bytes);
   }
 
-  static public void SendAutoOreConverterTarget(TileEntityAutomaticOreConverter sender, int slot, ItemStack target)
+  static public void sendAutoOreConverterTarget(TileEntityAutomaticOreConverter sender, int slot, ItemStack target)
   {
     ByteBuf bytes = Unpooled.buffer();
     ByteBufOutputStream data = new ByteBufOutputStream(bytes);
@@ -61,7 +61,7 @@ public class ODCPacketHandler
       } else
       {
         data.writeBoolean(true);
-        WriteItem(data, target);
+        writeItem(data, target);
       }
 
     } catch(IOException e)
@@ -73,7 +73,7 @@ public class ODCPacketHandler
     ModOreDicConvert.network_channel.sendToServer(packet);
   }
 
-  private void OnTEPacketData(ByteBufInputStream data, World world, int x, int y, int z)
+  private void onTEPacketData(ByteBufInputStream data, World world, int x, int y, int z)
   {
     if(world != null)
     {
@@ -95,7 +95,7 @@ public class ODCPacketHandler
   {
     try
     {
-      ByteBufInputStream data = new ByteBufInputStream(event.packet.payload());
+      ByteBufInputStream data = new ByteBufInputStream(event.getPacket().payload());
       int x = data.readInt();
       int y = data.readInt();
       int z = data.readInt();
@@ -103,7 +103,7 @@ public class ODCPacketHandler
       World world = Minecraft.getMinecraft().theWorld;
       if(d == world.provider.getDimension())
       {
-        OnTEPacketData(data, world, x, y, z);
+        onTEPacketData(data, world, x, y, z);
       }
     } catch(Exception e)
     {
@@ -116,13 +116,13 @@ public class ODCPacketHandler
   {
     try
     {
-      ByteBufInputStream data = new ByteBufInputStream(event.packet.payload());
+      ByteBufInputStream data = new ByteBufInputStream(event.getPacket().payload());
       int x = data.readInt();
       int y = data.readInt();
       int z = data.readInt();
       int d = data.readInt();
       World world = DimensionManager.getWorld(d);
-      OnTEPacketData(data, world, x, y, z);
+      onTEPacketData(data, world, x, y, z);
     } catch(Exception e)
     {
       new RuntimeException(e);

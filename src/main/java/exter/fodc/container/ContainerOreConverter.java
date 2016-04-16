@@ -219,7 +219,7 @@ public class ContainerOreConverter extends Container
 
   // Workaround for shift clicking converting more than one type of ore
   @Override
-  public ItemStack func_184996_a/*slotClick*/(int slot_index, int drag, ClickType click, EntityPlayer player)
+  public ItemStack slotClick(int slot_index, int drag, ClickType click, EntityPlayer player)
   {
     ItemStack res_stack = null;
     if(click == ClickType.QUICK_MOVE && (drag == 0 || drag == 1) && slot_index != -999)
@@ -256,7 +256,7 @@ public class ContainerOreConverter extends Container
       return itemstack;
     } else
     {
-      res_stack = super.func_184996_a/*slotClick*/(slot_index, drag, click, player);
+      res_stack = super.slotClick(slot_index, drag, click, player);
     }
     return res_stack;
   }
@@ -330,7 +330,7 @@ public class ContainerOreConverter extends Container
 
         if(stack != null)
         {
-          player.dropPlayerItemWithRandomChoice(stack, false);
+          player.dropItem(stack, false);
         }
       }
     }
