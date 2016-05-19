@@ -5,7 +5,6 @@ import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.fml.relauncher.Side;
@@ -43,7 +42,7 @@ public class GuiOreConverter extends GuiContainer
   protected void drawGuiContainerForegroundLayer(int par1, int par2)
   {
     fontRendererObj.drawString("Ore Converter", 23, 6, 4210752);
-    fontRendererObj.drawString(I18n.translateToLocal("container.inventory"), 8, ySize - 96 + 2, 4210752);
+    fontRendererObj.drawString("Inventory", 8, ySize - 96 + 2, 4210752);
   }
 
   /**

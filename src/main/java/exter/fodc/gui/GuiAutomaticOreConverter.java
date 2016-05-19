@@ -6,7 +6,6 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
 import exter.fodc.container.ContainerAutomaticOreConverter;
-import exter.fodc.network.ODCPacketHandler;
 import exter.fodc.registry.OreNameRegistry;
 import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
 import net.minecraft.client.gui.FontRenderer;
@@ -14,10 +13,8 @@ import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.fml.relauncher.Side;
 
@@ -27,7 +24,6 @@ public class GuiAutomaticOreConverter extends GuiContainer
   private static final ResourceLocation GUI_TEXTURE = new ResourceLocation("fodc:textures/gui/aoc_gui.png");
 
   private TileEntityAutomaticOreConverter te_autoconverter;
-  private IInventory player_inventory;
   private TargetSlot[] target_slots;
 
   public class TargetSlot
@@ -57,7 +53,6 @@ public class GuiAutomaticOreConverter extends GuiContainer
         target_stack = null;
       }
       te_autoconverter.setTarget(position, target_stack);
-      ODCPacketHandler.sendAutoOreConverterTarget(te_autoconverter, position, target_stack);
       
     }
 
@@ -99,7 +94,6 @@ public class GuiAutomaticOreConverter extends GuiContainer
   public GuiAutomaticOreConverter(TileEntityAutomaticOreConverter aoc, EntityPlayer player)
   {
     super(new ContainerAutomaticOreConverter(aoc, player));
-    player_inventory = player.inventory;
     allowUserInput = false;
     ySize = 210;
     te_autoconverter = aoc;
@@ -144,9 +138,9 @@ public class GuiAutomaticOreConverter extends GuiContainer
   @Override
   protected void drawGuiContainerForegroundLayer(int par1, int par2)
   {
-    fontRendererObj.drawString(I18n.translateToLocal("Ore Autoconverter"), 8, 6, 4210752);
-    fontRendererObj.drawString(I18n.translateToLocal("Targets"), 8, 65, 4210752);
-    fontRendererObj.drawString(player_inventory.getDisplayName().getFormattedText(), 8, this.ySize - 96 + 2, 4210752);
+    fontRendererObj.drawString("Ore Autoconverter", 8, 6, 4210752);
+    fontRendererObj.drawString("Targets", 8, 65, 4210752);
+    fontRendererObj.drawString("Inventory", 8, this.ySize - 96 + 2, 4210752);
   }
 
   /**

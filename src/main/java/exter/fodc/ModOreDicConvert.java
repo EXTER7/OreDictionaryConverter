@@ -14,9 +14,10 @@ import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.network.FMLEventChannel;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
+import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.logging.Logger;
@@ -24,7 +25,7 @@ import java.util.logging.Logger;
 import exter.fodc.block.BlockAutomaticOreConverter;
 import exter.fodc.block.BlockOreConversionTable;
 import exter.fodc.item.ItemOreConverter;
-import exter.fodc.network.ODCPacketHandler;
+import exter.fodc.network.MessageODC;
 import exter.fodc.proxy.CommonODCProxy;
 import exter.fodc.registry.OreNameRegistry;
 import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
@@ -33,13 +34,13 @@ import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
     modid = ModOreDicConvert.MODID,
     name = ModOreDicConvert.MODNAME,
     version = ModOreDicConvert.MODVERSION,
-    dependencies = "required-after:Forge@[12.16.0.1864,)"
+    dependencies = "required-after:Forge@[12.17.0.1909,)"
     )
 public class ModOreDicConvert
 {
   public static final String MODID = "fodc";
   public static final String MODNAME = "Ore Dictionary Converter";
-  public static final String MODVERSION = "1.8.1";
+  public static final String MODVERSION = "1.8.2";
 
   public static ItemOreConverter item_oreconverter = null;
   @Instance("fodc")
@@ -53,9 +54,7 @@ public class ModOreDicConvert
     
   public static Logger log = Logger.getLogger("OreDicConvert");
 
-  public static FMLEventChannel network_channel;
-  
-  public static ODCPacketHandler net_handler;
+  public static SimpleNetworkWrapper network_channel;
     
 
   @EventHandler
@@ -72,7 +71,6 @@ public class ModOreDicConvert
     block_oreconvtable = new BlockOreConversionTable();
     block_oreautoconv = new BlockAutomaticOreConverter();
     item_oreconverter = new ItemOreConverter();
-    network_channel = NetworkRegistry.INSTANCE.newEventDrivenChannel("EXTER.FODC");
 
     GameRegistry.register(item_oreconverter);
 
@@ -83,8 +81,9 @@ public class ModOreDicConvert
 
     
     
-    net_handler = new ODCPacketHandler();
-    network_channel.register(net_handler);
+    network_channel = NetworkRegistry.INSTANCE.newSimpleChannel("EXTER.FODC");
+    network_channel.registerMessage(MessageODC.Handler.class, MessageODC.class, 0, Side.SERVER);
+    network_channel.registerMessage(MessageODC.Handler.class, MessageODC.class, 0, Side.CLIENT);
   }
 
   @EventHandler

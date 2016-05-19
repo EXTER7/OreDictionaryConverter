@@ -6,6 +6,8 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Set;
 
+import exter.fodc.ModOreDicConvert;
+import exter.fodc.network.MessageODC;
 import exter.fodc.registry.OreNameRegistry;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
@@ -14,7 +16,6 @@ import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
@@ -22,6 +23,7 @@ import net.minecraft.util.ITickable;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
 import net.minecraftforge.oredict.OreDictionary;
 
 public class TileEntityAutomaticOreConverter extends TileEntity implements ITickable,ISidedInventory
@@ -59,11 +61,25 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
     compound.setTag("Item_" + String.valueOf(slot), tag);
   }
 
+  private void writeTargetToNBT(NBTTagCompound compound, int slot)
+  {
+    ItemStack is = targets[slot];
+    NBTTagCompound tag = new NBTTagCompound();
+    if(is != null)
+    {
+      tag.setBoolean("empty", false);
+      is.writeToNBT(tag);
+    } else
+    {
+      tag.setBoolean("empty", true);
+    }
+    compound.setTag("Target_" + String.valueOf(slot), tag);
+  }
+
   @Override
   public void readFromNBT(NBTTagCompound compound)
   {
     super.readFromNBT(compound);
-    NBTTagList targets_tag = (NBTTagList) compound.getTag("Targets");
     int i;
 
     for(i = 0; i < inventory.length; i++)
@@ -80,6 +96,10 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
       }
     }
 
+
+    // Read the old Targets tag.
+    // TODO: Remove in future versions.
+    NBTTagList targets_tag = (NBTTagList) compound.getTag("Targets");
     if(targets_tag != null)
     {
       targets = new ItemStack[SIZE_TARGETS];
@@ -93,30 +113,30 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
         setTarget(slot, is);
       }
     }
-  }
 
-  private void writeTargetsToNBT(NBTTagCompound compound)
-  {
-    NBTTagList targets_tag = new NBTTagList();
-
-    int i;
     for(i = 0; i < targets.length; i++)
     {
-      ItemStack t = targets[i];
-      if(t != null)
+      NBTTagCompound tag = (NBTTagCompound) compound.getTag("Target_" + String.valueOf(i));
+      if(tag != null)
       {
-        NBTTagCompound tag = new NBTTagCompound();
-        tag.setByte("Slot", (byte) i);
-        t.writeToNBT(tag);
-        targets_tag.appendTag(tag);
+        ItemStack stack = null;
+        if(!tag.getBoolean("empty"))
+        {
+          stack = ItemStack.loadItemStackFromNBT(tag);
+        }
+        targets[i] = stack;
       }
     }
-    compound.setTag("Targets", targets_tag);
+
   }
 
   @Override
-  public void writeToNBT(NBTTagCompound compound)
+  public NBTTagCompound writeToNBT(NBTTagCompound compound)
   {
+    if(compound == null)
+    {
+      compound = new NBTTagCompound();
+    }
     super.writeToNBT(compound);
 
     int i;
@@ -125,44 +145,12 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
       writeItemToNBT(compound, i);
     }
 
-    writeTargetsToNBT(compound);
-  }
-
-  private static ItemStack readItem(ByteBufInputStream data) throws IOException
-  {
-    int len = data.readInt();
-    byte[] bytes = new byte[len];
-    if(data.read(bytes) < len)
+    for(i = 0; i < targets.length; i++)
     {
-      throw new IOException();
+      writeTargetToNBT(compound, i);
     }
-    ByteArrayInputStream s = new ByteArrayInputStream(bytes);
-    ItemStack item = ItemStack.loadItemStackFromNBT(CompressedStreamTools.readCompressed(s));
-    s.close();
-    return item;
-  }
-
-  public void receivePacketData(ByteBufInputStream data)
-  {
-    try
-    {
-      if(!worldObj.isRemote)
-      {
-        int slot = data.readByte() & 255;
-        boolean has_target = data.readBoolean();
-        ItemStack target = null;
-        if(has_target)
-        {
-          target = readItem(data);
-        }
-
-        setTarget(slot, target);
-        markDirty();
-      }
-    } catch(IOException e)
-    {
-      throw new RuntimeException(e);
-    }
+    
+    return compound;
   }
 
   @Override
@@ -233,8 +221,6 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
     }
   }
 
-
-
   @Override
   public int getInventoryStackLimit()
   {
@@ -250,13 +236,48 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
   @Override
   public void openInventory(EntityPlayer playerIn)
   {
-
+    if(!worldObj.isRemote)
+    {
+      NBTTagCompound tag = new NBTTagCompound();
+      super.writeToNBT(tag);
+      for(int i = 0; i < targets.length; i++)
+      {
+        writeTargetToNBT(tag, i);
+      }
+      sendPacketToPlayers(tag);
+    }
   }
 
   @Override
   public void closeInventory(EntityPlayer playerIn)
   {
+    if(!worldObj.isRemote)
+    {
+      NBTTagCompound tag = new NBTTagCompound();
+      super.writeToNBT(tag);
+      for(int i = 0; i < targets.length; i++)
+      {
+        writeTargetToNBT(tag, i);
+      }
+      sendPacketToPlayers(tag);
+    }
+  }
 
+  protected void sendPacketToPlayers(NBTTagCompound data)
+  {
+    data.setInteger("dim", worldObj.provider.getDimension());
+    ModOreDicConvert.network_channel.sendToAllAround(new MessageODC(data),
+        new TargetPoint(worldObj.provider.getDimension(),pos.getX(),pos.getY(),pos.getZ(),192));
+  }
+  
+  protected void sendToServer(NBTTagCompound tag)
+  {
+    if(worldObj.isRemote)
+    {
+      super.writeToNBT(tag);
+      tag.setInteger("dim", worldObj.provider.getDimension());
+      ModOreDicConvert.network_channel.sendToServer(new MessageODC(tag));
+    }
   }
 
   // Returns the version of the item to be converted,
@@ -378,6 +399,12 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
       targets[slot] = target;
       last_input = null;
       last_target = null;
+      if(worldObj.isRemote)
+      {
+        NBTTagCompound tag = new NBTTagCompound();
+        writeTargetToNBT(tag,slot);
+        sendToServer(tag);
+      }
     }
   }
 
@@ -428,11 +455,9 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
   }
 
   @Override
-  public Packet<?> getDescriptionPacket()
+  public SPacketUpdateTileEntity getUpdatePacket()
   {
-    NBTTagCompound nbt = new NBTTagCompound();
-    writeToNBT(nbt);
-    return new SPacketUpdateTileEntity(pos, 0, nbt);
+    return new SPacketUpdateTileEntity(pos, 0, writeToNBT(null));
   }
 
   @Override
