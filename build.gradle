@@ -13,7 +13,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 
-version = "1.8.1"
+version = "1.8.2"
 group= "exter.fodc" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "OreDictionaryConverter"
 
