@@ -115,7 +115,7 @@ public class OreConverterJEI
     }
   }
 
-  static public class Category implements IRecipeCategory
+  static public class Category implements IRecipeCategory<Wrapper>
   {
 
     @Nonnull
@@ -168,9 +168,8 @@ public class OreConverterJEI
       return "fodc.oreconverter";
     }
 
-    @SuppressWarnings("unchecked")
     @Override
-    public void setRecipe(@Nonnull IRecipeLayout recipeLayout, @Nonnull IRecipeWrapper recipeWrapper)
+    public void setRecipe(IRecipeLayout recipeLayout, Wrapper recipeWrapper)
     {
       IGuiItemStackGroup guiItemStacks = recipeLayout.getItemStacks();
 
@@ -201,6 +200,7 @@ public class OreConverterJEI
 
     @Nonnull
     @Override
+    @Deprecated
     public String getRecipeCategoryUid()
     {
       return "fodc.oreconverter";
@@ -217,6 +217,12 @@ public class OreConverterJEI
     public boolean isRecipeValid(@Nonnull Wrapper recipe)
     {
       return recipe.getOutputs().size() > 0;
+    }
+
+    @Override
+    public String getRecipeCategoryUid(Wrapper recipe)
+    {
+      return "fodc.oreconverter";
     }
   }
 

@@ -13,7 +13,7 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 
-version = "1.8.2"
+version = "1.9.0"
 group= "exter.fodc" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "OreDictionaryConverter"
 
@@ -31,13 +31,13 @@ repositories {
 }
 
 minecraft {
-    version = "1.9.4-12.17.0.1909-1.9.4"
+    version = "1.10.2-12.18.0.2005-1.10.0"
     runDir = "eclipse"
-    mappings = "snapshot_20160519"
+    mappings = "snapshot_20160630"
 }
 
 dependencies {
-    deobfCompile "mezz.jei:jei_1.9.4:3.4.0.202"
+    deobfCompile "mezz.jei:jei_1.10.2:3.7.3.221"
 }
 
 processResources
