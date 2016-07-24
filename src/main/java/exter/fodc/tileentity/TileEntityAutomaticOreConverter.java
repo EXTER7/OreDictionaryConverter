@@ -1,9 +1,5 @@
 package exter.fodc.tileentity;
 
-import io.netty.buffer.ByteBufInputStream;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
 import java.util.Set;
 
 import exter.fodc.ModOreDicConvert;
@@ -12,7 +8,6 @@ import exter.fodc.registry.OreNameRegistry;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
