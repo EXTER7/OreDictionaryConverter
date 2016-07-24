@@ -52,7 +52,7 @@ public class OreNameRegistry
         list.add(Pattern.compile(t));
       } catch(PatternSyntaxException e)
       {
-        ModOreDicConvert.log.warning("Pattern '" + t + "' has invalid syntax.");
+        ModOreDicConvert.log.warn("Pattern '" + t + "' has invalid syntax.");
       }
     }
     return list;
@@ -94,7 +94,10 @@ public class OreNameRegistry
     if(matchesAnyPattern(name,whitelist) && !matchesAnyPattern(name,blacklist))
     {
       valid_ore_names.add(name);
-      ModOreDicConvert.log.info("registered ore name: " + name);
+      if(ModOreDicConvert.log_orenames)
+      {
+        ModOreDicConvert.log.info("Registered ore name: " + name);
+      }
     }
   }
   

@@ -20,7 +20,7 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.oredict.OreDictionary;
 
-import java.util.logging.Logger;
+import org.apache.logging.log4j.Logger;
 
 import exter.fodc.block.BlockAutomaticOreConverter;
 import exter.fodc.block.BlockOreConversionTable;
@@ -52,7 +52,9 @@ public class ModOreDicConvert
   public static BlockOreConversionTable block_oreconvtable;
   public static BlockAutomaticOreConverter block_oreautoconv;
     
-  public static Logger log = Logger.getLogger("OreDicConvert");
+  public static Logger log;
+  
+  public static boolean log_orenames;
 
   public static SimpleNetworkWrapper network_channel;
     
@@ -60,8 +62,10 @@ public class ModOreDicConvert
   @EventHandler
   public void preInit(FMLPreInitializationEvent event)
   {
+    log = event.getModLog();
     Configuration config = new Configuration(event.getSuggestedConfigurationFile());
     config.load();
+    log_orenames = config.getBoolean("log_names", Configuration.CATEGORY_GENERAL, false, "Log registered ore names.");
     OreNameRegistry.preInit(config);
     config.save();
     
@@ -134,7 +138,7 @@ public class ModOreDicConvert
     {
       if(name == null)
       {
-        log.warning("null name in Ore Dictionary.");
+        log.warn("null name in Ore Dictionary.");
         continue;
       }
       OreNameRegistry.registerOreName(name);
