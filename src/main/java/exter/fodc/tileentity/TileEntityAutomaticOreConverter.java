@@ -6,7 +6,7 @@ import exter.fodc.ModOreDicConvert;
 import exter.fodc.network.MessageODC;
 import exter.fodc.registry.OreNameRegistry;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.ISidedInventory;
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -16,12 +16,115 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ITickable;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry.TargetPoint;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.oredict.OreDictionary;
 
-public class TileEntityAutomaticOreConverter extends TileEntity implements ITickable,ISidedInventory
+public class TileEntityAutomaticOreConverter extends TileEntity implements ITickable,IInventory
 {
+  public class ItemHandler implements IItemHandler
+  {
+    protected boolean canInsert(int slot,ItemStack stack)
+    {
+      return isItemValidForSlot(slot, stack);
+    }
+
+    protected boolean canExtract(int slot)
+    {
+      return slot >= 8 && slot < 14;
+    }
+    
+    @Override
+    public int getSlots()
+    {
+      return 14;
+    }
+
+    @Override
+    public ItemStack getStackInSlot(int slot)
+    {
+      return inventory[slot];
+    }
+
+    @Override
+    public ItemStack insertItem(int slot, ItemStack stack, boolean simulate)
+    {
+      if(!canInsert(slot,stack))
+      {
+        return stack;
+      }
+      ItemStack is = inventory[slot];
+      if(is.isEmpty())
+      {
+        if(!simulate)
+        {
+          inventory[slot] = stack.copy();
+          markDirty();
+        }
+        return ItemStack.EMPTY;
+      } else if(is.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(is, stack))
+      {
+        if(stack.getCount() + is.getCount() > is.getMaxStackSize())
+        {
+          stack = stack.copy();
+          stack.setCount(stack.getCount() - is.getMaxStackSize() + is.getCount());
+          if(!simulate)
+          {
+            is.setCount(is.getMaxStackSize());
+          }
+        } else
+        {
+          if(!simulate)
+          {
+            is.grow(stack.getCount());
+          }
+          stack = ItemStack.EMPTY;
+        }
+        if(!simulate)
+        {
+          markDirty();
+        }
+        return stack;
+      }
+      return stack;
+    }
+
+    @Override
+    public final ItemStack extractItem(int slot, int amount, boolean simulate)
+    {
+      if(!canExtract(slot))
+      {
+        return ItemStack.EMPTY;
+      }
+      ItemStack is = inventory[slot];
+      if(is.isEmpty())
+      {
+        return ItemStack.EMPTY;
+      }
+      if(amount > is.getCount())
+      {
+        amount = is.getCount();
+      }
+      ItemStack result = is.copy();
+      result.setCount(amount);
+      if(!simulate)
+      {
+        is.shrink(amount);
+        markDirty();
+      }
+      return result;
+    }
+
+    @Override
+    public int getSlotLimit(int slot)
+    {
+      return 64;
+    }
+  }
+
   private ItemStack[] inventory;
   private ItemStack[] targets;
 
@@ -32,6 +135,8 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
   static public int SIZE_TARGETS = 18;
 
   private int process_tick;
+  
+  IItemHandler item_handler;
 
   public TileEntityAutomaticOreConverter()
   {
@@ -40,6 +145,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
     last_input = ItemStack.EMPTY;
     last_target = ItemStack.EMPTY;
     process_tick = 0;
+    item_handler = new ItemHandler();
   }
 
   static private ItemStack[] newItemStackArray(int size)
@@ -394,32 +500,11 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
     return targets[slot];
   }
 
-  static private final int[] ALL_SLOTS = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13 };
-
   @Override
   public boolean isItemValidForSlot(int i, ItemStack itemstack)
   {
     return i >= 0 && i < 8;
   }
-
-  @Override
-  public int[] getSlotsForFace(EnumFacing side)
-  {
-    return ALL_SLOTS;
-  }
-
-  @Override
-  public boolean canInsertItem(int i, ItemStack itemstack, EnumFacing direction)
-  {
-    return isItemValidForSlot(i, itemstack);
-  }
-
-  @Override
-  public boolean canExtractItem(int i, ItemStack itemstack, EnumFacing direction)
-  {
-    return i >= 8 && i < 14;
-  }
-
 
   @Override
   public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt)
@@ -489,5 +574,30 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
   public boolean isEmpty()
   {
     return false;
+  }
+  
+
+  @Override
+  public boolean hasCapability(Capability<?> cap,EnumFacing facing)
+  {
+    if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+    {
+      return true;
+    } else
+    {
+      return super.hasCapability(cap, facing);
+    }
+  }
+  
+  @Override
+  public <T> T getCapability(Capability<T> cap, EnumFacing facing)
+  {
+    if(cap == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY)
+    {
+      return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(item_handler);
+    } else
+    {
+      return super.getCapability(cap, facing);
+    }
   }
 }
