@@ -19,14 +19,14 @@ public class ItemOreConverter extends Item
     super();
     maxStackSize = 1;
     setCreativeTab(CreativeTabs.MISC);
-    setUnlocalizedName("oreConverter");
-    setRegistryName("oreConverter");
+    setUnlocalizedName("fodc.ore_converter");
+    setRegistryName("ore_converter");
   }
 
   @Override
-  public ActionResult<ItemStack> onItemRightClick(ItemStack stack, World world, EntityPlayer player, EnumHand hand)
+  public ActionResult<ItemStack> onItemRightClick(World world, EntityPlayer player, EnumHand hand)
   {
     player.openGui(ModOreDicConvert.instance, CommonODCProxy.GUI_ORECONVERTER, world, 0, 0, 0);
-    return ActionResult.newResult(EnumActionResult.SUCCESS, stack);
+    return ActionResult.newResult(EnumActionResult.SUCCESS, player.getHeldItem(hand));
   }
 }

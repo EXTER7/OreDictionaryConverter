@@ -40,6 +40,10 @@ public class ContainerOreConverter extends Container
     public ResultInventory()
     {
       items = new ItemStack[16];
+      for(int i = 0; i < items.length; i++)
+      {
+        items[i] = ItemStack.EMPTY;
+      }
     }
 
     @Override
@@ -57,28 +61,28 @@ public class ContainerOreConverter extends Container
     @Override
     public ItemStack decrStackSize(int slot, int amount)
     {
-      if(items[slot] != null)
+      if(!items[slot].isEmpty())
       {
         ItemStack itemstack = items[slot];
-        items[slot] = null;
+        items[slot] = ItemStack.EMPTY;
         return itemstack;
       } else
       {
-        return null;
+        return ItemStack.EMPTY;
       }
     }
 
     @Override
     public ItemStack removeStackFromSlot(int index)
     {
-      if(items[index] != null)
+      if(!items[index].isEmpty())
       {
         ItemStack itemstack = items[index];
-        items[index] = null;
+        items[index] = ItemStack.EMPTY;
         return itemstack;
       } else
       {
-        return null;
+        return ItemStack.EMPTY;
       }
     }
 
@@ -100,7 +104,7 @@ public class ContainerOreConverter extends Container
     }
 
     @Override
-    public boolean isUseableByPlayer(EntityPlayer par1EntityPlayer)
+    public boolean isUsableByPlayer(EntityPlayer par1EntityPlayer)
     {
       return true;
     }
@@ -165,6 +169,12 @@ public class ContainerOreConverter extends Container
       return null;
     }
 
+    @Override
+    public boolean isEmpty()
+    {
+      return false;
+    }
+
   }
 
   public ContainerOreConverter(InventoryPlayer inventory_player, World world)
@@ -221,39 +231,32 @@ public class ContainerOreConverter extends Container
   @Override
   public ItemStack slotClick(int slot_index, int drag, ClickType click, EntityPlayer player)
   {
-    ItemStack res_stack = null;
+    ItemStack res_stack = ItemStack.EMPTY;
     if(click == ClickType.QUICK_MOVE && (drag == 0 || drag == 1) && slot_index != -999)
     {
-      ItemStack itemstack = null;
-      if(slot_index < 0)
+      if (slot_index < 0)
       {
-        return null;
+          return ItemStack.EMPTY;
       }
-      Slot slot = (Slot) inventorySlots.get(slot_index);
 
-      if(slot != null && slot.canTakeStack(player))
+      Slot slot = (Slot)this.inventorySlots.get(slot_index);
+
+      if (slot != null && slot.canTakeStack(player))
       {
-        ItemStack slot_stack = slot.getStack();
+          ItemStack transfer_itemstack = this.transferStackInSlot(player, slot_index);
 
-        if(slot_stack != null && slot_stack.stackSize <= 0)
-        {
-          itemstack = slot_stack.copy();
-          slot.putStack((ItemStack) null);
-        }
-
-        ItemStack transfer_stack = transferStackInSlot(player, slot_index);
-
-        if(transfer_stack != null)
-        {
-          itemstack = transfer_stack.copy();
-
-          if(slot.getStack() != null && slot.getStack().isItemEqual(transfer_stack))
+          if (!transfer_itemstack.isEmpty())
           {
-            retrySlotClick(slot_index, drag, true, player);
+              res_stack = transfer_itemstack.copy();
+
+              if (ItemStack.areItemStacksEqual(slot.getStack(),transfer_itemstack)
+                  && ItemStack.areItemsEqualIgnoreDurability(slot.getStack(),transfer_itemstack))
+              {
+                retrySlotClick(slot_index, drag, true, player);
+              }
           }
-        }
       }
-      return itemstack;
+      return res_stack;
     } else
     {
       res_stack = super.slotClick(slot_index, drag, click, player);
@@ -270,7 +273,7 @@ public class ContainerOreConverter extends Container
     for(i = 0; i < inv_inputs.getSizeInventory(); i++)
     {
       ItemStack in = inv_inputs.getStackInSlot(i);
-      if(in != null)
+      if(!in.isEmpty())
       {
         Set<String> names = OreNameRegistry.findAllOreNames(in);
 
@@ -293,8 +296,8 @@ public class ContainerOreConverter extends Container
               {
                 int j = results.size();
                 ItemStack res = stack.copy();
-                res.stackSize = 1;
-                slots_results[j].SetInputSlot(i);
+                res.setCount(1);
+                slots_results[j].setInputSlot(i);
                 inv_results.setInventorySlotContents(j, res);
                 results.add(res);
                 if(j == 15)
@@ -309,8 +312,8 @@ public class ContainerOreConverter extends Container
     }
     for(i = results.size(); i < 16; i++)
     {
-      slots_results[i].SetInputSlot(-1);
-      inv_results.setInventorySlotContents(i, null);
+      slots_results[i].setInputSlot(-1);
+      inv_results.setInventorySlotContents(i, ItemStack.EMPTY);
     }
   }
 
@@ -328,7 +331,7 @@ public class ContainerOreConverter extends Container
       {
         ItemStack stack = inv_inputs.removeStackFromSlot(i);
 
-        if(stack != null)
+        if(!stack.isEmpty())
         {
           player.dropItem(stack, false);
         }
@@ -342,7 +345,7 @@ public class ContainerOreConverter extends Container
    */
   public ItemStack transferStackInSlot(EntityPlayer player, int slot_index)
   {
-    ItemStack slot_stack = null;
+    ItemStack slot_stack = ItemStack.EMPTY;
     Slot slot = (Slot) inventorySlots.get(slot_index);
 
     if(slot != null && slot.getHasStack())
@@ -354,7 +357,7 @@ public class ContainerOreConverter extends Container
       {
         if(!mergeItemStack(stack, SLOTS_INVENTORY, SLOTS_HOTBAR + 9, true))
         {
-          return null;
+          return ItemStack.EMPTY;
         }
 
         slot.onSlotChange(stack, slot_stack);
@@ -362,33 +365,30 @@ public class ContainerOreConverter extends Container
       {
         if(!mergeItemStack(stack, SLOTS_MATERIALS, SLOTS_MATERIALS + 9, false))
         {
-          return null;
+          return ItemStack.EMPTY;
         }
       } else if(slot_index >= SLOTS_HOTBAR && slot_index < SLOTS_HOTBAR + 9)
       {
         if(!mergeItemStack(stack, SLOTS_INVENTORY, SLOTS_INVENTORY + 3 * 9, false))
         {
-          return null;
+          return ItemStack.EMPTY;
         }
       } else if(!mergeItemStack(stack, SLOTS_INVENTORY, SLOTS_HOTBAR + 9, false))
       {
-        return null;
+        return ItemStack.EMPTY;
       }
 
-      if(stack.stackSize == 0)
-      {
-        slot.putStack((ItemStack) null);
-      } else
+      if(!stack.isEmpty())
       {
         slot.onSlotChanged();
       }
 
-      if(stack.stackSize == slot_stack.stackSize)
+      if(stack.getCount() == slot_stack.getCount())
       {
-        return null;
+        return ItemStack.EMPTY;
       }
 
-      slot.onPickupFromSlot(player, stack);
+      slot.onTake(player, stack);
     }
 
     return slot_stack;

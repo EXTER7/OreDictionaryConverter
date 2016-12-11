@@ -1,7 +1,7 @@
-item.oreConverter.name=Ore Converter
-tile.oreConvTable.name=Ore Conversion Table
-tile.oreAutoconverter.name=Automatic Ore Converter
+item.fodc.ore_converter.name=Ore Converter
+tile.fodc.ore_conv_table.name=Ore Conversion Table
+tile.fodc.ore_autoconverter.name=Automatic Ore Converter
 
-container.oreAutoconverter=Automatic Ore Converter
+container.fodc.ore_autoconverter=Automatic Ore Converter
 
-gui.jei.oreconverter=Ore Converter
+gui.jei.fodc.oreconverter=Ore Converter

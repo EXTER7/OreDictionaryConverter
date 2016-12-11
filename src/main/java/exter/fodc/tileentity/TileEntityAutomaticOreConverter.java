@@ -9,7 +9,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
@@ -36,23 +35,28 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
 
   public TileEntityAutomaticOreConverter()
   {
-    inventory = new ItemStack[SIZE_INVENTORY];
-    targets = new ItemStack[SIZE_TARGETS];
+    inventory = newItemStackArray(SIZE_INVENTORY);
+    targets = newItemStackArray(SIZE_TARGETS);
+    last_input = ItemStack.EMPTY;
+    last_target = ItemStack.EMPTY;
     process_tick = 0;
   }
 
+  static private ItemStack[] newItemStackArray(int size)
+  {
+    ItemStack[] res = new ItemStack[size];
+    for(int i = 0; i < size; i++)
+    {
+      res[i] = ItemStack.EMPTY;
+    }
+    return res;
+  }
+  
   private void writeItemToNBT(NBTTagCompound compound, int slot)
   {
     ItemStack is = getStackInSlot(slot);
     NBTTagCompound tag = new NBTTagCompound();
-    if(is != null)
-    {
-      tag.setBoolean("empty", false);
-      is.writeToNBT(tag);
-    } else
-    {
-      tag.setBoolean("empty", true);
-    }
+    is.writeToNBT(tag);
     compound.setTag("Item_" + String.valueOf(slot), tag);
   }
 
@@ -60,14 +64,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
   {
     ItemStack is = targets[slot];
     NBTTagCompound tag = new NBTTagCompound();
-    if(is != null)
-    {
-      tag.setBoolean("empty", false);
-      is.writeToNBT(tag);
-    } else
-    {
-      tag.setBoolean("empty", true);
-    }
+    is.writeToNBT(tag);
     compound.setTag("Target_" + String.valueOf(slot), tag);
   }
 
@@ -82,30 +79,12 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
       NBTTagCompound tag = (NBTTagCompound) compound.getTag("Item_" + String.valueOf(i));
       if(tag != null)
       {
-        ItemStack stack = null;
+        ItemStack stack = ItemStack.EMPTY;
         if(!tag.getBoolean("empty"))
         {
-          stack = ItemStack.loadItemStackFromNBT(tag);
+          stack = new ItemStack(tag);
         }
         setInventorySlotContents(i, stack);
-      }
-    }
-
-
-    // Read the old Targets tag.
-    // TODO: Remove in future versions.
-    NBTTagList targets_tag = (NBTTagList) compound.getTag("Targets");
-    if(targets_tag != null)
-    {
-      targets = new ItemStack[SIZE_TARGETS];
-      for(i = 0; i < targets_tag.tagCount(); i++)
-      {
-        NBTTagCompound tag = targets_tag.getCompoundTagAt(i);
-        int slot = tag.getByte("Slot") & 255;
-
-        ItemStack is = ItemStack.loadItemStackFromNBT(tag);
-        is.stackSize = 1;
-        setTarget(slot, is);
       }
     }
 
@@ -114,10 +93,13 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
       NBTTagCompound tag = (NBTTagCompound) compound.getTag("Target_" + String.valueOf(i));
       if(tag != null)
       {
-        ItemStack stack = null;
-        if(!tag.getBoolean("empty"))
+        ItemStack stack;
+        if(tag.getBoolean("empty")) //Empty tag no longer used. Need this for backward compatibility for now.
         {
-          stack = ItemStack.loadItemStackFromNBT(tag);
+          stack = ItemStack.EMPTY;
+        } else
+        {
+          stack = new ItemStack(tag);
         }
         targets[i] = stack;
       }
@@ -163,23 +145,23 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
   @Override
   public ItemStack decrStackSize(int slot, int amount)
   {
-    if(inventory[slot] != null)
+    if(!inventory[slot].isEmpty())
     {
       ItemStack var3;
 
-      if(inventory[slot].stackSize <= amount)
+      if(inventory[slot].getCount() <= amount)
       {
         var3 = inventory[slot];
-        inventory[slot] = null;
+        inventory[slot] = ItemStack.EMPTY;
         markDirty();
         return var3;
       } else
       {
         var3 = inventory[slot].splitStack(amount);
 
-        if(inventory[slot].stackSize == 0)
+        if(inventory[slot].getCount() == 0)
         {
-          inventory[slot] = null;
+          inventory[slot] = ItemStack.EMPTY;
         }
 
         markDirty();
@@ -187,21 +169,21 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
       }
     } else
     {
-      return null;
+      return ItemStack.EMPTY;
     }
   }
 
   @Override
   public ItemStack removeStackFromSlot(int index)
   {
-    if(inventory[index] != null)
+    if(!inventory[index].isEmpty())
     {
       ItemStack var2 = inventory[index];
-      inventory[index] = null;
+      inventory[index] = ItemStack.EMPTY;
       return var2;
     } else
     {
-      return null;
+      return ItemStack.EMPTY;
     }
   }
 
@@ -210,9 +192,9 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
   {
     inventory[slot] = item;
 
-    if(item != null && item.stackSize > this.getInventoryStackLimit())
+    if(!item.isEmpty() && item.getCount() > getInventoryStackLimit())
     {
-      item.stackSize = this.getInventoryStackLimit();
+      item.setCount(getInventoryStackLimit());
     }
   }
 
@@ -223,15 +205,15 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
   }
 
   @Override
-  public boolean isUseableByPlayer(EntityPlayer player)
+  public boolean isUsableByPlayer(EntityPlayer player)
   {
-    return worldObj.getTileEntity(pos) != this ? false : getDistanceSq(player.posX, player.posY, player.posZ) <= 64.0D;
+    return world.getTileEntity(pos) != this ? false : getDistanceSq(player.posX, player.posY, player.posZ) <= 64.0D;
   }
 
   @Override
   public void openInventory(EntityPlayer playerIn)
   {
-    if(!worldObj.isRemote)
+    if(!world.isRemote)
     {
       NBTTagCompound tag = new NBTTagCompound();
       super.writeToNBT(tag);
@@ -246,7 +228,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
   @Override
   public void closeInventory(EntityPlayer playerIn)
   {
-    if(!worldObj.isRemote)
+    if(!world.isRemote)
     {
       NBTTagCompound tag = new NBTTagCompound();
       super.writeToNBT(tag);
@@ -260,17 +242,17 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
 
   protected void sendPacketToPlayers(NBTTagCompound data)
   {
-    data.setInteger("dim", worldObj.provider.getDimension());
+    data.setInteger("dim", world.provider.getDimension());
     ModOreDicConvert.network_channel.sendToAllAround(new MessageODC(data),
-        new TargetPoint(worldObj.provider.getDimension(),pos.getX(),pos.getY(),pos.getZ(),192));
+        new TargetPoint(world.provider.getDimension(),pos.getX(),pos.getY(),pos.getZ(),192));
   }
   
   protected void sendToServer(NBTTagCompound tag)
   {
-    if(worldObj.isRemote)
+    if(world.isRemote)
     {
       super.writeToNBT(tag);
-      tag.setInteger("dim", worldObj.provider.getDimension());
+      tag.setInteger("dim", world.provider.getDimension());
       ModOreDicConvert.network_channel.sendToServer(new MessageODC(tag));
     }
   }
@@ -279,7 +261,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
   // or the item itself if its not registered in the ore dictionary.
   private ItemStack findConversionTarget(ItemStack item)
   {
-    if(last_input != null && last_target != null && item.isItemEqual(last_input) && ItemStack.areItemStackTagsEqual(item, last_input))
+    if(!last_input.isEmpty() && !last_target.isEmpty() && item.isItemEqual(last_input) && ItemStack.areItemStackTagsEqual(item, last_input))
     {
       return last_target;
     }
@@ -293,7 +275,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
 
     for(ItemStack t : targets)
     {
-      if(t != null)
+      if(!t.isEmpty())
       {
         Set<String> target_names = OreNameRegistry.findAllOreNames(t);
         if(names.containsAll(target_names))
@@ -339,31 +321,31 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
     for(i = 7; i >= 0; i--)
     {
       ItemStack input = inventory[i];
-      if(input != null)
+      if(!input.isEmpty())
       {
         ItemStack target = findConversionTarget(input);
         int j;
         for(j = 8; j < 14; j++)
         {
           ItemStack output = inventory[j];
-          if(output == null)
+          if(output.isEmpty())
           {
             inventory[j] = target.copy();
-            inventory[j].stackSize = input.stackSize;
-            inventory[i] = null;
+            inventory[j].setCount(input.getCount());
+            inventory[i] = ItemStack.EMPTY;
             markDirty();
             return;
-          } else if(output.stackSize < output.getMaxStackSize() && output.isItemEqual(target) && ItemStack.areItemStackTagsEqual(target, output))
+          } else if(output.getCount() < output.getMaxStackSize() && output.isItemEqual(target) && ItemStack.areItemStackTagsEqual(target, output))
           {
-            int transfer = output.getMaxStackSize() - output.stackSize;
-            if(transfer >= input.stackSize)
+            int transfer = output.getMaxStackSize() - output.getCount();
+            if(transfer >= input.getCount())
             {
-              inventory[i] = null;
-              output.stackSize += input.stackSize;
+              inventory[i] = ItemStack.EMPTY;
+              output.grow(input.getCount());
             } else
             {
-              input.stackSize -= transfer;
-              output.stackSize += transfer;
+              input.shrink(transfer);
+              output.grow(transfer);
             }
             markDirty();
             return;
@@ -376,7 +358,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
   @Override
   public void update()
   {
-    if(worldObj.isRemote)
+    if(world.isRemote)
     {
       return;
     }
@@ -389,12 +371,12 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
 
   public void setTarget(int slot, ItemStack target)
   {
-    if(slot >= 0 && slot < SIZE_TARGETS && (target == null || !OreNameRegistry.findAllOreNames(target).isEmpty()))
+    if(slot >= 0 && slot < SIZE_TARGETS && (target.isEmpty() || !OreNameRegistry.findAllOreNames(target).isEmpty()))
     {
       targets[slot] = target;
-      last_input = null;
-      last_target = null;
-      if(worldObj.isRemote)
+      last_input = ItemStack.EMPTY;
+      last_target = ItemStack.EMPTY;
+      if(world.isRemote)
       {
         NBTTagCompound tag = new NBTTagCompound();
         writeTargetToNBT(tag,slot);
@@ -407,7 +389,7 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
   {
     if(slot < 0 || slot >= SIZE_TARGETS)
     {
-      return null;
+      return ItemStack.EMPTY;
     }
     return targets[slot];
   }
@@ -454,6 +436,12 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
   {
     return new SPacketUpdateTileEntity(pos, 0, writeToNBT(null));
   }
+  
+  @Override
+  public NBTTagCompound getUpdateTag()
+  {
+    return writeToNBT(null);
+  }
 
   @Override
   public int getField(int id)
@@ -495,5 +483,11 @@ public class TileEntityAutomaticOreConverter extends TileEntity implements ITick
   public String getName()
   {
     return "Ore Autoconverter";
+  }
+
+  @Override
+  public boolean isEmpty()
+  {
+    return false;
   }
 }

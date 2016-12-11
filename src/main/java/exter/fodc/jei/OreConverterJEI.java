@@ -13,6 +13,7 @@ import mezz.jei.api.IJeiHelpers;
 import mezz.jei.api.gui.IDrawable;
 import mezz.jei.api.gui.IGuiItemStackGroup;
 import mezz.jei.api.gui.IRecipeLayout;
+import mezz.jei.api.ingredients.IIngredients;
 import mezz.jei.api.recipe.IRecipeCategory;
 import mezz.jei.api.recipe.IRecipeHandler;
 import mezz.jei.api.recipe.IRecipeWrapper;
@@ -20,7 +21,6 @@ import mezz.jei.util.Translator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 
 public class OreConverterJEI
@@ -66,36 +66,6 @@ public class OreConverterJEI
       }
     }
 
-    @Nonnull
-    public List<List<ItemStack>> getInputs()
-    {
-      return input;
-    }
-
-    @Nonnull
-    public List<ItemStack> getOutputs()
-    {
-      return output;
-    }
-
-    @Override
-    public List<FluidStack> getFluidInputs()
-    {
-      return Collections.emptyList();
-    }
-
-    @Override
-    public List<FluidStack> getFluidOutputs()
-    {
-      return Collections.emptyList();
-    }
-
-    @Override
-    public void drawAnimations(Minecraft minecraft, int recipeWidth, int recipeHeight)
-    {
-
-    }
-
     @Override
     public List<String> getTooltipStrings(int mouseX, int mouseY)
     {
@@ -113,6 +83,13 @@ public class OreConverterJEI
     {
       return false;
     }
+
+    @Override
+    public void getIngredients(IIngredients ingredients)
+    {
+      ingredients.setInput(ItemStack.class, input_item);
+      ingredients.setOutputs(ItemStack.class, output);
+    }
   }
 
   static public class Category implements IRecipeCategory<Wrapper>
@@ -122,17 +99,14 @@ public class OreConverterJEI
     private final IDrawable background;
     @Nonnull
     private final String localizedName;
-
-    private final IJeiHelpers helpers;
     
     public Category(IJeiHelpers helpers)
     {
-      this.helpers = helpers;
       IGuiHelper guiHelper = helpers.getGuiHelper();
 
       ResourceLocation location = new ResourceLocation("fodc", "textures/gui/oc_gui.png");
       background = guiHelper.createDrawable(location, 10, 14, 156, 74);
-      localizedName = Translator.translateToLocal("gui.jei.oreconverter");
+      localizedName = Translator.translateToLocal("gui.jei.fodc.oreconverter");
     }
 
     @Override
@@ -144,12 +118,6 @@ public class OreConverterJEI
 
     @Override
     public void drawExtras(Minecraft minecraft)
-    {
-
-    }
-
-    @Override
-    public void drawAnimations(Minecraft minecraft)
     {
 
     }
@@ -168,18 +136,25 @@ public class OreConverterJEI
       return "fodc.oreconverter";
     }
 
+
     @Override
-    public void setRecipe(IRecipeLayout recipeLayout, Wrapper recipeWrapper)
+    public IDrawable getIcon()
+    {
+      return null;
+    }
+
+    @Override
+    public void setRecipe(IRecipeLayout recipeLayout, Wrapper recipeWrapper, IIngredients ingredients)
     {
       IGuiItemStackGroup guiItemStacks = recipeLayout.getItemStacks();
 
       guiItemStacks.init(0, true, 1, 10);
-      guiItemStacks.setFromRecipe(0, helpers.getStackHelper().toItemStackList(recipeWrapper.getInputs().get(0)));
+      guiItemStacks.set(0, ingredients.getInputs(ItemStack.class).get(0));
       int i = 0;
-      for(ItemStack output:(List<ItemStack>)recipeWrapper.getOutputs())
+      for(List<ItemStack> output:ingredients.getOutputs(ItemStack.class))
       {
         guiItemStacks.init(i + 1, false, 83 + (i % 4) * 18, 1 + (i / 4) * 18);
-        guiItemStacks.setFromRecipe(i + 1, Collections.singletonList(output));
+        guiItemStacks.set(i + 1, output);
         i++;
         if(i == 16)
         {
@@ -198,14 +173,6 @@ public class OreConverterJEI
       return Wrapper.class;
     }
 
-    @Nonnull
-    @Override
-    @Deprecated
-    public String getRecipeCategoryUid()
-    {
-      return "fodc.oreconverter";
-    }
-
     @Override
     @Nonnull
     public IRecipeWrapper getRecipeWrapper(@Nonnull Wrapper recipe)
@@ -216,7 +183,7 @@ public class OreConverterJEI
     @Override
     public boolean isRecipeValid(@Nonnull Wrapper recipe)
     {
-      return recipe.getOutputs().size() > 0;
+      return recipe.output.size() > 0;
     }
 
     @Override

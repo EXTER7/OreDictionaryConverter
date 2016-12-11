@@ -13,9 +13,9 @@ public class ClientODCProxy extends CommonODCProxy
   public void init()
   {
     RenderItem renderItem = Minecraft.getMinecraft().getRenderItem();    
-    renderItem.getItemModelMesher().register(ModOreDicConvert.item_oreconverter, 0, new ModelResourceLocation(ModOreDicConvert.MODID + ":" + "oreConverter", "inventory"));
-    renderItem.getItemModelMesher().register(Item.getItemFromBlock(ModOreDicConvert.block_oreconvtable), 0, new ModelResourceLocation(ModOreDicConvert.MODID + ":" + "oreConvTable", "inventory"));
-    renderItem.getItemModelMesher().register(Item.getItemFromBlock(ModOreDicConvert.block_oreautoconv), 0, new ModelResourceLocation(ModOreDicConvert.MODID + ":" + "oreAutoconverter", "inventory"));
+    renderItem.getItemModelMesher().register(ModOreDicConvert.item_oreconverter, 0, new ModelResourceLocation(ModOreDicConvert.MODID + ":" + "ore_converter", "inventory"));
+    renderItem.getItemModelMesher().register(Item.getItemFromBlock(ModOreDicConvert.block_oreconvtable), 0, new ModelResourceLocation(ModOreDicConvert.MODID + ":" + "ore_conv_table", "inventory"));
+    renderItem.getItemModelMesher().register(Item.getItemFromBlock(ModOreDicConvert.block_oreautoconv), 0, new ModelResourceLocation(ModOreDicConvert.MODID + ":" + "ore_autoconverter", "inventory"));
   }
   
 }

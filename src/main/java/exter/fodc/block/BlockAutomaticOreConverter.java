@@ -31,9 +31,9 @@ public class BlockAutomaticOreConverter extends BlockContainer
     setResistance(8.0F);
     setHardness(2.5F);
     setSoundType(SoundType.STONE);
-    setUnlocalizedName("oreAutoconverter");
+    setUnlocalizedName("fodc.ore_autoconverter");
     setCreativeTab(CreativeTabs.DECORATIONS);
-    setRegistryName("oreAutoconverter");
+    setRegistryName("ore_autoconverter");
   }
 
   public EnumBlockRenderType getRenderType(IBlockState state)
@@ -53,7 +53,7 @@ public class BlockAutomaticOreConverter extends BlockContainer
       {
         ItemStack is = te_aoc.getStackInSlot(i);
 
-        if(is != null && is.stackSize > 0)
+        if(is != null && is.getCount() > 0)
         {
           double drop_x = (rand.nextFloat() * 0.3) + 0.35;
           double drop_y = (rand.nextFloat() * 0.3) + 0.35;
@@ -61,7 +61,7 @@ public class BlockAutomaticOreConverter extends BlockContainer
           EntityItem entityitem = new EntityItem(world, pos.getX() + drop_x, pos.getY() + drop_y, pos.getZ() + drop_z, is);
           entityitem.lifespan = 10;
 
-          world.spawnEntityInWorld(entityitem);
+          world.spawnEntity(entityitem);
         }
       }
     }
@@ -69,7 +69,7 @@ public class BlockAutomaticOreConverter extends BlockContainer
   }
 
   @Override
-  public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
+  public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing side, float hitX, float hitY, float hitZ)
   {
     if (world.isRemote)
     {

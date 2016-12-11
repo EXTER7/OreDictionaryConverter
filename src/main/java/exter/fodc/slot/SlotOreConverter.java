@@ -6,7 +6,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import exter.fodc.registry.OreNameRegistry;
 
 public class SlotOreConverter extends Slot
@@ -37,11 +36,13 @@ public class SlotOreConverter extends Slot
    * Check if the stack is a valid item for this slot. Always true beside for
    * the armor slots.
    */
+  @Override
   public boolean isItemValid(ItemStack stack)
   {
     return false;
   }
 
+  @Override
   public boolean canTakeStack(EntityPlayer par1EntityPlayer)
   {
     return input_slot >= 0;
@@ -51,33 +52,35 @@ public class SlotOreConverter extends Slot
    * Decrease the size of the stack in slot (first int arg) by the amount of the
    * second int arg. Returns the new stack.
    */
+  @Override
   public ItemStack decrStackSize(int amount)
   {
     if (getHasStack())
     {
-      amountCrafted += Math.min(amount, getStack().stackSize);
+      amountCrafted += Math.min(amount, getStack().getCount());
     }
 
     return super.decrStackSize(amount);
   }
 
+  @Override
   protected void onCrafting(ItemStack par1ItemStack, int par2)
   {
     amountCrafted += par2;
     onCrafting(par1ItemStack);
   }
 
+  @Override
   protected void onCrafting(ItemStack par1ItemStack)
   {
-    par1ItemStack.onCrafting(player_obj.worldObj, player_obj, amountCrafted);
+    par1ItemStack.onCrafting(player_obj.world, player_obj, amountCrafted);
     amountCrafted = 0;
   }
 
-  public void onPickupFromSlot(EntityPlayer player, ItemStack stack)
+  @Override
+  public ItemStack onTake(EntityPlayer player, ItemStack stack)
   {
-    FMLCommonHandler.instance().firePlayerCraftingEvent(player, stack, ore_matrix);
     onCrafting(stack);
-
 
     if(input_slot < 0)
     {
@@ -91,10 +94,10 @@ public class SlotOreConverter extends Slot
       throw new RuntimeException(message);
     }
     
-    ore_matrix.decrStackSize(input_slot, 1);
+    return ore_matrix.decrStackSize(input_slot, 1);
   }
   
-  public void SetInputSlot(int slot)
+  public void setInputSlot(int slot)
   {
     input_slot = slot;
   }

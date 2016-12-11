@@ -1,5 +1,7 @@
-item.oreConverter.name=矿辞转换面板
-tile.oreConvTable.name=矿辞转换台
-tile.oreAutoconverter.name=自动矿辞转换台
+item.fodc.ore_converter.name=矿辞转换面板
+tile.fodc.ore_conv_table.name=矿辞转换台
+tile.fodc.ore_autoconverter.name=自动矿辞转换台
 
-container.oreAutoconverter=自动矿辞转换台
+container.fodc.ore_autoconverter=自动矿辞转换台
+
+gui.jei.fodc.oreconverter=矿辞转换面板

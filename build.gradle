@@ -31,13 +31,13 @@ repositories {
 }
 
 minecraft {
-    version = "1.10.2-12.18.0.2005-1.10.0"
+    version = "1.11-13.19.1.2189"
     runDir = "eclipse"
-    mappings = "snapshot_20160630"
+    mappings = "snapshot_20161210"
 }
 
 dependencies {
-    deobfCompile "mezz.jei:jei_1.10.2:3.7.3.221"
+    deobfCompile "mezz.jei:jei_1.11:4.0.5.202"
 }
 
 processResources

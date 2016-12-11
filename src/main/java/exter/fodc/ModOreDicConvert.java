@@ -11,6 +11,8 @@ import net.minecraftforge.fml.common.Mod.EventHandler;
 import net.minecraftforge.fml.common.Mod.Instance;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
+import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent.MissingMapping;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -34,7 +36,7 @@ import exter.fodc.tileentity.TileEntityAutomaticOreConverter;
     modid = ModOreDicConvert.MODID,
     name = ModOreDicConvert.MODNAME,
     version = ModOreDicConvert.MODVERSION,
-    dependencies = "required-after:Forge@[12.18.0.2005,)"
+    dependencies = "required-after:forge@[13.19.1.2189,)"
     )
 public class ModOreDicConvert
 {
@@ -144,6 +146,48 @@ public class ModOreDicConvert
       OreNameRegistry.registerOreName(name);
     }
     MinecraftForge.EVENT_BUS.register(this);
+  }
+
+  @EventHandler
+  public void remap(FMLMissingMappingsEvent event)
+  {
+    for(MissingMapping map:event.get())
+    {
+      String name = map.resourceLocation.getResourcePath();
+      if(name.equals("oreconverter") && map.type == GameRegistry.Type.ITEM)
+      {
+        map.remap(item_oreconverter);
+      } else if(name.equals("oreconvtable"))
+      {
+        switch(map.type)
+        {
+          case BLOCK:
+            map.remap(block_oreconvtable);
+            break;
+          case ITEM:
+            map.remap(ItemBlock.getItemFromBlock(block_oreconvtable));
+            break;
+          default:
+            break;
+        }
+      } else if(name.equals("oreautoconverter"))
+      {
+        switch(map.type)
+        {
+          case BLOCK:
+            map.remap(block_oreautoconv);
+            break;
+          case ITEM:
+            map.remap(ItemBlock.getItemFromBlock(block_oreautoconv));
+            break;
+          default:
+            break;
+        }
+      } else
+      {
+        map.warn();
+      }
+    }
   }
 
   @SubscribeEvent
