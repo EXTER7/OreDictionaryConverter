@@ -1,5 +1,6 @@
 package exter.fodc.jei;
 
+import exter.fodc.ModOreDicConvert;
 import exter.fodc.container.ContainerOreConverter;
 import mezz.jei.api.IJeiHelpers;
 import mezz.jei.api.IJeiRuntime;
@@ -8,6 +9,7 @@ import mezz.jei.api.IModRegistry;
 import mezz.jei.api.ISubtypeRegistry;
 import mezz.jei.api.JEIPlugin;
 import mezz.jei.api.ingredients.IModIngredientRegistration;
+import net.minecraft.item.ItemStack;
 
 @JEIPlugin
 public class ODCJEIPlugin implements IModPlugin
@@ -21,6 +23,7 @@ public class ODCJEIPlugin implements IModPlugin
     registry.addRecipes(OreConverterJEI.getRecipes());    
     registry.getRecipeTransferRegistry().addRecipeTransferHandler(
         ContainerOreConverter.class, "fodc.oreconverter", 0, 25, 25, 36);
+    registry.addRecipeCategoryCraftingItem(new ItemStack(ModOreDicConvert.item_oreconverter), "fodc.oreconverter");
   }
 
   @Override

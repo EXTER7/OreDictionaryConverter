@@ -42,7 +42,7 @@ public class ModOreDicConvert
 {
   public static final String MODID = "fodc";
   public static final String MODNAME = "Ore Dictionary Converter";
-  public static final String MODVERSION = "1.9.1";
+  public static final String MODVERSION = "1.10.0";
 
   public static ItemOreConverter item_oreconverter = null;
   @Instance("fodc")
